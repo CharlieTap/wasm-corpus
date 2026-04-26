@@ -61,9 +61,9 @@
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
     },
     {
-      "name": "wasmtime-gcd",
-      "path": "wasmtime-gcd.wasm",
-      "wat": "wasmtime-gcd.wat",
+      "name": "gcd",
+      "path": "gcd.wasm",
+      "wat": "gcd.wat",
       "features": [],
       "exports": [
         {
