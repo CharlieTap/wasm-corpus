@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "binary-search",
+      "path": "binary-search.wasm",
+      "wat": "binary-search.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "binary_search",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "binary_search",
+      "args": [
+        {
+          "type": "i32",
+          "value": "31"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "5"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored binary search fixture for the corpus"
+      },
+      "sha256": "f43faac949e94ee01e1636bf382603fc794e7362b46ab40363d34cd0f80eaff7"
     }
   ]
 }
