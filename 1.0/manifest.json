@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/manifest.schema.json",
+  "version": "1.0",
+  "binaries": [
+    {
+      "name": "fibonacci",
+      "path": "fibonacci.wasm",
+      "wat": "fibonacci.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "fib",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "fib",
+      "args": [
+        {
+          "type": "i32",
+          "value": "10"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "55"
+          }
+        ]
+      },
+      "sha256": "b5fae56a1407a40e6c127a1650383b58f8a3c7b846cecbaad8e2c5e23e314802"
+    }
+  ]
+}

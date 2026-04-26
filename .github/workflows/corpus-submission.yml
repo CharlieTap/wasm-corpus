@@ -1,0 +1,66 @@
+name: Corpus Submission
+
+on:
+  pull_request:
+    paths:
+      - "**/*.wasm"
+  push:
+    paths:
+      - "**/*.wasm"
+
+jobs:
+  validate-and-execute:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Binaryen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+
+      - name: Find added WASM files
+        id: added-wasm
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+          fi
+
+          if [[ "$base" =~ ^0+$ ]]; then
+            git diff-tree --root --name-only --diff-filter=A "$head" -- "*.wasm" > added-wasm.txt
+          else
+            git diff --name-only --diff-filter=A "$base" "$head" -- "*.wasm" > added-wasm.txt
+          fi
+
+          if [[ -s added-wasm.txt ]]; then
+            echo "has_files=true" >> "$GITHUB_OUTPUT"
+            cat added-wasm.txt
+          else
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            echo "No newly added .wasm files."
+          fi
+
+      - name: Validate added WASM files
+        if: steps.added-wasm.outputs.has_files == 'true'
+        shell: bash
+        run: |
+          mapfile -t files < added-wasm.txt
+          ./scripts/validate "${files[@]}"
+
+      - name: Execute added WASM smoke tests
+        if: steps.added-wasm.outputs.has_files == 'true'
+        shell: bash
+        run: |
+          mapfile -t files < added-wasm.txt
+          ./scripts/execute "${files[@]}"

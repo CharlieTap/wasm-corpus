@@ -1,0 +1,5 @@
+{
+  "$schema": "../schema/manifest.schema.json",
+  "version": "2.0",
+  "binaries": []
+}

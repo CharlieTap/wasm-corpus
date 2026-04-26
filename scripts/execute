@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: ./scripts/execute <path/to/module.wasm> [path/to/another.wasm ...]
+
+Finds each module in its version manifest, instantiates it with simple import
+stubs, and runs the manifest invocations with Node's WebAssembly runtime.
+EOF
+}
+
+warn() {
+  printf 'warning: %s\n' "$*" >&2
+}
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 1
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  warn "Node.js is required to execute corpus smoke tests."
+  warn "Install Node.js, then rerun this script."
+  exit 1
+fi
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+node "$script_dir/node-runner.js" "$@"

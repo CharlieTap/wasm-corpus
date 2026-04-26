@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: ./scripts/prepare <path/to/module.wasm> [binaryen flags...]
+
+Validates and lightly optimizes a wasm binary with Binaryen, replaces the input
+.wasm with the prepared binary, and writes a sibling .wat file.
+EOF
+}
+
+warn() {
+  printf 'warning: %s\n' "$*" >&2
+}
+
+fail() {
+  printf 'error: %s\n' "$*" >&2
+  exit 1
+}
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 1
+fi
+
+wasm=$1
+shift
+binaryen_flags=("$@")
+binaryen_flag_count=$#
+
+[[ $wasm == *.wasm ]] || fail "expected a .wasm file, got: $wasm"
+[[ -f $wasm ]] || fail "file does not exist: $wasm"
+
+missing=()
+for cmd in wasm-opt wasm-dis wasm-as; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    missing+=("$cmd")
+  fi
+done
+
+if (( ${#missing[@]} > 0 )); then
+  warn "Binaryen is required to prepare corpus binaries."
+  warn "Missing command(s): ${missing[*]}"
+  warn "Install Binaryen, then rerun this script. On macOS: brew install binaryen"
+  exit 1
+fi
+
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/wasm-corpus-prepare.XXXXXX")
+trap 'rm -rf "$tmpdir"' EXIT
+
+wat=${wasm%.wasm}.wat
+prepared=$tmpdir/prepared.wasm
+wat_tmp=$tmpdir/module.wat
+
+prepare_binary() {
+  local input=$1
+  local output=$2
+  local output_wat=$3
+  local current=$input
+
+  for pass in 1 2 3 4 5; do
+    local candidate=$tmpdir/candidate-$pass.wasm
+    local candidate_wat=$tmpdir/candidate-$pass.wat
+    local roundtrip=$tmpdir/roundtrip-$pass.wasm
+    local checked=$tmpdir/checked-$pass.wasm
+
+    if (( binaryen_flag_count > 0 )); then
+      wasm-opt "$current" "${binaryen_flags[@]}" -O1 -o "$candidate"
+      wasm-dis "$candidate" "${binaryen_flags[@]}" -o "$candidate_wat"
+      wasm-as "$candidate_wat" "${binaryen_flags[@]}" -o "$roundtrip"
+      wasm-opt "$roundtrip" "${binaryen_flags[@]}" -O1 -o "$checked"
+    else
+      wasm-opt "$current" -O1 -o "$candidate"
+      wasm-dis "$candidate" -o "$candidate_wat"
+      wasm-as "$candidate_wat" -o "$roundtrip"
+      wasm-opt "$roundtrip" -O1 -o "$checked"
+    fi
+
+    if cmp -s "$candidate" "$checked"; then
+      cp "$candidate" "$output"
+      cp "$candidate_wat" "$output_wat"
+      return 0
+    fi
+
+    current=$checked
+  done
+
+  fail "Binaryen output did not stabilize after 5 passes"
+}
+
+prepare_binary "$wasm" "$prepared" "$wat_tmp"
+
+mv "$prepared" "$wasm"
+mv "$wat_tmp" "$wat"
+
+printf 'Prepared %s\n' "$wasm"
+printf 'Wrote %s\n' "$wat"
+
+if command -v sha256sum >/dev/null 2>&1; then
+  sha256sum "$wasm"
+elif command -v shasum >/dev/null 2>&1; then
+  shasum -a 256 "$wasm"
+fi

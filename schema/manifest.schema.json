@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/CharlieTap/wasm-corpus/main/schema/manifest.schema.json",
+  "title": "wasm-corpus manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "binaries"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "enum": ["1.0", "2.0", "3.0"]
+    },
+    "description": {
+      "type": "string"
+    },
+    "binaries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/binary"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "binary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path", "wat", "features"],
+      "dependentRequired": {
+        "args": ["function"],
+        "expected": ["function"]
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[^/].*\\.wasm$"
+        },
+        "wat": {
+          "type": "string",
+          "pattern": "^[^/].*\\.wat$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/feature"
+          },
+          "uniqueItems": true
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/import"
+          }
+        },
+        "exports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/export"
+          }
+        },
+        "function": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/value"
+          },
+          "default": []
+        },
+        "expected": {
+          "$ref": "#/$defs/expected"
+        },
+        "invocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/invocation"
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "toolchain": {
+          "$ref": "#/$defs/toolchain"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "feature": {
+      "type": "string",
+      "enum": [
+        "big-int",
+        "branch-hinting",
+        "bulk-memory",
+        "compact-import-section",
+        "compilation-hints",
+        "component-model",
+        "custom-annotation-syntax-in-the-text-format",
+        "custom-descriptors",
+        "custom-page-sizes",
+        "esm-integration",
+        "exception-handling",
+        "extended-const",
+        "extended-name-section",
+        "flexible-vectors",
+        "frozen-values",
+        "gc",
+        "half-precision",
+        "jit-interface",
+        "js-primitive-builtins",
+        "js-string-builtins",
+        "jspi",
+        "memory-control",
+        "memory64",
+        "more-array-constructors",
+        "multi-memory",
+        "multi-value",
+        "multibyte-array-access",
+        "mutable-globals",
+        "numeric-values-in-wat",
+        "profiles",
+        "reference-types",
+        "relaxed-dead-code-validation",
+        "relaxed-simd",
+        "rounding-variants",
+        "saturated-float-to-int",
+        "shared-everything-threads",
+        "sign-extensions",
+        "simd",
+        "stack-switching",
+        "stringref",
+        "tail-call",
+        "threads",
+        "type-imports",
+        "type-reflection",
+        "typed-function-references",
+        "wasm-c-api",
+        "web-content-security-policy",
+        "wide-arithmetic"
+      ]
+    },
+    "import": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "name", "kind"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "function"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "stub": {
+                "$ref": "#/$defs/functionImportStub"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "global"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "stub": {
+                "$ref": "#/$defs/globalImportStub"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": ["memory", "table", "tag"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "not": {
+              "required": ["stub"]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "module": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["function", "global", "memory", "table", "tag"]
+        },
+        "type": {
+          "type": "string"
+        },
+        "stub": {
+          "$ref": "#/$defs/importStub"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "importStub": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/functionImportStub"
+        },
+        {
+          "$ref": "#/$defs/globalImportStub"
+        }
+      ]
+    },
+    "functionImportStub": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/value"
+          },
+          "default": []
+        },
+        "returns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/value"
+          },
+          "default": []
+        },
+        "trap": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "not": {
+        "required": ["returns", "trap"]
+      }
+    },
+    "globalImportStub": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/value"
+        },
+        "mutable": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["function", "global", "memory", "table", "tag"]
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["function"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "function": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/value"
+          },
+          "default": []
+        },
+        "expected": {
+          "$ref": "#/$defs/expected"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "expected": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["returns"],
+          "properties": {
+            "returns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/value"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["trap"],
+          "properties": {
+            "trap": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "value": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/numericValue"
+        },
+        {
+          "$ref": "#/$defs/nullReferenceValue"
+        }
+      ]
+    },
+    "numericValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "nullReferenceValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/referenceValueType"
+        },
+        "value": {
+          "const": null
+        }
+      }
+    },
+    "numericValueType": {
+      "type": "string",
+      "enum": ["i32", "i64", "f32", "f64"]
+    },
+    "referenceValueType": {
+      "type": "string",
+      "enum": ["externref", "funcref"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
