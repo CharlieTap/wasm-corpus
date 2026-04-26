@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "hailstone",
+      "path": "hailstone.wasm",
+      "wat": "hailstone.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "hailstone_steps",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "hailstone_steps",
+      "args": [
+        {
+          "type": "i32",
+          "value": "27"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "111"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored hailstone steps fixture for the corpus"
+      },
+      "sha256": "15127e76cdfbdd78cffb8c5399d682dc48a150880c9032e7121cec4b0f645f13"
     }
   ]
 }
