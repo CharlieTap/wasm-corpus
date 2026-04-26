@@ -172,19 +172,45 @@ Numeric values should be represented as strings so consumers do not lose precisi
 
 ## Preparing Binaries
 
-Before submitting a binary, place the `.wasm` file in the appropriate version directory and run:
+Before submitting a binary, make sure these CLI tools are installed:
+
+- Binaryen: `wasm-opt`, `wasm-dis`, and `wasm-as`
+- Node.js and npm/npx: used by `scripts/execute` and by `scripts/validate` for JSON Schema validation
+
+On macOS, install Binaryen with:
+
+```sh
+brew install binaryen
+```
+
+Optional authoring tools, such as `wasm-tools`, are fine to use when creating a `.wasm`, but the submission flow is:
+
+1. Put the `.wasm` file in the lowest version directory that can represent it, such as `1.0/`, `2.0/`, or `3.0/`.
+2. Add or update exactly one entry for it in that directory's `manifest.json`.
+3. Run prepare:
 
 ```sh
 ./scripts/prepare 1.0/test.wasm
 ```
 
-The script uses Binaryen to validate and lightly optimize the binary, replaces the input `.wasm` with the prepared output, and writes the matching `.wat` file next to it.
+`prepare` uses Binaryen to validate and lightly optimize the binary, replaces the input `.wasm` with the prepared output, and writes the matching `.wat` file next to it.
 
-Binaryen must be installed and available on `PATH`. If `wasm-opt`, `wasm-dis`, or `wasm-as` are missing, the script prints a warning and exits without modifying the binary. On macOS, install it with:
+4. Update the manifest `sha256` after prepare has produced the final `.wasm`.
+5. Run validate:
 
 ```sh
-brew install binaryen
+./scripts/validate 1.0/test.wasm
 ```
+
+`validate` checks every `manifest.json` against `schema/manifest.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet.
+
+6. Run execute:
+
+```sh
+./scripts/execute 1.0/test.wasm
+```
+
+`execute` runs the manifest-declared smoke test for the fixture.
 
 If the module needs proposal feature flags, pass the matching Binaryen flags through to the script:
 
@@ -194,13 +220,7 @@ If the module needs proposal feature flags, pass the matching Binaryen flags thr
 
 If Binaryen cannot process a deliberately unusual fixture, explain that in the manifest `notes`.
 
-To check prepared files locally without modifying them, run:
-
-```sh
-./scripts/validate 1.0/test.wasm
-```
-
-The validator checks every `manifest.json` against `schema/manifest.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet. The corpus submission workflow runs this validator for newly added `.wasm` files.
+The corpus submission workflow runs `validate` and then `execute` for newly added `.wasm` files. If multiple fixtures changed, pass them all to `validate` and `execute` in one command.
 
 ## Executing Smoke Tests
 
