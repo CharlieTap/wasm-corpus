@@ -46,6 +46,8 @@ When adding a binary:
 
 Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JavaScript glue requirements, or complex host APIs that cannot be represented by manifest import stubs. Every submitted binary must be executable by Node through `./scripts/execute`.
 
+Avoid single-operation or hello-world-style modules. As a rough floor, a fixture should be at least as behaviorally interesting as factorial: control flow, memory/table/import interaction, or a recognizable algorithm. Compact known algorithms such as GCD can be smaller when their behavior is still meaningful and easy to test.
+
 ## Manifest Format
 
 Each version directory owns one manifest:

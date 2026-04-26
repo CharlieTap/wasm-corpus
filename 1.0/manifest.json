@@ -61,41 +61,41 @@
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
     },
     {
-      "name": "binaryen-add",
-      "path": "binaryen-add.wasm",
-      "wat": "binaryen-add.wat",
+      "name": "wasmtime-gcd",
+      "path": "wasmtime-gcd.wasm",
+      "wat": "wasmtime-gcd.wat",
       "features": [],
       "exports": [
         {
-          "name": "add",
+          "name": "gcd",
           "kind": "function",
           "type": "(func (param i32 i32) (result i32))"
         }
       ],
-      "function": "add",
+      "function": "gcd",
       "args": [
         {
           "type": "i32",
-          "value": "20"
+          "value": "48"
         },
         {
           "type": "i32",
-          "value": "22"
+          "value": "18"
         }
       ],
       "expected": {
         "returns": [
           {
             "type": "i32",
-            "value": "42"
+            "value": "6"
           }
         ]
       },
-      "sha256": "f61fd62f57c41269c3c23f360eeaf1090b1db9c38651106674d48bc65dba88ba",
+      "sha256": "19bd91390f619f09cfc71b9a7243fbdd4eae3319513c2b8f9cec5e589262e78e",
       "source": {
         "language": "wat",
-        "url": "https://github.com/WebAssembly/binaryen/blob/35ba23c705ca4422d8f6102a0fe440c64d2bf1de/test/lit/basic/hello_world.wat",
-        "description": "Binaryen hello_world.wat test fixture, Apache-2.0 licensed"
+        "url": "https://github.com/bytecodealliance/wasmtime/blob/9c0346ac6df9d4487565a5a7d24045cdc3754f5d/examples/gcd.wat",
+        "description": "Wasmtime gcd.wat example fixture, Apache-2.0 licensed"
       }
     }
   ]

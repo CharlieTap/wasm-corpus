@@ -6,6 +6,8 @@ Use this document as context when autonomously finding and adding new WebAssembl
 
 - Add one fixture, or one tightly related fixture set, per branch and pull request.
 - Prefer small modules with clear provenance, readable source or WAT, deterministic exports, and simple imports.
+- Avoid single-operation or hello-world-style modules. Aim for at least factorial-level behavior: control flow, memory/table/import interaction, or a recognizable algorithm.
+- Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
 - Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, or complex host APIs that cannot be represented by the manifest import stubs.
 - Every submitted binary must be executable by Node through `./scripts/execute`.
 - Follow the README contribution flow exactly: prepare, update `sha256`, validate, then execute.
@@ -158,9 +160,10 @@ Before copying anything into the corpus, answer these questions:
 - Does it export at least one deterministic function that Node can call?
 - Are imports absent or simple enough to describe with manifest import stubs?
 - Can the values be represented by the Node runner: `i32`, `i64`, `f32`, `f64`, null `externref`, or null `funcref`?
+- Is the module at least factorial-level in behavioral substance, or a compact known algorithm worth keeping?
 - Is the module small enough to review, or is there a strong reason to add a larger real-world binary?
 
-Reject the candidate if the answer is weak on license, provenance, determinism, or host requirements.
+Reject the candidate if the answer is weak on license, provenance, determinism, host requirements, or behavioral substance. A file can look promising by name and still be a stub; inspect the WAT or run it before adding it.
 
 ## Node Compatibility Probe
 
