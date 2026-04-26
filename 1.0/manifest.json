@@ -59,6 +59,39 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "popcount",
+      "path": "popcount.wasm",
+      "wat": "popcount.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "count",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "count",
+      "args": [
+        {
+          "type": "i32",
+          "value": "45"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "4"
+          }
+        ]
+      },
+      "sha256": "ef30b2efa8a324bda600d83fc9a86806fb06047e09eb994fa59d4ac53328383f",
+      "source": {
+        "language": "wat",
+        "description": "Hand-authored popcount fixture for the corpus"
+      }
     }
   ]
 }
