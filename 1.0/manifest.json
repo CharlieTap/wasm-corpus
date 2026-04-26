@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "reverse-bits",
+      "path": "reverse-bits.wasm",
+      "wat": "reverse-bits.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "reverse_bits",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "reverse_bits",
+      "args": [
+        {
+          "type": "i32",
+          "value": "16"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "134217728"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored bit-reversal fixture for the corpus"
+      },
+      "sha256": "fbb9791efd2f3b5a3456cbbf44b9f0715eef9bd9bd41a58ce25e1fb8aac71be9"
     }
   ]
 }
