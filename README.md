@@ -44,6 +44,8 @@ When adding a binary:
 7. Run `./scripts/validate` for the changed `.wasm` files. See [Preparing Binaries](#preparing-binaries).
 8. Run `./scripts/execute` for the changed `.wasm` files. See [Execute Tests](#execute-tests).
 
+Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JavaScript glue requirements, or complex host APIs that cannot be represented by manifest import stubs. Every submitted binary must be executable by Node through `./scripts/execute`.
+
 ## Manifest Format
 
 Each version directory owns one manifest:
