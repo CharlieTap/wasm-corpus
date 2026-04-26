@@ -92,6 +92,38 @@
         "language": "wat",
         "description": "Hand-authored Collatz fixture for the corpus"
       }
+    },
+    {
+      "name": "selection-sort",
+      "path": "selection-sort.wasm",
+      "wat": "selection-sort.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "selection_sort",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "selection_sort",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored selection sort fixture for the corpus"
+      },
+      "sha256": "347ef1a409a9eae1081e64792497c07e188599275f2d1d4d710efd20145c4caf"
     }
   ]
 }
