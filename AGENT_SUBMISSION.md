@@ -39,13 +39,12 @@ Only rely on optional tools for candidate creation. The repository acceptance pa
 
 ## Branch And PR Flow
 
-Start every submission from an up-to-date `main` branch:
+Start every submission from an up-to-date `main` branch. Never start a new submission from a previous submission branch.
 
 ```sh
 git switch main
 git pull --ff-only
 git status --short
-git switch -c codex/add-<fixture-name>
 ```
 
 If `git status --short` prints anything, stop and decide whether those changes belong in the submission branch. Do not hide unrelated local work inside an autonomous corpus addition.
@@ -71,6 +70,16 @@ The pull request is not done until the GitHub Action passes. If it fails, inspec
 ```sh
 gh run view <run-id> --log
 ```
+
+After the pull request is open and checks pass, return the local checkout to `main` before starting any other work:
+
+```sh
+git switch main
+git pull --ff-only
+git status --short
+```
+
+Do not create the next submission branch until the checkout is back on clean, up-to-date `main`.
 
 ## Candidate Discovery
 
@@ -389,3 +398,11 @@ gh run view <run-id> --log
 ```
 
 Fix the issue on the same branch, push, and watch checks again.
+
+When the PR checks pass, switch back to `main`:
+
+```sh
+git switch main
+git pull --ff-only
+git status --short
+```
