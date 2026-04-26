@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "prefix-sum",
+      "path": "prefix-sum.wasm",
+      "wat": "prefix-sum.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "prefix_sum",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "prefix_sum",
+      "args": [
+        {
+          "type": "i32",
+          "value": "5"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "21"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored prefix sum fixture for the corpus"
+      },
+      "sha256": "54808a688ba355e2aa67ace0d2e4229b6fd4b51a81d3ae45a8b4bfdfa39caba4"
     }
   ]
 }
