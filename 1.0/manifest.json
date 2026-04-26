@@ -92,6 +92,42 @@
         "language": "wat",
         "description": "Hand-authored Collatz fixture for the corpus"
       }
+    },
+    {
+      "name": "binary-exponentiation",
+      "path": "binary-exponentiation.wasm",
+      "wat": "binary-exponentiation.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "pow_mod",
+          "kind": "function",
+          "type": "(func (param i32 i32) (result i32))"
+        }
+      ],
+      "function": "pow_mod",
+      "args": [
+        {
+          "type": "i32",
+          "value": "3"
+        },
+        {
+          "type": "i32",
+          "value": "4"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "81"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored binary exponentiation fixture for the corpus"
+      },
+      "sha256": "a08fb71e7e99a70449fc9b3a029668d8147eb16929494dd243ad134dcc29a0d1"
     }
   ]
 }
