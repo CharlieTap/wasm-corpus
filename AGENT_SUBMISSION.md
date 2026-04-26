@@ -10,7 +10,7 @@ Use this document as context when autonomously finding and adding new WebAssembl
 - Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
 - Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, or complex host APIs that cannot be represented by the manifest import stubs.
 - Every submitted binary must be executable by Node through `./scripts/execute`.
-- Follow the README contribution flow exactly: prepare, update `sha256`, validate, then execute.
+- Follow the README contribution flow exactly: prepare, write the final `sha256`, validate, then execute. Never commit or validate a manifest entry with a placeholder checksum.
 
 ## Required Local Tools
 
@@ -286,7 +286,9 @@ Calculate the final checksum after prepare:
 shasum -a 256 1.0/example.wasm
 ```
 
-Add a manifest entry in the same version directory. Keep `path` and `wat` relative to the manifest:
+Add a manifest entry in the same version directory only after the binary has been prepared. Keep `path` and `wat` relative to the manifest, and copy the real checksum from the `shasum` output into `sha256`.
+
+Do not use placeholder values such as `TODO`, `<sha256>`, or an early checksum from before `prepare`. The schema requires `sha256` to already be the final 64-character lowercase hex digest before `validate` can pass.
 
 ```json
 {
@@ -316,7 +318,7 @@ Add a manifest entry in the same version directory. Keep `path` and `wat` relati
       }
     ]
   },
-  "sha256": "<sha256>",
+  "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   "source": {
     "url": "https://example.com/upstream",
     "description": "Original fixture source"
@@ -356,9 +358,12 @@ Run the same sequence the README requires:
 ```sh
 ./scripts/prepare 1.0/example.wasm
 shasum -a 256 1.0/example.wasm
+# Update the manifest sha256 field with the final hash before continuing.
 ./scripts/validate 1.0/example.wasm
 ./scripts/execute 1.0/example.wasm
 ```
+
+If `validate` reports that `sha256` does not match the schema pattern, the manifest still has a placeholder or malformed checksum. Replace it with the hash printed after `prepare`, then rerun `validate`.
 
 When adding more than one fixture in the same PR:
 
