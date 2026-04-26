@@ -5,9 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm ...]
 
-Regenerates the prepared wasm and sibling wat files in a temporary directory
-using the same Binaryen steps as ./scripts/prepare, then checks that the checked-in
-files match.
+Validates corpus manifests against the JSON Schema, runs Binaryen over each wasm
+file and its sibling wat file, then checks that the binary does not shrink
+suspiciously after optimization.
 EOF
 }
 
@@ -20,14 +20,50 @@ fail() {
   exit 1
 }
 
-sha256() {
-  if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum "$1" | awk '{print $1}'
-  elif command -v shasum >/dev/null 2>&1; then
-    shasum -a 256 "$1" | awk '{print $1}'
+binaryen_version() {
+  wasm-opt --version | sed -E 's/.*version ([0-9]+).*/\1/'
+}
+
+file_size() {
+  if stat -f%z "$1" >/dev/null 2>&1; then
+    stat -f%z "$1"
   else
-    fail "sha256sum or shasum is required"
+    stat -c%s "$1"
   fi
+}
+
+percent_reduction() {
+  local original=$1
+  local optimized=$2
+
+  if (( original == 0 || optimized >= original )); then
+    printf '0'
+  else
+    printf '%d' $(( (original - optimized) * 100 / original ))
+  fi
+}
+
+validate_manifests() {
+  local manifests=("$@")
+  local ajv_args=()
+  local manifest
+
+  if (( ${#manifests[@]} == 0 )); then
+    return 0
+  fi
+
+  if ! command -v npx >/dev/null 2>&1; then
+    fail "npx is required to validate manifests against schema/manifest.schema.json"
+  fi
+
+  for manifest in "${manifests[@]}"; do
+    ajv_args+=("-d" "$manifest")
+  done
+
+  npx --yes ajv-cli@5 validate \
+    --spec=draft2020 \
+    -s schema/manifest.schema.json \
+    "${ajv_args[@]}"
 }
 
 if [[ $# -lt 1 ]]; then
@@ -49,39 +85,23 @@ if (( ${#missing[@]} > 0 )); then
   exit 1
 fi
 
+binaryen=$(binaryen_version)
 tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/wasm-corpus-validate.XXXXXX")
 trap 'rm -rf "$tmpdir"' EXIT
 
-prepare_binary() {
-  local input=$1
-  local output=$2
-  local output_wat=$3
-  local work=$4
-  local current=$input
+min_size_check_bytes=${WASM_CORPUS_VALIDATE_MIN_SIZE:-1024}
+max_reduction_percent=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_PERCENT:-20}
+max_reduction_bytes=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_BYTES:-512}
 
-  for pass in 1 2 3 4 5; do
-    local candidate=$work/candidate-$pass.wasm
-    local candidate_wat=$work/candidate-$pass.wat
-    local roundtrip=$work/roundtrip-$pass.wasm
-    local checked=$work/checked-$pass.wasm
+manifest_list=$tmpdir/manifests.txt
+find . -mindepth 2 -maxdepth 2 -name manifest.json | sort > "$manifest_list"
 
-    wasm-opt "$current" -O1 -o "$candidate"
-    wasm-dis "$candidate" -o "$candidate_wat"
-    wasm-as "$candidate_wat" -o "$roundtrip"
-    wasm-opt "$roundtrip" -O1 -o "$checked"
+manifests=()
+while IFS= read -r manifest; do
+  manifests+=("$manifest")
+done < "$manifest_list"
 
-    if cmp -s "$candidate" "$checked"; then
-      cp "$candidate" "$output"
-      cp "$candidate_wat" "$output_wat"
-      return 0
-    fi
-
-    current=$checked
-  done
-
-  printf 'error: Binaryen output did not stabilize after 5 passes for %s\n' "$input" >&2
-  return 1
-}
+validate_manifests "${manifests[@]}"
 
 status=0
 index=0
@@ -103,44 +123,76 @@ for wasm in "$@"; do
   wat=${wasm%.wasm}.wat
   if [[ ! -f $wat ]]; then
     printf 'error: missing matching wat file: %s\n' "$wat" >&2
-    printf '       run ./scripts/prepare %s\n' "$wasm" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
+    printf '       run ./scripts/prepare %s to generate it\n' "$wasm" >&2
     status=1
     continue
   fi
 
   work=$tmpdir/$index
   mkdir -p "$work"
-  prepared=$work/prepared.wasm
-  wat_tmp=$work/module.wat
+  optimized=$work/optimized.wasm
+  disassembled=$work/module.wat
+  wat_wasm=$work/wat.wasm
+  wat_optimized=$work/wat-optimized.wasm
 
-  if ! prepare_binary "$wasm" "$prepared" "$wat_tmp" "$work"; then
+  if ! wasm-opt "$wasm" -O1 -o "$optimized"; then
+    printf 'error: Binaryen could not optimize %s\n' "$wasm" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
     status=1
     continue
   fi
 
-  file_status=0
-
-  if ! cmp -s "$prepared" "$wasm"; then
-    printf 'error: %s is not prepared\n' "$wasm" >&2
-    printf '       expected sha256: %s\n' "$(sha256 "$prepared")" >&2
-    printf '       actual sha256:   %s\n' "$(sha256 "$wasm")" >&2
-    printf '       run ./scripts/prepare %s\n' "$wasm" >&2
-    file_status=1
-  fi
-
-  if ! cmp -s "$wat_tmp" "$wat"; then
-    printf 'error: %s is out of date\n' "$wat" >&2
-    printf '       expected sha256: %s\n' "$(sha256 "$wat_tmp")" >&2
-    printf '       actual sha256:   %s\n' "$(sha256 "$wat")" >&2
-    printf '       run ./scripts/prepare %s\n' "$wasm" >&2
-    file_status=1
-  fi
-
-  if (( file_status == 0 )); then
-    printf 'Validated %s\n' "$wasm"
-  else
+  if ! wasm-dis "$optimized" -o "$disassembled"; then
+    printf 'error: Binaryen could not disassemble optimized output for %s\n' "$wasm" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
     status=1
+    continue
   fi
+
+  if ! wasm-as "$wat" -o "$wat_wasm"; then
+    printf 'error: Binaryen could not assemble sibling wat file %s\n' "$wat" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
+    status=1
+    continue
+  fi
+
+  if ! wasm-opt "$wat_wasm" -O1 -o "$wat_optimized"; then
+    printf 'error: Binaryen could not optimize sibling wat file %s\n' "$wat" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
+    status=1
+    continue
+  fi
+
+  if ! cmp -s "$optimized" "$wat_optimized"; then
+    printf 'error: %s does not roundtrip to the same optimized module as %s\n' "$wat" "$wasm" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
+    printf '       run ./scripts/prepare %s to refresh both files\n' "$wasm" >&2
+    status=1
+    continue
+  fi
+
+  original_size=$(file_size "$wasm")
+  optimized_size=$(file_size "$optimized")
+  reduction_bytes=0
+  if (( optimized_size < original_size )); then
+    reduction_bytes=$(( original_size - optimized_size ))
+  fi
+  reduction_percent=$(percent_reduction "$original_size" "$optimized_size")
+
+  if (( original_size >= min_size_check_bytes && reduction_bytes >= max_reduction_bytes && reduction_percent > max_reduction_percent )); then
+    printf 'error: %s shrank substantially when Binaryen was applied\n' "$wasm" >&2
+    printf '       Binaryen version used: %s\n' "$binaryen" >&2
+    printf '       original size:  %s bytes\n' "$original_size" >&2
+    printf '       optimized size: %s bytes\n' "$optimized_size" >&2
+    printf '       reduction:      %s bytes (%s%%)\n' "$reduction_bytes" "$reduction_percent" >&2
+    printf '       this usually means Binaryen has not been applied yet; run ./scripts/prepare %s\n' "$wasm" >&2
+    status=1
+    continue
+  fi
+
+  printf 'Validated %s with Binaryen %s (optimized size %s bytes, reduction %s bytes / %s%%)\n' \
+    "$wasm" "$binaryen" "$optimized_size" "$reduction_bytes" "$reduction_percent"
 done
 
 exit "$status"
