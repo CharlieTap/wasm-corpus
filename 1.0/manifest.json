@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "is-prime",
+      "path": "is-prime.wasm",
+      "wat": "is-prime.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "is_prime",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "is_prime",
+      "args": [
+        {
+          "type": "i32",
+          "value": "29"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored primality test fixture for the corpus"
+      },
+      "sha256": "c502e8183e6aa51d56e43e762c3f197d4b6da13bdb65814ee16487835823a5cf"
     }
   ]
 }
