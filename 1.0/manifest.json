@@ -59,6 +59,38 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "sum-primes",
+      "path": "sum-primes.wasm",
+      "wat": "sum-primes.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "sum_primes",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "sum_primes",
+      "args": [
+        {
+          "type": "i32",
+          "value": "10"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "17"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored prime-summing fixture for the corpus"
+      },
+      "sha256": "8a753edcac30cb64852f583de3c983d03231b93b29a2b46d1db27ba74ab4374d"
     }
   ]
 }
