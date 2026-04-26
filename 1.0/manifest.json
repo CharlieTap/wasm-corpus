@@ -59,6 +59,42 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "lcm",
+      "path": "lcm.wasm",
+      "wat": "lcm.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "lcm",
+          "kind": "function",
+          "type": "(func (param i32 i32) (result i32))"
+        }
+      ],
+      "function": "lcm",
+      "args": [
+        {
+          "type": "i32",
+          "value": "12"
+        },
+        {
+          "type": "i32",
+          "value": "18"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "36"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored least common multiple fixture for the corpus"
+      },
+      "sha256": "8e9eba1a4bf68bb6fa7eb52c478691fe2ef61cd1f1bdba64cda7b0088cede74f"
     }
   ]
 }
