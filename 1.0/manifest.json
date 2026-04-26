@@ -92,6 +92,38 @@
         "language": "wat",
         "description": "Hand-authored Collatz fixture for the corpus"
       }
+    },
+    {
+      "name": "factorial-iterative",
+      "path": "factorial-iterative.wasm",
+      "wat": "factorial-iterative.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "factorial_iterative",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "factorial_iterative",
+      "args": [
+        {
+          "type": "i32",
+          "value": "5"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "120"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored iterative factorial fixture for the corpus"
+      },
+      "sha256": "10d95fac85af3ec2e7dc3956715dee47f91565fd9c6ceca650f75b00a7d8531a"
     }
   ]
 }
