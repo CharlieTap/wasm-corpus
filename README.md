@@ -31,6 +31,19 @@ Each version directory contains:
 
 The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
 
+## Contribution Rules
+
+When adding a binary:
+
+1. Put the `.wasm` file in the lowest version directory that can represent it, such as `1.0/`, `2.0/`, or `3.0/`.
+2. Add or update exactly one entry for it in that directory's `manifest.json`. See [Manifest Format](#manifest-format).
+3. Include useful metadata: stable `name`, relative `path` and `wat`, `features`, exports, imports, callable `function`/`args`, expected results, and any source/toolchain notes. See [Manifest Format](#manifest-format).
+4. Run `./scripts/prepare` for the `.wasm`. See [Preparing Binaries](#preparing-binaries).
+5. Update the manifest `sha256` after prepare has produced the final `.wasm`.
+6. Commit both the prepared `.wasm` and matching `.wat` file.
+7. Run `./scripts/validate` for the changed `.wasm` files. See [Preparing Binaries](#preparing-binaries).
+8. Run `./scripts/execute` for the changed `.wasm` files. See [Execute Tests](#execute-tests).
+
 ## Manifest Format
 
 Each version directory owns one manifest:
@@ -183,11 +196,7 @@ On macOS, install Binaryen with:
 brew install binaryen
 ```
 
-Optional authoring tools, such as `wasm-tools`, are fine to use when creating a `.wasm`, but the submission flow is:
-
-1. Put the `.wasm` file in the lowest version directory that can represent it, such as `1.0/`, `2.0/`, or `3.0/`.
-2. Add or update exactly one entry for it in that directory's `manifest.json`.
-3. Run prepare:
+Optional authoring tools, such as `wasm-tools`, are fine to use when creating a `.wasm`. Once the `.wasm` is in the corpus, run prepare:
 
 ```sh
 ./scripts/prepare 1.0/test.wasm
@@ -195,8 +204,7 @@ Optional authoring tools, such as `wasm-tools`, are fine to use when creating a 
 
 `prepare` uses Binaryen to validate and lightly optimize the binary, replaces the input `.wasm` with the prepared output, and writes the matching `.wat` file next to it.
 
-4. Update the manifest `sha256` after prepare has produced the final `.wasm`.
-5. Run validate:
+Update the manifest `sha256` after prepare has produced the final `.wasm`, then run validate:
 
 ```sh
 ./scripts/validate 1.0/test.wasm
@@ -204,7 +212,7 @@ Optional authoring tools, such as `wasm-tools`, are fine to use when creating a 
 
 `validate` checks every `manifest.json` against `schema/manifest.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet.
 
-6. Run execute:
+Finally, run execute:
 
 ```sh
 ./scripts/execute 1.0/test.wasm
@@ -222,7 +230,7 @@ If Binaryen cannot process a deliberately unusual fixture, explain that in the m
 
 The corpus submission workflow runs `validate` and then `execute` for newly added `.wasm` files. If multiple fixtures changed, pass them all to `validate` and `execute` in one command.
 
-## Executing Smoke Tests
+## Execute Tests
 
 To run manifest-declared smoke tests with Node:
 
@@ -235,18 +243,6 @@ To run manifest-declared smoke tests with Node:
 The Node runner is intended for lightweight smoke tests. It supports numeric values (`i32`, `i64`, `f32`, `f64`) and null `externref`/`funcref` values.
 
 The corpus submission workflow runs these smoke tests after validation for newly added `.wasm` files.
-
-## Contribution Rules
-
-When adding a binary:
-
-1. Put it in the lowest version directory that can represent the module, then list any additional required features in `features`.
-2. Add exactly one entry for it to that directory's `manifest.json`.
-3. Commit both the `.wasm` and matching `.wat` file.
-4. Use a stable `name` and keep `path` and `wat` relative to the manifest.
-5. Include `function` and `args` when the module exposes a useful callable function.
-6. Run `./scripts/prepare` before finalising the manifest entry.
-7. Include `sha256` once the binary is final.
 
 ## License
 
