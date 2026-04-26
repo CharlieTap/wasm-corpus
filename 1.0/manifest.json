@@ -59,6 +59,39 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "isqrt",
+      "path": "isqrt.wasm",
+      "wat": "isqrt.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "isqrt",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "isqrt",
+      "args": [
+        {
+          "type": "i32",
+          "value": "27"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "5"
+          }
+        ]
+      },
+      "sha256": "9df82d3eff0b7b6250ea423f2fd016ce6ae35c1c77b9292e0b5417eb3d8992e3",
+      "source": {
+        "language": "wat",
+        "description": "Hand-authored integer square root fixture for the corpus"
+      }
     }
   ]
 }
