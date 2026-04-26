@@ -214,9 +214,46 @@ EOF
 
 Reject the candidate if Node cannot instantiate and execute it because it needs WASI, components, threads, browser APIs, unsupported proposals, or complex imports.
 
+## Naming Fixtures
+
+Name files and manifest entries for what the fixture is, not merely where it came from. Provenance belongs in the manifest `source` field.
+
+Good names:
+
+- `gcd` for a greatest-common-divisor algorithm, even if the WAT came from Wasmtime.
+- `collatz` for a Collatz implementation.
+- `matrix-multiply` for a small matrix multiplication kernel.
+- `sqlite` for a SQLite engine binary.
+- `ffmpeg` for an FFmpeg binary.
+- `esbuild` for an esbuild binary.
+
+Avoid names like:
+
+- `wasmtime-gcd`: the fixture is GCD, not Wasmtime-specific.
+- `binaryen-add`: the fixture is a trivial add operation and is too small anyway.
+- `test`, `example`, `module`, `fixture`, or `wasm`: too vague.
+- `repo-name-thing` when `thing` is the meaningful identity.
+
+Use lowercase kebab-case for `name`, `.wasm`, and `.wat`. Keep the basename aligned:
+
+```text
+1.0/gcd.wasm
+1.0/gcd.wat
+```
+
+```json
+{
+  "name": "gcd",
+  "path": "gcd.wasm",
+  "wat": "gcd.wat"
+}
+```
+
+Prefix with the tool, software, or library name only when that is the thing being tested. For example, `sqlite`, `ffmpeg`, or `esbuild-parser` are useful names for real software artifacts. For algorithms, prefer the algorithm name.
+
 ## Add The Fixture
 
-Copy or compile the candidate into the right version directory with a stable lowercase-ish name:
+Copy or compile the candidate into the right version directory with a stable name following [Naming Fixtures](#naming-fixtures):
 
 ```sh
 cp /tmp/candidate.wasm 1.0/example.wasm
