@@ -59,6 +59,43 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "gcd",
+      "path": "gcd.wasm",
+      "wat": "gcd.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "gcd",
+          "kind": "function",
+          "type": "(func (param i32 i32) (result i32))"
+        }
+      ],
+      "function": "gcd",
+      "args": [
+        {
+          "type": "i32",
+          "value": "48"
+        },
+        {
+          "type": "i32",
+          "value": "18"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "6"
+          }
+        ]
+      },
+      "sha256": "fda1f3d61fe10f80fff15e3ae576dd620af42f32a4be074a3fea94312fc57b24",
+      "source": {
+        "language": "wat",
+        "description": "Hand-authored GCD fixture for the corpus"
+      }
     }
   ]
 }
