@@ -37,7 +37,9 @@ jobs:
             head="${{ github.sha }}"
           fi
 
-          if [[ "$base" =~ ^0+$ ]]; then
+          if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            git diff-tree --root --name-only --diff-filter=A "$head" -- "*.wasm" > added-wasm.txt
+          elif ! git merge-base --is-ancestor "$base" "$head" 2>/dev/null; then
             git diff-tree --root --name-only --diff-filter=A "$head" -- "*.wasm" > added-wasm.txt
           else
             git diff --name-only --diff-filter=A "$base" "$head" -- "*.wasm" > added-wasm.txt
