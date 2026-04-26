@@ -5,7 +5,7 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm ...]
 
-Validates corpus manifests against the JSON Schema, runs Binaryen over each wasm
+Validates corpus fixture metadata against the JSON Schema, runs Binaryen over each wasm
 file and its sibling wat file, then checks that the binary does not shrink
 suspiciously after optimization.
 EOF
@@ -43,27 +43,76 @@ percent_reduction() {
   fi
 }
 
-validate_manifests() {
-  local manifests=("$@")
+validate_fixture_metadata() {
+  local fixtures=("$@")
   local ajv_args=()
-  local manifest
+  local fixture
 
-  if (( ${#manifests[@]} == 0 )); then
+  if (( ${#fixtures[@]} == 0 )); then
     return 0
   fi
 
   if ! command -v npx >/dev/null 2>&1; then
-    fail "npx is required to validate manifests against schema/manifest.schema.json"
+    fail "npx is required to validate fixture metadata against schema/fixture.schema.json"
   fi
 
-  for manifest in "${manifests[@]}"; do
-    ajv_args+=("-d" "$manifest")
+  for fixture in "${fixtures[@]}"; do
+    ajv_args+=("-d" "$fixture")
   done
 
   npx --yes ajv-cli@5 validate \
     --spec=draft2020 \
-    -s schema/manifest.schema.json \
+    -s schema/fixture.schema.json \
     "${ajv_args[@]}"
+}
+
+validate_fixture_for_wasm() {
+  local wasm=$1
+
+  node - "$wasm" <<'NODE'
+const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+
+const wasm = path.resolve(process.argv[2]);
+const parsed = path.parse(wasm);
+const fixturePath = path.join(parsed.dir, `${parsed.name}.json`);
+const expectedWasm = `${parsed.name}.wasm`;
+const expectedWat = `${parsed.name}.wat`;
+
+function fail(message) {
+  console.error(`error: ${message}`);
+  process.exit(1);
+}
+
+if (!fs.existsSync(fixturePath)) {
+  fail(`missing matching fixture metadata: ${fixturePath}`);
+}
+
+let fixture;
+try {
+  fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+} catch (error) {
+  fail(`could not read fixture metadata ${fixturePath}: ${error.message}`);
+}
+
+if (fixture.path !== expectedWasm) {
+  fail(`${fixturePath} path must be ${expectedWasm}, got ${fixture.path}`);
+}
+
+if (fixture.wat !== expectedWat) {
+  fail(`${fixturePath} wat must be ${expectedWat}, got ${fixture.wat}`);
+}
+
+if (fixture.name !== parsed.name) {
+  fail(`${fixturePath} name must match basename ${parsed.name}, got ${fixture.name}`);
+}
+
+const actualSha256 = crypto.createHash("sha256").update(fs.readFileSync(wasm)).digest("hex");
+if (fixture.sha256 !== actualSha256) {
+  fail(`${fixturePath} sha256 does not match ${path.relative(process.cwd(), wasm)}: expected ${actualSha256}, got ${fixture.sha256}`);
+}
+NODE
 }
 
 if [[ $# -lt 1 ]]; then
@@ -93,15 +142,15 @@ min_size_check_bytes=${WASM_CORPUS_VALIDATE_MIN_SIZE:-1024}
 max_reduction_percent=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_PERCENT:-20}
 max_reduction_bytes=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_BYTES:-512}
 
-manifest_list=$tmpdir/manifests.txt
-find . -mindepth 2 -maxdepth 2 -name manifest.json | sort > "$manifest_list"
+fixture_list=$tmpdir/fixtures.txt
+find ./1.0 ./2.0 ./3.0 -maxdepth 1 -name '*.json' | sort > "$fixture_list"
 
-manifests=()
-while IFS= read -r manifest; do
-  manifests+=("$manifest")
-done < "$manifest_list"
+fixtures=()
+while IFS= read -r fixture; do
+  fixtures+=("$fixture")
+done < "$fixture_list"
 
-validate_manifests "${manifests[@]}"
+validate_fixture_metadata "${fixtures[@]}"
 
 status=0
 index=0
@@ -116,6 +165,11 @@ for wasm in "$@"; do
 
   if [[ ! -f $wasm ]]; then
     printf 'error: file does not exist: %s\n' "$wasm" >&2
+    status=1
+    continue
+  fi
+
+  if ! validate_fixture_for_wasm "$wasm"; then
     status=1
     continue
   fi

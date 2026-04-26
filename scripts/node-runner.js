@@ -4,8 +4,6 @@
 const fs = require("fs");
 const path = require("path");
 
-const repoRoot = path.resolve(__dirname, "..");
-
 function fail(message) {
   throw new Error(message);
 }
@@ -18,34 +16,26 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-function findManifest(startDir) {
-  let dir = path.resolve(startDir);
-  while (dir.startsWith(repoRoot)) {
-    const manifest = path.join(dir, "manifest.json");
-    if (fs.existsSync(manifest)) return manifest;
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return null;
+function fixtureMetadataPath(wasmPath) {
+  const parsed = path.parse(wasmPath);
+  return path.join(parsed.dir, `${parsed.name}.json`);
 }
 
-function findManifestEntry(wasmPath) {
-  const manifestPath = findManifest(path.dirname(wasmPath));
-  if (!manifestPath) {
-    fail(`could not find manifest.json for ${wasmPath}`);
+function findFixtureEntry(wasmPath) {
+  const fixturePath = fixtureMetadataPath(wasmPath);
+  if (!fs.existsSync(fixturePath)) {
+    fail(`could not find fixture metadata ${fixturePath} for ${wasmPath}`);
   }
 
-  const manifest = readJson(manifestPath);
-  const manifestDir = path.dirname(manifestPath);
-  const relativeWasm = toPosixPath(path.relative(manifestDir, wasmPath));
-  const entry = (manifest.binaries || []).find((binary) => binary.path === relativeWasm);
+  const entry = readJson(fixturePath);
+  const fixtureDir = path.dirname(fixturePath);
+  const relativeWasm = toPosixPath(path.relative(fixtureDir, wasmPath));
 
-  if (!entry) {
-    fail(`could not find manifest entry for ${relativeWasm} in ${manifestPath}`);
+  if (entry.path !== relativeWasm) {
+    fail(`fixture metadata path mismatch for ${wasmPath}: expected ${relativeWasm}, got ${entry.path}`);
   }
 
-  return { manifestPath, manifestDir, manifest, entry };
+  return { fixturePath, fixtureDir, entry };
 }
 
 function intFromString(value, bits) {
@@ -311,10 +301,10 @@ async function executeWasm(inputPath) {
     fail(`file does not exist: ${inputPath}`);
   }
 
-  const { manifestDir, entry } = findManifestEntry(wasmPath);
-  const expectedWasmPath = path.resolve(manifestDir, entry.path);
+  const { fixtureDir, entry } = findFixtureEntry(wasmPath);
+  const expectedWasmPath = path.resolve(fixtureDir, entry.path);
   if (expectedWasmPath !== wasmPath) {
-    fail(`manifest entry path mismatch for ${inputPath}`);
+    fail(`fixture metadata path mismatch for ${inputPath}`);
   }
 
   const invocations = invocationList(entry);

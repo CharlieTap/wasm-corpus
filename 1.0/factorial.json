@@ -1,0 +1,30 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "factorial",
+  "path": "factorial.wasm",
+  "wat": "factorial.wat",
+  "features": [],
+  "exports": [
+    {
+      "name": "fac",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "function": "fac",
+  "args": [
+    {
+      "type": "i32",
+      "value": "5"
+    }
+  ],
+  "expected": {
+    "returns": [
+      {
+        "type": "i32",
+        "value": "120"
+      }
+    ]
+  },
+  "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+}

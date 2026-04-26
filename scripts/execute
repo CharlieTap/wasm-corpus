@@ -5,8 +5,8 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/execute <path/to/module.wasm> [path/to/another.wasm ...]
 
-Finds each module in its version manifest, instantiates it with simple import
-stubs, and runs the manifest invocations with Node's WebAssembly runtime.
+Finds each module's colocated fixture metadata, instantiates it with simple
+import stubs, and runs the declared invocations with Node's WebAssembly runtime.
 EOF
 }
 

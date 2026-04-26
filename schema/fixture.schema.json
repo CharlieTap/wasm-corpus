@@ -1,37 +1,120 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CharlieTap/wasm-corpus/main/schema/manifest.schema.json",
-  "title": "wasm-corpus manifest",
+  "$id": "https://raw.githubusercontent.com/CharlieTap/wasm-corpus/main/schema/fixture.schema.json",
+  "title": "wasm-corpus fixture metadata",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "binaries"],
+  "required": [
+    "name",
+    "path",
+    "wat",
+    "features",
+    "sha256"
+  ],
+  "dependentRequired": {
+    "args": [
+      "function"
+    ],
+    "expected": [
+      "function"
+    ]
+  },
   "properties": {
     "$schema": {
       "type": "string"
     },
-    "version": {
+    "name": {
       "type": "string",
-      "enum": ["1.0", "2.0", "3.0"]
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^[^/].*\\.wasm$"
+    },
+    "wat": {
+      "type": "string",
+      "pattern": "^[^/].*\\.wat$"
     },
     "description": {
       "type": "string"
     },
-    "binaries": {
+    "features": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/binary"
+        "$ref": "#/$defs/feature"
       },
       "uniqueItems": true
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/import"
+      }
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/export"
+      }
+    },
+    "function": {
+      "type": "string"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/value"
+      },
+      "default": []
+    },
+    "expected": {
+      "$ref": "#/$defs/expected"
+    },
+    "invocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/invocation"
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "toolchain": {
+      "$ref": "#/$defs/toolchain"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]*$"
+      },
+      "uniqueItems": true
+    },
+    "notes": {
+      "type": "string"
     }
   },
   "$defs": {
     "binary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "path", "wat", "features"],
+      "required": [
+        "name",
+        "path",
+        "wat",
+        "features"
+      ],
       "dependentRequired": {
-        "args": ["function"],
-        "expected": ["function"]
+        "args": [
+          "function"
+        ],
+        "expected": [
+          "function"
+        ]
       },
       "properties": {
         "name": {
@@ -166,7 +249,11 @@
     "import": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["module", "name", "kind"],
+      "required": [
+        "module",
+        "name",
+        "kind"
+      ],
       "allOf": [
         {
           "if": {
@@ -175,7 +262,9 @@
                 "const": "function"
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "then": {
             "properties": {
@@ -192,7 +281,9 @@
                 "const": "global"
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "then": {
             "properties": {
@@ -206,14 +297,22 @@
           "if": {
             "properties": {
               "kind": {
-                "enum": ["memory", "table", "tag"]
+                "enum": [
+                  "memory",
+                  "table",
+                  "tag"
+                ]
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "then": {
             "not": {
-              "required": ["stub"]
+              "required": [
+                "stub"
+              ]
             }
           }
         }
@@ -227,7 +326,13 @@
         },
         "kind": {
           "type": "string",
-          "enum": ["function", "global", "memory", "table", "tag"]
+          "enum": [
+            "function",
+            "global",
+            "memory",
+            "table",
+            "tag"
+          ]
         },
         "type": {
           "type": "string"
@@ -276,13 +381,18 @@
         }
       },
       "not": {
-        "required": ["returns", "trap"]
+        "required": [
+          "returns",
+          "trap"
+        ]
       }
     },
     "globalImportStub": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["value"],
+      "required": [
+        "value"
+      ],
       "properties": {
         "value": {
           "$ref": "#/$defs/value"
@@ -298,14 +408,23 @@
     "export": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "kind"],
+      "required": [
+        "name",
+        "kind"
+      ],
       "properties": {
         "name": {
           "type": "string"
         },
         "kind": {
           "type": "string",
-          "enum": ["function", "global", "memory", "table", "tag"]
+          "enum": [
+            "function",
+            "global",
+            "memory",
+            "table",
+            "tag"
+          ]
         },
         "type": {
           "type": "string"
@@ -318,7 +437,9 @@
     "invocation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["function"],
+      "required": [
+        "function"
+      ],
       "properties": {
         "name": {
           "type": "string"
@@ -350,7 +471,9 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["returns"],
+          "required": [
+            "returns"
+          ],
           "properties": {
             "returns": {
               "type": "array",
@@ -363,7 +486,9 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["trap"],
+          "required": [
+            "trap"
+          ],
           "properties": {
             "trap": {
               "type": "string"
@@ -385,7 +510,10 @@
     "numericValue": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "value"],
+      "required": [
+        "type",
+        "value"
+      ],
       "properties": {
         "type": {
           "$ref": "#/$defs/numericValueType"
@@ -398,7 +526,10 @@
     "nullReferenceValue": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "value"],
+      "required": [
+        "type",
+        "value"
+      ],
       "properties": {
         "type": {
           "$ref": "#/$defs/referenceValueType"
@@ -410,11 +541,19 @@
     },
     "numericValueType": {
       "type": "string",
-      "enum": ["i32", "i64", "f32", "f64"]
+      "enum": [
+        "i32",
+        "i64",
+        "f32",
+        "f64"
+      ]
     },
     "referenceValueType": {
       "type": "string",
-      "enum": ["externref", "funcref"]
+      "enum": [
+        "externref",
+        "funcref"
+      ]
     },
     "source": {
       "type": "object",

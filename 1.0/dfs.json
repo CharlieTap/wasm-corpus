@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "dfs",
+  "path": "dfs.wasm",
+  "wat": "dfs.wat",
+  "features": [],
+  "exports": [
+    {
+      "name": "dfs_visit",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "function": "dfs_visit",
+  "args": [
+    {
+      "type": "i32",
+      "value": "6"
+    }
+  ],
+  "expected": {
+    "returns": [
+      {
+        "type": "i32",
+        "value": "2"
+      }
+    ]
+  },
+  "source": {
+    "description": "Hand-authored depth-first search fixture for the corpus"
+  },
+  "sha256": "de636a3b665e0b63cceeb1245e299beece525a2a6fb35dba6ef3b6a52d3bcde8"
+}

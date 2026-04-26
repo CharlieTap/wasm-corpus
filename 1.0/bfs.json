@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bfs",
+  "path": "bfs.wasm",
+  "wat": "bfs.wat",
+  "features": [],
+  "exports": [
+    {
+      "name": "bfs_levels",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "function": "bfs_levels",
+  "args": [
+    {
+      "type": "i32",
+      "value": "4"
+    }
+  ],
+  "expected": {
+    "returns": [
+      {
+        "type": "i32",
+        "value": "4"
+      }
+    ]
+  },
+  "source": {
+    "description": "Hand-authored breadth-first search fixture for the corpus"
+  },
+  "sha256": "53e9a0e476ac7c74aade933e0b960c9cd810c73eacfc5eddd00fefc9f05de06f"
+}

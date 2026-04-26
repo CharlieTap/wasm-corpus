@@ -8,9 +8,9 @@ Use this document as context when autonomously finding and adding new WebAssembl
 - Prefer small modules with clear provenance, readable source or WAT, deterministic exports, and simple imports.
 - Avoid single-operation or hello-world-style modules. Aim for at least factorial-level behavior: control flow, memory/table/import interaction, or a recognizable algorithm.
 - Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
-- Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, or complex host APIs that cannot be represented by the manifest import stubs.
+- Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, or complex host APIs that cannot be represented by the fixture metadata import stubs.
 - Every submitted binary must be executable by Node through `./scripts/execute`.
-- Follow the README contribution flow exactly: prepare, write the final `sha256`, validate, then execute. Never commit or validate a manifest entry with a placeholder checksum.
+- Follow the README contribution flow exactly: prepare, write the final `sha256`, validate, then execute. Never commit or validate fixture metadata with a placeholder checksum.
 
 ## Required Local Tools
 
@@ -58,10 +58,10 @@ git switch -c codex/add-wabt-callback-fixture
 After adding the fixture and passing local checks:
 
 ```sh
-git add <version>/<fixture>.wasm <version>/<fixture>.wat <version>/manifest.json
+git add <version>/<fixture>.wasm <version>/<fixture>.wat <version>/<fixture>.json
 git commit -m "Add <fixture> <version> fixture"
 git push -u origin codex/add-<fixture-name>
-gh pr create --base main --head codex/add-<fixture-name> --title "Add <fixture> <version> fixture" --body "Adds a prepared WebAssembly fixture with matching WAT and manifest metadata."
+gh pr create --base main --head codex/add-<fixture-name> --title "Add <fixture> <version> fixture" --body "Adds a prepared WebAssembly fixture with matching WAT and fixture metadata."
 gh pr checks --watch
 ```
 
@@ -162,12 +162,12 @@ Treat browser extensions, CDN mirrors, and academic datasets as research leads. 
 Before copying anything into the corpus, answer these questions:
 
 - Is the license clear and compatible with MIT/Apache redistribution?
-- Is there a source URL, package URL, or upstream repository to cite in the manifest `source` field?
+- Is there a source URL, package URL, or upstream repository to cite in the fixture metadata `source` field?
 - Is the module valid core Wasm rather than a component or JS glue-only package?
 - What WebAssembly version directory is the lowest valid target: `1.0`, `2.0`, or `3.0`?
 - Which schema-supported `features` are required?
 - Does it export at least one deterministic function that Node can call?
-- Are imports absent or simple enough to describe with manifest import stubs?
+- Are imports absent or simple enough to describe with fixture metadata import stubs?
 - Can the values be represented by the Node runner: `i32`, `i64`, `f32`, `f64`, null `externref`, or null `funcref`?
 - Is the module at least factorial-level in behavioral substance, or a compact known algorithm worth keeping?
 - Is the module small enough to review, or is there a strong reason to add a larger real-world binary?
@@ -202,7 +202,7 @@ WebAssembly.instantiate(bytes, {}).then(({ instance }) => {
 EOF
 ```
 
-For modules with simple imports, stub them manually first. If this works, mirror the same behavior in the manifest `imports[].stub` entries.
+For modules with simple imports, stub them manually first. If this works, mirror the same behavior in the fixture metadata `imports[].stub` entries.
 
 ```sh
 node - <<'EOF'
@@ -225,7 +225,7 @@ Reject the candidate if Node cannot instantiate and execute it because it needs 
 
 ## Naming Fixtures
 
-Name files and manifest entries for what the fixture is, not merely where it came from. Provenance belongs in the manifest `source` field.
+Name files and fixture metadata for what the fixture is, not merely where it came from. Provenance belongs in the fixture metadata `source` field.
 
 Good names:
 
@@ -248,6 +248,7 @@ Use lowercase kebab-case for `name`, `.wasm`, and `.wat`. Keep the basename alig
 ```text
 1.0/gcd.wasm
 1.0/gcd.wat
+1.0/gcd.json
 ```
 
 ```json
@@ -286,7 +287,7 @@ Calculate the final checksum after prepare:
 shasum -a 256 1.0/example.wasm
 ```
 
-Add a manifest entry in the same version directory only after the binary has been prepared. Keep `path` and `wat` relative to the manifest, and copy the real checksum from the `shasum` output into `sha256`.
+Add a metadata file in the same version directory only after the binary has been prepared. The metadata filename must match the `.wasm` basename, such as `1.0/example.json` for `1.0/example.wasm`. Keep `path` and `wat` relative to the metadata file, and copy the real checksum from the `shasum` output into `sha256`.
 
 Do not use placeholder values such as `TODO`, `<sha256>`, or an early checksum from before `prepare`. The schema requires `sha256` to already be the final 64-character lowercase hex digest before `validate` can pass.
 
@@ -358,12 +359,12 @@ Run the same sequence the README requires:
 ```sh
 ./scripts/prepare 1.0/example.wasm
 shasum -a 256 1.0/example.wasm
-# Update the manifest sha256 field with the final hash before continuing.
+# Update the fixture metadata sha256 field with the final hash before continuing.
 ./scripts/validate 1.0/example.wasm
 ./scripts/execute 1.0/example.wasm
 ```
 
-If `validate` reports that `sha256` does not match the schema pattern, the manifest still has a placeholder or malformed checksum. Replace it with the hash printed after `prepare`, then rerun `validate`.
+If `validate` reports that `sha256` does not match the schema pattern, the metadata file still has a placeholder or malformed checksum. Replace it with the hash printed after `prepare`, then rerun `validate`.
 
 When adding more than one fixture in the same PR:
 
@@ -372,16 +373,16 @@ When adding more than one fixture in the same PR:
 ./scripts/execute 1.0/example-a.wasm 1.0/example-b.wasm
 ```
 
-If `validate` fails because Binaryen shrank the binary substantially, run `prepare`, update `sha256`, and validate again. If `execute` fails, fix the manifest function, args, expected result, or import stubs before opening the PR.
+If `validate` fails because Binaryen shrank the binary substantially, run `prepare`, update `sha256`, and validate again. If `execute` fails, fix the metadata function, args, expected result, or import stubs before opening the PR.
 
 ## Final Review Checklist
 
 Before creating the PR:
 
-- `git status --short --untracked-files=all` shows only the intended fixture, WAT, manifest, and any necessary docs.
+- `git status --short --untracked-files=all` shows only the intended fixture, WAT, metadata JSON, and any necessary docs.
 - `git diff` and `git diff --staged` show only expected text changes.
 - The `.wat` is readable and matches the `.wasm`.
-- The manifest entry validates against `schema/manifest.schema.json`.
+- The fixture metadata validates against `schema/fixture.schema.json`.
 - `sha256` matches the prepared `.wasm`.
 - `./scripts/validate ...` passes.
 - `./scripts/execute ...` passes.

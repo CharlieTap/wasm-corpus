@@ -9,25 +9,27 @@ The repository is organised by WebAssembly core version:
 ```text
 .
 ├── 1.0/
-│   └── manifest.json
+│   ├── fibonacci.json
+│   ├── fibonacci.wasm
+│   └── fibonacci.wat
 ├── 2.0/
-│   └── manifest.json
+│   └── ...
 ├── 3.0/
-│   └── manifest.json
+│   └── ...
 ├── scripts/
 │   ├── execute
 │   ├── node-runner.js
 │   ├── prepare
 │   └── validate
 └── schema/
-    └── manifest.schema.json
+    └── fixture.schema.json
 ```
 
 Each version directory contains:
 
-- `manifest.json`: the single index for binaries in that directory.
 - `*.wasm`: binary modules available to consumers.
 - `*.wat`: readable text format for the matching module, committed so reviewers can eyeball submissions.
+- `*.json`: fixture metadata for the matching module. The basename must match the `.wasm` file, such as `gcd.json` for `gcd.wasm`.
 
 The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
 
@@ -36,51 +38,46 @@ The directory version describes the core WebAssembly version family the binary b
 When adding a binary:
 
 1. Put the `.wasm` file in the lowest version directory that can represent it, such as `1.0/`, `2.0/`, or `3.0/`.
-2. Add or update exactly one entry for it in that directory's `manifest.json`. See [Manifest Format](#manifest-format).
-3. Include useful metadata: stable `name`, relative `path` and `wat`, `features`, exports, imports, callable `function`/`args`, expected results, and any source/toolchain notes. See [Manifest Format](#manifest-format).
+2. Add or update exactly one matching metadata file with the same basename as the `.wasm`, such as `1.0/gcd.json` for `1.0/gcd.wasm`. See [Fixture Metadata Format](#fixture-metadata-format).
+3. Include useful metadata: stable `name`, relative `path` and `wat`, `features`, exports, imports, callable `function`/`args`, expected results, and any source/toolchain notes. See [Fixture Metadata Format](#fixture-metadata-format).
 4. Run `./scripts/prepare` for the `.wasm`. See [Preparing Binaries](#preparing-binaries).
-5. Update the manifest `sha256` after prepare has produced the final `.wasm`.
-6. Commit both the prepared `.wasm` and matching `.wat` file.
+5. Update the fixture metadata `sha256` after prepare has produced the final `.wasm`.
+6. Commit the prepared `.wasm`, matching `.wat`, and matching `.json` file.
 7. Run `./scripts/validate` for the changed `.wasm` files. See [Preparing Binaries](#preparing-binaries).
 8. Run `./scripts/execute` for the changed `.wasm` files. See [Execute Tests](#execute-tests).
 
-Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JavaScript glue requirements, or complex host APIs that cannot be represented by manifest import stubs. Every submitted binary must be executable by Node through `./scripts/execute`.
+Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JavaScript glue requirements, or complex host APIs that cannot be represented by fixture metadata import stubs. Every submitted binary must be executable by Node through `./scripts/execute`.
 
-## Manifest Format
+## Fixture Metadata Format
 
-Each version directory owns one manifest:
+Each binary has one colocated JSON metadata file with the same basename:
 
 ```json
 {
-  "$schema": "../schema/manifest.schema.json",
-  "version": "1.0",
-  "binaries": [
-    {
-      "name": "test",
-      "path": "test.wasm",
-      "wat": "test.wat",
-      "features": ["exception-handling"],
-      "function": "callme",
-      "args": [
-        { "type": "i32", "value": "1" }
-      ]
-    }
+  "$schema": "../schema/fixture.schema.json",
+  "name": "test",
+  "path": "test.wasm",
+  "wat": "test.wat",
+  "features": ["exception-handling"],
+  "function": "callme",
+  "args": [
+    { "type": "i32", "value": "1" }
   ]
 }
 ```
 
-Recommended fields for each binary:
+Metadata fields for each binary:
 
 - `name`: stable unique identifier within the version directory.
-- `path`: path to the `.wasm` file, relative to the manifest.
-- `wat`: path to the matching `.wat` file, relative to the manifest.
+- `path`: path to the `.wasm` file, relative to the metadata file. It must match the metadata basename, such as `gcd.wasm` in `gcd.json`.
+- `wat`: path to the matching `.wat` file, relative to the metadata file. It must match the metadata basename, such as `gcd.wat` in `gcd.json`.
 - `features`: required or notable features, such as `gc`, `simd`, `threads`, `exception-handling`, or `multi-memory`.
 - `imports`: host imports required to instantiate the module.
 - `exports`: exported functions, globals, memories, tables, or tags that are useful to consumers.
 - `function` and `args`: the primary function call consumers can run as a smoke test.
 - `expected`: optional expected return values or trap for the primary function call.
 - `invocations`: additional function calls when a binary has more than one useful test case.
-- `sha256`: checksum of the `.wasm` file.
+- `sha256`: checksum of the `.wasm` file. This is required and must match the prepared binary.
 - `source`: optional source/provenance metadata.
 - `toolchain`: optional compiler or tool information.
 - `tags`: searchable labels such as `smoke`, `edge-case`, `validation`, or `runtime`.
@@ -171,7 +168,7 @@ Function and global imports can include a simple static `stub` so consumers know
 }
 ```
 
-For function imports, `stub.args` describes the expected arguments for the simple stubbed call and `stub.returns` describes the static values to return. Use `stub.trap` instead of `stub.returns` when the host stub should trap. Memory, table, and tag imports should be described with `type` and `description`; the manifest does not try to encode full host behaviour.
+For function imports, `stub.args` describes the expected arguments for the simple stubbed call and `stub.returns` describes the static values to return. Use `stub.trap` instead of `stub.returns` when the host stub should trap. Memory, table, and tag imports should be described with `type` and `description`; the fixture metadata does not try to encode full host behaviour.
 
 Value entries are constrained to types the Node smoke-test runner can represent:
 
@@ -206,13 +203,13 @@ Optional authoring tools, such as `wasm-tools`, are fine to use when creating a 
 
 `prepare` uses Binaryen to validate and lightly optimize the binary, replaces the input `.wasm` with the prepared output, and writes the matching `.wat` file next to it.
 
-Update the manifest `sha256` after prepare has produced the final `.wasm`, then run validate:
+Update the fixture metadata `sha256` after prepare has produced the final `.wasm`, then run validate:
 
 ```sh
 ./scripts/validate 1.0/test.wasm
 ```
 
-`validate` checks every `manifest.json` against `schema/manifest.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet.
+`validate` checks every version-directory `*.json` fixture metadata file against `schema/fixture.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet.
 
 Finally, run execute:
 
@@ -220,7 +217,7 @@ Finally, run execute:
 ./scripts/execute 1.0/test.wasm
 ```
 
-`execute` runs the manifest-declared smoke test for the fixture.
+`execute` runs the metadata-declared smoke test for the fixture.
 
 If the module needs proposal feature flags, pass the matching Binaryen flags through to the script:
 
@@ -228,19 +225,19 @@ If the module needs proposal feature flags, pass the matching Binaryen flags thr
 ./scripts/prepare 3.0/test.wasm --enable-gc
 ```
 
-If Binaryen cannot process a deliberately unusual fixture, explain that in the manifest `notes`.
+If Binaryen cannot process a deliberately unusual fixture, explain that in the fixture metadata `notes`.
 
 The corpus submission workflow runs `validate` and then `execute` for newly added `.wasm` files. If multiple fixtures changed, pass them all to `validate` and `execute` in one command.
 
 ## Execute Tests
 
-To run manifest-declared smoke tests with Node:
+To run metadata-declared smoke tests with Node:
 
 ```sh
 ./scripts/execute 1.0/test.wasm
 ```
 
-`execute` finds the binary entry in that version directory's `manifest.json`, instantiates the module, applies simple function/global import stubs, and runs the primary `function`/`args` call plus any `invocations`. If an invocation has `expected.returns` or `expected.trap`, the runner asserts the result.
+`execute` finds the `.json` metadata file with the same basename as the `.wasm`, instantiates the module, applies simple function/global import stubs, and runs the primary `function`/`args` call plus any `invocations`. If an invocation has `expected.returns` or `expected.trap`, the runner asserts the result.
 
 The Node runner is intended for lightweight smoke tests. It supports numeric values (`i32`, `i64`, `f32`, `f64`) and null `externref`/`funcref` values.
 
