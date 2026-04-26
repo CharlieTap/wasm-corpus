@@ -200,7 +200,7 @@ To check prepared files locally without modifying them, run:
 ./scripts/validate 1.0/test.wasm
 ```
 
-The validator uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet. The corpus submission workflow runs this validator for newly added `.wasm` files.
+The validator checks every `manifest.json` against `schema/manifest.schema.json`, then uses the installed Binaryen version to make sure the `.wasm` and sibling `.wat` can be processed and roundtripped. It does not require byte-identical Binaryen output across versions, but it fails if applying Binaryen makes the binary substantially smaller, which usually means `./scripts/prepare` has not been run yet. The corpus submission workflow runs this validator for newly added `.wasm` files.
 
 ## Executing Smoke Tests
 

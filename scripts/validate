@@ -5,8 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm ...]
 
-Runs Binaryen over each wasm file and its sibling wat file, then checks that the
-binary does not shrink suspiciously after optimization.
+Validates corpus manifests against the JSON Schema, runs Binaryen over each wasm
+file and its sibling wat file, then checks that the binary does not shrink
+suspiciously after optimization.
 EOF
 }
 
@@ -42,6 +43,29 @@ percent_reduction() {
   fi
 }
 
+validate_manifests() {
+  local manifests=("$@")
+  local ajv_args=()
+  local manifest
+
+  if (( ${#manifests[@]} == 0 )); then
+    return 0
+  fi
+
+  if ! command -v npx >/dev/null 2>&1; then
+    fail "npx is required to validate manifests against schema/manifest.schema.json"
+  fi
+
+  for manifest in "${manifests[@]}"; do
+    ajv_args+=("-d" "$manifest")
+  done
+
+  npx --yes ajv-cli@5 validate \
+    --spec=draft2020 \
+    -s schema/manifest.schema.json \
+    "${ajv_args[@]}"
+}
+
 if [[ $# -lt 1 ]]; then
   usage >&2
   exit 1
@@ -68,6 +92,16 @@ trap 'rm -rf "$tmpdir"' EXIT
 min_size_check_bytes=${WASM_CORPUS_VALIDATE_MIN_SIZE:-1024}
 max_reduction_percent=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_PERCENT:-20}
 max_reduction_bytes=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_BYTES:-512}
+
+manifest_list=$tmpdir/manifests.txt
+find . -mindepth 2 -maxdepth 2 -name manifest.json | sort > "$manifest_list"
+
+manifests=()
+while IFS= read -r manifest; do
+  manifests+=("$manifest")
+done < "$manifest_list"
+
+validate_manifests "${manifests[@]}"
 
 status=0
 index=0
