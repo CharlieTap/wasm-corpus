@@ -59,6 +59,39 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "collatz",
+      "path": "collatz.wasm",
+      "wat": "collatz.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "steps",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "steps",
+      "args": [
+        {
+          "type": "i32",
+          "value": "27"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "111"
+          }
+        ]
+      },
+      "sha256": "e55b4384764a205d5f6db78eb81332def808696369fb172f03f8c3fcd0e5e542",
+      "source": {
+        "language": "wat",
+        "description": "Hand-authored Collatz fixture for the corpus"
+      }
     }
   ]
 }
