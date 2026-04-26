@@ -1,4 +1,4 @@
-# Auto-Add Agent Workflow
+# Agent Submission Workflow
 
 Use this document as context when autonomously finding and adding new WebAssembly fixtures to the corpus. Each fixture submission should be small, reviewable, licensed for redistribution, executable by Node, and submitted as its own pull request.
 
