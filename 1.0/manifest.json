@@ -92,6 +92,38 @@
         "language": "wat",
         "description": "Hand-authored Collatz fixture for the corpus"
       }
+    },
+    {
+      "name": "bubble-sort",
+      "path": "bubble-sort.wasm",
+      "wat": "bubble-sort.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "bubble_sort",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "bubble_sort",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "2"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored bubble sort fixture for the corpus"
+      },
+      "sha256": "b56c471fb78e13408f38ce5482b11ee18a04b7efe31defd805b9ba5091cf6b9f"
     }
   ]
 }
