@@ -59,6 +59,44 @@
         ]
       },
       "sha256": "0da969ca2eda8ea6c85d3a3d57066e44b918a75a4f74786342208093ca827cdf"
+    },
+    {
+      "name": "binaryen-add",
+      "path": "binaryen-add.wasm",
+      "wat": "binaryen-add.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "add",
+          "kind": "function",
+          "type": "(func (param i32 i32) (result i32))"
+        }
+      ],
+      "function": "add",
+      "args": [
+        {
+          "type": "i32",
+          "value": "20"
+        },
+        {
+          "type": "i32",
+          "value": "22"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "42"
+          }
+        ]
+      },
+      "sha256": "f61fd62f57c41269c3c23f360eeaf1090b1db9c38651106674d48bc65dba88ba",
+      "source": {
+        "language": "wat",
+        "url": "https://github.com/WebAssembly/binaryen/blob/35ba23c705ca4422d8f6102a0fe440c64d2bf1de/test/lit/basic/hello_world.wat",
+        "description": "Binaryen hello_world.wat test fixture, Apache-2.0 licensed"
+      }
     }
   ]
 }
