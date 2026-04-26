@@ -180,11 +180,15 @@ Before submitting a binary, place the `.wasm` file in the appropriate version di
 
 The script uses Binaryen to validate and lightly optimize the binary, replaces the input `.wasm` with the prepared output, and writes the matching `.wat` file next to it.
 
-Binaryen must be installed and available on `PATH`. If `wasm-opt`, `wasm-dis`, or `wasm-as` are missing, the script prints a warning and exits without modifying the binary. On macOS, install it with:
+Binaryen 125 must be installed and available on `PATH`. If `wasm-opt`, `wasm-dis`, or `wasm-as` are missing, or if they report a different version, the script exits without modifying the binary. This keeps the prepared `.wasm` and generated `.wat` stable between local machines and CI.
+
+On macOS, install it with:
 
 ```sh
 brew install binaryen
 ```
+
+If Homebrew has moved past Binaryen 125, install that release directly from the [Binaryen releases](https://github.com/WebAssembly/binaryen/releases/tag/version_125). The scripts also accept `WASM_CORPUS_BINARYEN_VERSION` for deliberate version bumps across the corpus.
 
 If the module needs proposal feature flags, pass the matching Binaryen flags through to the script:
 

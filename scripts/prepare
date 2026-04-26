@@ -19,11 +19,16 @@ fail() {
   exit 1
 }
 
+binaryen_version() {
+  "$1" --version | awk '{print $NF}'
+}
+
 if [[ $# -lt 1 ]]; then
   usage >&2
   exit 1
 fi
 
+required_binaryen_version=${WASM_CORPUS_BINARYEN_VERSION:-125}
 wasm=$1
 shift
 binaryen_flags=("$@")
@@ -42,9 +47,16 @@ done
 if (( ${#missing[@]} > 0 )); then
   warn "Binaryen is required to prepare corpus binaries."
   warn "Missing command(s): ${missing[*]}"
-  warn "Install Binaryen, then rerun this script. On macOS: brew install binaryen"
+  warn "Install Binaryen $required_binaryen_version, then rerun this script."
   exit 1
 fi
+
+for cmd in wasm-opt wasm-dis wasm-as; do
+  version=$(binaryen_version "$cmd")
+  if [[ $version != "$required_binaryen_version" ]]; then
+    fail "$cmd version $required_binaryen_version is required, found $version. Set WASM_CORPUS_BINARYEN_VERSION to override."
+  fi
+done
 
 tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/wasm-corpus-prepare.XXXXXX")
 trap 'rm -rf "$tmpdir"' EXIT
