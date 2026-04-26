@@ -92,6 +92,38 @@
         "language": "wat",
         "description": "Hand-authored Collatz fixture for the corpus"
       }
+    },
+    {
+      "name": "sieve",
+      "path": "sieve.wasm",
+      "wat": "sieve.wat",
+      "features": [],
+      "exports": [
+        {
+          "name": "sieve",
+          "kind": "function",
+          "type": "(func (param i32) (result i32))"
+        }
+      ],
+      "function": "sieve",
+      "args": [
+        {
+          "type": "i32",
+          "value": "13"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "6"
+          }
+        ]
+      },
+      "source": {
+        "description": "Hand-authored sieve-of-Eratosthenes-inspired prime count fixture for the corpus"
+      },
+      "sha256": "a2db550fbe03e1753668399dc2db08850a2956c7f54421ea0e1168cf7a2f5289"
     }
   ]
 }
