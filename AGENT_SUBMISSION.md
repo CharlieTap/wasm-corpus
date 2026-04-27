@@ -161,6 +161,11 @@ Reject the candidate if the answer is weak on license, provenance, determinism, 
 ## Node Compatibility Probe
 
 Use Node before adding the fixture to check whether the module can instantiate and what it exports/imports.
+If the candidate is WAT, first compile a temporary probe binary and use that path in the Node examples:
+
+```sh
+wasm-tools parse /tmp/candidate.wat -o /tmp/candidate.wasm
+```
 
 ```sh
 node - /tmp/candidate.wasm <<'EOF'
