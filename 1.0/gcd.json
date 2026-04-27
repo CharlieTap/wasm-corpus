@@ -1,0 +1,123 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gcd",
+  "description": "Unsigned Euclidean greatest-common-divisor implementation for two i32 values.",
+  "path": "gcd.wasm",
+  "wat": "gcd.wat",
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "loop",
+    "branching"
+  ],
+  "exports": [
+    {
+      "name": "gcd",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "invocations": [
+    {
+      "name": "shared-factor",
+      "function": "gcd",
+      "args": [
+        {
+          "type": "i32",
+          "value": "48"
+        },
+        {
+          "type": "i32",
+          "value": "18"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "6"
+          }
+        ]
+      }
+    },
+    {
+      "name": "coprime",
+      "function": "gcd",
+      "args": [
+        {
+          "type": "i32",
+          "value": "35"
+        },
+        {
+          "type": "i32",
+          "value": "64"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero-divisor-path",
+      "function": "gcd",
+      "args": [
+        {
+          "type": "i32",
+          "value": "42"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "42"
+          }
+        ]
+      }
+    },
+    {
+      "name": "equal-inputs",
+      "function": "gcd",
+      "args": [
+        {
+          "type": "i32",
+          "value": "21"
+        },
+        {
+          "type": "i32",
+          "value": "21"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "21"
+          }
+        ]
+      }
+    }
+  ],
+  "sha256": "17f8ba3725bd7448c69bd5a2226967ca57e4865cd38be1b76040b6b81d721c75",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored Euclidean GCD fixture for exercising loop and remainder control flow."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Treats inputs as unsigned i32 values for the remainder operation. The zero-divisor invocation exercises the loop exit path before i32.rem_u executes."
+}

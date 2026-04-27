@@ -1,104 +1,674 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env node
+"use strict";
 
-usage() {
-  cat <<'EOF'
-Usage: ./scripts/prepare <path/to/module.wasm> [binaryen flags...]
+const crypto = require("crypto");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const { spawnSync } = require("child_process");
 
-Validates and lightly optimizes a wasm binary with Binaryen, replaces the input
-.wasm with the prepared binary, and writes a sibling .wat file.
-EOF
+const repoRoot = path.resolve(__dirname, "..");
+const args = process.argv.slice(2);
+
+function usage() {
+  process.stderr.write(`Usage: ./scripts/prepare
+
+Finds every .wasm file directly inside stage/, classifies each one, uses the
+classifier-provided Binaryen flags to prepare it, then writes the optimized
+.wasm, matching .wat, and fixture JSON into the correct 1.0/, 2.0/, or 3.0/
+corpus directory.
+`);
 }
 
-warn() {
-  printf 'warning: %s\n' "$*" >&2
+function warn(message) {
+  process.stderr.write(`warning: ${message}\n`);
 }
 
-fail() {
-  printf 'error: %s\n' "$*" >&2
-  exit 1
+function fail(message) {
+  process.stderr.write(`error: ${message}\n`);
+  process.exit(1);
 }
 
-if [[ $# -lt 1 ]]; then
-  usage >&2
-  exit 1
-fi
-
-wasm=$1
-shift
-binaryen_flags=("$@")
-binaryen_flag_count=$#
-
-[[ $wasm == *.wasm ]] || fail "expected a .wasm file, got: $wasm"
-[[ -f $wasm ]] || fail "file does not exist: $wasm"
-
-missing=()
-for cmd in wasm-opt wasm-dis wasm-as; do
-  if ! command -v "$cmd" >/dev/null 2>&1; then
-    missing+=("$cmd")
-  fi
-done
-
-if (( ${#missing[@]} > 0 )); then
-  warn "Binaryen is required to prepare corpus binaries."
-  warn "Missing command(s): ${missing[*]}"
-  warn "Install Binaryen, then rerun this script. On macOS: brew install binaryen"
-  exit 1
-fi
-
-tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/wasm-corpus-prepare.XXXXXX")
-trap 'rm -rf "$tmpdir"' EXIT
-
-wat=${wasm%.wasm}.wat
-prepared=$tmpdir/prepared.wasm
-wat_tmp=$tmpdir/module.wat
-
-prepare_binary() {
-  local input=$1
-  local output=$2
-  local output_wat=$3
-  local current=$input
-
-  for pass in 1 2 3 4 5; do
-    local candidate=$tmpdir/candidate-$pass.wasm
-    local candidate_wat=$tmpdir/candidate-$pass.wat
-    local roundtrip=$tmpdir/roundtrip-$pass.wasm
-    local checked=$tmpdir/checked-$pass.wasm
-
-    if (( binaryen_flag_count > 0 )); then
-      wasm-opt "$current" "${binaryen_flags[@]}" -O1 -o "$candidate"
-      wasm-dis "$candidate" "${binaryen_flags[@]}" -o "$candidate_wat"
-      wasm-as "$candidate_wat" "${binaryen_flags[@]}" -o "$roundtrip"
-      wasm-opt "$roundtrip" "${binaryen_flags[@]}" -O1 -o "$checked"
-    else
-      wasm-opt "$current" -O1 -o "$candidate"
-      wasm-dis "$candidate" -o "$candidate_wat"
-      wasm-as "$candidate_wat" -o "$roundtrip"
-      wasm-opt "$roundtrip" -O1 -o "$checked"
-    fi
-
-    if cmp -s "$candidate" "$checked"; then
-      cp "$candidate" "$output"
-      cp "$candidate_wat" "$output_wat"
-      return 0
-    fi
-
-    current=$checked
-  done
-
-  fail "Binaryen output did not stabilize after 5 passes"
+function run(command, commandArgs, options = {}) {
+  return spawnSync(command, commandArgs, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+    ...options,
+  });
 }
 
-prepare_binary "$wasm" "$prepared" "$wat_tmp"
+function runRequired(command, commandArgs, options = {}) {
+  const result = run(command, commandArgs, options);
+  if (result.status !== 0) {
+    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    fail(`${command} ${commandArgs.join(" ")} failed${output ? `\n${output}` : ""}`);
+  }
+  return result;
+}
 
-mv "$prepared" "$wasm"
-mv "$wat_tmp" "$wat"
+function commandExists(command) {
+  return run("sh", ["-c", `command -v "$1" >/dev/null 2>&1`, "sh", command]).status === 0;
+}
 
-printf 'Prepared %s\n' "$wasm"
-printf 'Wrote %s\n' "$wat"
+function toPosix(relativePath) {
+  return relativePath.split(path.sep).join("/");
+}
 
-if command -v sha256sum >/dev/null 2>&1; then
-  sha256sum "$wasm"
-elif command -v shasum >/dev/null 2>&1; then
-  shasum -a 256 "$wasm"
-fi
+function relativeFromRepo(filePath) {
+  return toPosix(path.relative(repoRoot, filePath));
+}
+
+function sha256(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function binaryenVersion() {
+  const result = run("wasm-opt", ["--version"]);
+  return `${result.stdout || ""}${result.stderr || ""}`.trim();
+}
+
+function stripWatComments(wat) {
+  let output = "";
+  let inString = false;
+
+  for (let index = 0; index < wat.length; index += 1) {
+    const char = wat[index];
+    const next = wat[index + 1];
+
+    if (inString) {
+      output += char;
+      if (char === "\\") {
+        index += 1;
+        output += wat[index] || "";
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      output += char;
+      continue;
+    }
+
+    if (char === "(" && next === ";") {
+      index += 2;
+      let depth = 1;
+      while (index < wat.length && depth > 0) {
+        if (wat[index] === "(" && wat[index + 1] === ";") {
+          depth += 1;
+          index += 2;
+        } else if (wat[index] === ";" && wat[index + 1] === ")") {
+          depth -= 1;
+          index += 2;
+        } else {
+          index += 1;
+        }
+      }
+      index -= 1;
+      continue;
+    }
+
+    if (char === ";" && next === ";") {
+      while (index < wat.length && wat[index] !== "\n") index += 1;
+      output += "\n";
+      continue;
+    }
+
+    output += char;
+  }
+
+  return output;
+}
+
+function tokenizeWat(wat) {
+  const tokens = [];
+  const source = stripWatComments(wat);
+
+  for (let index = 0; index < source.length;) {
+    const char = source[index];
+
+    if (/\s/.test(char)) {
+      index += 1;
+      continue;
+    }
+
+    if (char === "(" || char === ")") {
+      tokens.push(char);
+      index += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      let token = char;
+      index += 1;
+      while (index < source.length) {
+        token += source[index];
+        if (source[index] === "\\") {
+          index += 1;
+          token += source[index] || "";
+        } else if (source[index] === '"') {
+          index += 1;
+          break;
+        }
+        index += 1;
+      }
+      tokens.push(token);
+      continue;
+    }
+
+    let token = "";
+    while (index < source.length && !/\s|\(|\)/.test(source[index])) {
+      token += source[index];
+      index += 1;
+    }
+    if (token) tokens.push(token);
+  }
+
+  return tokens;
+}
+
+function parseWat(wat) {
+  const tokens = tokenizeWat(wat);
+  let index = 0;
+
+  function parseNode() {
+    const token = tokens[index];
+    if (token !== "(") {
+      index += 1;
+      return token;
+    }
+
+    index += 1;
+    const node = [];
+    while (index < tokens.length && tokens[index] !== ")") {
+      node.push(parseNode());
+    }
+    index += 1;
+    return node;
+  }
+
+  const nodes = [];
+  while (index < tokens.length) {
+    nodes.push(parseNode());
+  }
+
+  return nodes;
+}
+
+function atomText(value) {
+  if (Array.isArray(value)) return sexprText(value);
+  return value;
+}
+
+function sexprText(node) {
+  return `(${node.map(atomText).join(" ")})`;
+}
+
+function unquoteWatString(value) {
+  if (!value || value[0] !== '"') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value.slice(1, -1);
+  }
+}
+
+function childNodes(node, head) {
+  return node.filter((item) => Array.isArray(item) && item[0] === head);
+}
+
+function firstChild(node, head) {
+  return childNodes(node, head)[0];
+}
+
+function typeRefIndex(node) {
+  const typeNode = firstChild(node, "type");
+  if (!typeNode) return null;
+  const value = typeNode.find((item) => typeof item === "string" && /^\d+$/.test(item));
+  return value == null ? null : Number(value);
+}
+
+function paramsAndResultsFromFuncNode(funcNode) {
+  const pieces = [];
+  for (const param of childNodes(funcNode, "param")) {
+    const types = param.slice(1).filter((item) => typeof item === "string" && !item.startsWith("$"));
+    if (types.length > 0) pieces.push(`(param ${types.join(" ")})`);
+  }
+  for (const result of childNodes(funcNode, "result")) {
+    const types = result.slice(1).filter((item) => typeof item === "string" && !item.startsWith("$"));
+    if (types.length > 0) pieces.push(`(result ${types.join(" ")})`);
+  }
+  return pieces;
+}
+
+function funcTypeFromNode(funcNode, types) {
+  const index = typeRefIndex(funcNode);
+  if (index != null && types[index]) return types[index];
+
+  const pieces = paramsAndResultsFromFuncNode(funcNode);
+  return pieces.length > 0 ? `(func ${pieces.join(" ")})` : "(func)";
+}
+
+function globalTypeInfo(globalNode) {
+  const typeNode = globalNode.find((item, index) => {
+    if (index === 0) return false;
+    if (Array.isArray(item)) return item[0] === "mut";
+    return typeof item === "string" && !item.startsWith("$");
+  });
+  if (Array.isArray(typeNode) && typeNode[0] === "mut") {
+    return {
+      valueType: typeNode[1],
+      mutable: true,
+      type: `(global ${sexprText(typeNode)})`,
+    };
+  }
+
+  return {
+    valueType: typeNode,
+    mutable: false,
+    type: `(global ${typeNode})`,
+  };
+}
+
+function defaultValueForType(type) {
+  switch (type) {
+    case "i32":
+    case "i64":
+    case "f32":
+    case "f64":
+      return { type, value: "0" };
+    case "externref":
+    case "funcref":
+      return { type, value: null };
+    default:
+      return null;
+  }
+}
+
+function maybeGlobalStub(globalInfo) {
+  const value = defaultValueForType(globalInfo.valueType);
+  if (!value) return undefined;
+  return {
+    value,
+    mutable: globalInfo.mutable,
+    notes: "Generated placeholder stub; replace if the fixture needs a specific host global value.",
+  };
+}
+
+function limitsType(kind, node) {
+  const parts = node
+    .slice(1)
+    .filter((item) => !(typeof item === "string" && item.startsWith("$")))
+    .filter((item) => !(Array.isArray(item) && ["export", "import"].includes(item[0])))
+    .map(atomText);
+  return `(${kind} ${parts.join(" ")})`;
+}
+
+function tagTypeFromNode(tagNode, types) {
+  const index = typeRefIndex(tagNode);
+  if (index != null && types[index]) {
+    return `(tag ${types[index].replace(/^\(func\s*|\)$/g, "")})`;
+  }
+  return sexprText(tagNode);
+}
+
+function inferWasmAbi(wasmPath) {
+  const printed = runRequired("wasm-tools", ["print", wasmPath]);
+  const root = parseWat(printed.stdout).find((node) => Array.isArray(node) && node[0] === "module");
+  if (!root) return { imports: [], exports: [] };
+
+  const types = [];
+  const imports = [];
+  const exports = [];
+  const indexMaps = {
+    function: [],
+    global: [],
+    memory: [],
+    table: [],
+    tag: [],
+  };
+
+  for (const node of root.slice(1)) {
+    if (!Array.isArray(node)) continue;
+
+    if (node[0] === "type") {
+      const funcNode = firstChild(node, "func");
+      if (funcNode) types.push(funcTypeFromNode(funcNode, types));
+      continue;
+    }
+
+    if (node[0] !== "import") continue;
+
+    const module = unquoteWatString(node[1]);
+    const name = unquoteWatString(node[2]);
+    const descriptor = node.find((item) => Array.isArray(item) && ["func", "global", "memory", "table", "tag"].includes(item[0]));
+    if (!descriptor) continue;
+
+    const kind = descriptor[0] === "func" ? "function" : descriptor[0];
+    const entry = { module, name, kind };
+
+    if (kind === "function") {
+      entry.type = funcTypeFromNode(descriptor, types);
+    } else if (kind === "global") {
+      const info = globalTypeInfo(descriptor);
+      entry.type = info.type;
+      const stub = maybeGlobalStub(info);
+      if (stub) entry.stub = stub;
+    } else if (kind === "memory") {
+      entry.type = limitsType("memory", descriptor);
+    } else if (kind === "table") {
+      entry.type = limitsType("table", descriptor);
+    } else if (kind === "tag") {
+      entry.type = tagTypeFromNode(descriptor, types);
+    }
+
+    imports.push(entry);
+    indexMaps[kind].push(entry);
+  }
+
+  for (const node of root.slice(1)) {
+    if (!Array.isArray(node)) continue;
+
+    if (node[0] === "func") {
+      indexMaps.function.push({ kind: "function", type: funcTypeFromNode(node, types) });
+    } else if (node[0] === "global") {
+      indexMaps.global.push({ kind: "global", type: globalTypeInfo(node).type });
+    } else if (node[0] === "memory") {
+      indexMaps.memory.push({ kind: "memory", type: limitsType("memory", node) });
+    } else if (node[0] === "table") {
+      indexMaps.table.push({ kind: "table", type: limitsType("table", node) });
+    } else if (node[0] === "tag") {
+      indexMaps.tag.push({ kind: "tag", type: tagTypeFromNode(node, types) });
+    }
+  }
+
+  for (const node of childNodes(root, "export")) {
+    const descriptor = node.find((item) => Array.isArray(item) && ["func", "global", "memory", "table", "tag"].includes(item[0]));
+    if (!descriptor) continue;
+
+    const kind = descriptor[0] === "func" ? "function" : descriptor[0];
+    const index = Number(descriptor.find((item) => typeof item === "string" && /^\d+$/.test(item)));
+    const indexed = indexMaps[kind][index] || {};
+    exports.push({
+      name: unquoteWatString(node[1]),
+      kind,
+      ...(indexed.type ? { type: indexed.type } : {}),
+    });
+  }
+
+  return { imports, exports };
+}
+
+function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
+  let current = input;
+
+  for (let pass = 1; pass <= 5; pass += 1) {
+    const candidate = path.join(tmpdir, `candidate-${pass}.wasm`);
+    const candidateWat = path.join(tmpdir, `candidate-${pass}.wat`);
+    const roundtrip = path.join(tmpdir, `roundtrip-${pass}.wasm`);
+    const checked = path.join(tmpdir, `checked-${pass}.wasm`);
+
+    runRequired("wasm-opt", [current, ...binaryenArgs, "-O1", "-o", candidate]);
+    runRequired("wasm-dis", [candidate, ...binaryenArgs, "-o", candidateWat]);
+    runRequired("wasm-as", [candidateWat, ...binaryenArgs, "-o", roundtrip]);
+    runRequired("wasm-opt", [roundtrip, ...binaryenArgs, "-O1", "-o", checked]);
+
+    if (fs.readFileSync(candidate).equals(fs.readFileSync(checked))) {
+      fs.copyFileSync(candidate, output);
+      fs.copyFileSync(candidateWat, outputWat);
+      return;
+    }
+
+    current = checked;
+  }
+
+  fail("Binaryen output did not stabilize after 5 passes");
+}
+
+function classify(wasmPath) {
+  const classifier = path.join(repoRoot, "scripts", "classify");
+  const result = run(process.execPath, [classifier, wasmPath]);
+  if (result.status !== 0) {
+    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    fail(`scripts/classify failed for ${relativeFromRepo(wasmPath)}${output ? `\n${output}` : ""}`);
+  }
+
+  try {
+    return JSON.parse(result.stdout);
+  } catch (error) {
+    fail(`scripts/classify returned invalid JSON: ${error.message}`);
+  }
+}
+
+function inspectModule(wasmPath) {
+  const bytes = fs.readFileSync(wasmPath);
+  const inferred = inferWasmAbi(wasmPath);
+
+  try {
+    const module = new WebAssembly.Module(bytes);
+    const imports = WebAssembly.Module.imports(module).map(({ module, name, kind }) => {
+      const normalizedKind = kind === "func" ? "function" : kind;
+      const inferredImport = inferred.imports.find(
+        (item) => item.module === module && item.name === name && item.kind === normalizedKind,
+      );
+      return {
+        module,
+        name,
+        kind: normalizedKind,
+        ...(inferredImport || {}),
+      };
+    });
+    const exports = WebAssembly.Module.exports(module).map(({ name, kind }) => {
+      const normalizedKind = kind === "func" ? "function" : kind;
+      const inferredExport = inferred.exports.find(
+        (item) => item.name === name && item.kind === normalizedKind,
+      );
+      return {
+        name,
+        kind: normalizedKind,
+        ...(inferredExport || {}),
+      };
+    });
+
+    return {
+      imports,
+      exports,
+    };
+  } catch (error) {
+    warn(`Node could not inspect imports/exports for ${relativeFromRepo(wasmPath)}: ${error.message}`);
+    return inferred;
+  }
+}
+
+function readExistingJson(jsonPath) {
+  if (!fs.existsSync(jsonPath)) return null;
+
+  try {
+    return JSON.parse(fs.readFileSync(jsonPath, "utf8"));
+  } catch (error) {
+    fail(`could not read existing fixture metadata ${relativeFromRepo(jsonPath)}: ${error.message}`);
+  }
+}
+
+function mergeImports(inferred, existing) {
+  if (inferred.length === 0) return existing || [];
+
+  return inferred.map((item) => {
+    const previous = (existing || []).find(
+      (candidate) =>
+        candidate.module === item.module &&
+        candidate.name === item.name &&
+        candidate.kind === item.kind,
+    );
+    const merged = { ...previous, ...item };
+    if (previous && Object.hasOwn(previous, "stub")) {
+      merged.stub = previous.stub;
+    }
+    return merged;
+  });
+}
+
+function mergeExports(inferred, existing) {
+  if (inferred.length === 0) return existing || [];
+
+  return inferred.map((item) => {
+    const previous = (existing || []).find(
+      (candidate) => candidate.name === item.name && candidate.kind === item.kind,
+    );
+    return { ...previous, ...item };
+  });
+}
+
+function scaffoldMetadata({ wasmPath, watPath, jsonPath, classification, stagedPath }) {
+  const parsed = path.parse(wasmPath);
+  const existing = readExistingJson(jsonPath);
+  const previous = existing || {};
+  const moduleShape = inspectModule(wasmPath);
+  const schemaPath = toPosix(path.relative(parsed.dir, path.join(repoRoot, "schema", "fixture.schema.json")));
+  const command = "./scripts/prepare";
+  const imports = mergeImports(moduleShape.imports, previous.imports);
+  const exports = mergeExports(moduleShape.exports, previous.exports);
+
+  const metadata = {
+    $schema: previous.$schema || schemaPath,
+    name: parsed.name,
+    ...(previous.description ? { description: previous.description } : {}),
+    path: path.basename(wasmPath),
+    wat: path.basename(watPath),
+    features: classification.features || [],
+    ...(previous.tags ? { tags: previous.tags } : {}),
+    ...(imports.length > 0 || previous.imports ? { imports } : {}),
+    ...(exports.length > 0 || previous.exports ? { exports } : {}),
+    invocations: previous.invocations || [],
+    sha256: sha256(wasmPath),
+    source: previous.source || {
+      contributor: "TODO: human or ai",
+    },
+    ...(previous.toolchain || !existing
+      ? {
+          toolchain: previous.toolchain || {
+            name: "Binaryen",
+            version: binaryenVersion(),
+            command,
+          },
+        }
+      : {}),
+    ...(previous.notes ? { notes: previous.notes } : {}),
+  };
+
+  const knownKeys = new Set(Object.keys(metadata));
+  for (const [key, value] of Object.entries(previous)) {
+    if (!knownKeys.has(key)) {
+      metadata[key] = value;
+    }
+  }
+
+  fs.writeFileSync(jsonPath, `${JSON.stringify(metadata, null, 2)}\n`);
+}
+
+if (args.length > 0) {
+  usage();
+  fail("prepare reads stage/*.wasm automatically; move candidate binaries into stage/ and run ./scripts/prepare");
+}
+
+const stageDir = path.join(repoRoot, "stage");
+if (!fs.existsSync(stageDir)) {
+  fail("stage/ does not exist; create it and place .wasm files there");
+}
+
+args.push(
+  ...fs
+    .readdirSync(stageDir)
+    .filter((entry) => entry.endsWith(".wasm"))
+    .sort()
+    .map((entry) => path.join("stage", entry)),
+);
+
+if (args.length === 0) {
+  process.stdout.write("No staged wasm files found. Place candidate binaries in stage/ and run ./scripts/prepare.\n");
+  process.exit(0);
+}
+
+const missing = ["wasm-opt", "wasm-dis", "wasm-as", "wasm-tools"].filter((command) => !commandExists(command));
+if (missing.length > 0) {
+  warn("Binaryen and wasm-tools are required to prepare corpus binaries.");
+  warn(`Missing command(s): ${missing.join(" ")}`);
+  warn("Install Binaryen and wasm-tools, then rerun this script. On macOS: brew install binaryen wasm-tools");
+  process.exit(1);
+}
+
+const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-prepare."));
+const preparedWasmPaths = [];
+try {
+  for (const input of args) {
+    const staged = path.resolve(input);
+    const stagedRelative = relativeFromRepo(staged);
+    const parsed = path.parse(staged);
+
+    if (!staged.endsWith(".wasm")) {
+      fail(`expected a .wasm file, got: ${input}`);
+    }
+
+    if (!fs.existsSync(staged)) {
+      fail(`file does not exist: ${input}`);
+    }
+
+    if (!stagedRelative.startsWith("stage/") || stagedRelative.split("/").length !== 2) {
+      fail(`prepare inputs must be .wasm files directly inside stage/, got: ${input}`);
+    }
+
+    const initialClassification = classify(staged);
+    if (!initialClassification.version) {
+      fail(`${stagedRelative} uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
+    }
+
+    const work = fs.mkdtempSync(path.join(tmpdir, `${parsed.name}.`));
+    const prepared = path.join(work, "prepared.wasm");
+    const watTmp = path.join(work, "module.wat");
+    prepareBinary(staged, prepared, watTmp, initialClassification.binaryen_args || [], work);
+
+    const finalClassification = classify(prepared);
+    if (!finalClassification.version) {
+      fail(`${stagedRelative} prepared output uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
+    }
+
+    const targetDir = path.join(repoRoot, finalClassification.version);
+    fs.mkdirSync(targetDir, { recursive: true });
+
+    const wasm = path.join(targetDir, `${parsed.name}.wasm`);
+    const wat = path.join(targetDir, `${parsed.name}.wat`);
+    const json = path.join(targetDir, `${parsed.name}.json`);
+
+    fs.renameSync(prepared, wasm);
+    fs.renameSync(watTmp, wat);
+    scaffoldMetadata({
+      wasmPath: wasm,
+      watPath: wat,
+      jsonPath: json,
+      classification: finalClassification,
+      stagedPath: staged,
+    });
+    fs.rmSync(staged, { force: true });
+
+    process.stdout.write(`Prepared ${stagedRelative}\n`);
+    process.stdout.write(`Wrote ${relativeFromRepo(wasm)}\n`);
+    process.stdout.write(`Wrote ${relativeFromRepo(wat)}\n`);
+    process.stdout.write(`Wrote ${relativeFromRepo(json)}\n`);
+    process.stdout.write(`Removed ${stagedRelative}\n`);
+    process.stdout.write(`${sha256(wasm)}  ${relativeFromRepo(wasm)}\n`);
+    preparedWasmPaths.push(relativeFromRepo(wasm));
+  }
+
+  if (preparedWasmPaths.length > 0) {
+    const paths = preparedWasmPaths.join(" ");
+    process.stdout.write("\nNext steps:\n");
+    process.stdout.write("1. Complete the generated JSON metadata.\n");
+    process.stdout.write(`2. Run: ./scripts/validate ${paths}\n`);
+    process.stdout.write(`3. Run: ./scripts/execute ${paths}\n`);
+  }
+} finally {
+  fs.rmSync(tmpdir, { recursive: true, force: true });
+}

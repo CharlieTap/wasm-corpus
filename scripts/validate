@@ -1,252 +1,314 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env node
+"use strict";
 
-usage() {
-  cat <<'EOF'
-Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm ...]
-
-Validates corpus fixture metadata against the JSON Schema, runs Binaryen over each wasm
-file and its sibling wat file, then checks that the binary does not shrink
-suspiciously after optimization.
-EOF
-}
-
-warn() {
-  printf 'warning: %s\n' "$*" >&2
-}
-
-fail() {
-  printf 'error: %s\n' "$*" >&2
-  exit 1
-}
-
-binaryen_version() {
-  wasm-opt --version | sed -E 's/.*version ([0-9]+).*/\1/'
-}
-
-file_size() {
-  if stat -f%z "$1" >/dev/null 2>&1; then
-    stat -f%z "$1"
-  else
-    stat -c%s "$1"
-  fi
-}
-
-percent_reduction() {
-  local original=$1
-  local optimized=$2
-
-  if (( original == 0 || optimized >= original )); then
-    printf '0'
-  else
-    printf '%d' $(( (original - optimized) * 100 / original ))
-  fi
-}
-
-validate_fixture_metadata() {
-  local fixtures=("$@")
-  local ajv_args=()
-  local fixture
-
-  if (( ${#fixtures[@]} == 0 )); then
-    return 0
-  fi
-
-  if ! command -v npx >/dev/null 2>&1; then
-    fail "npx is required to validate fixture metadata against schema/fixture.schema.json"
-  fi
-
-  for fixture in "${fixtures[@]}"; do
-    ajv_args+=("-d" "$fixture")
-  done
-
-  npx --yes ajv-cli@5 validate \
-    --spec=draft2020 \
-    -s schema/fixture.schema.json \
-    "${ajv_args[@]}"
-}
-
-validate_fixture_for_wasm() {
-  local wasm=$1
-
-  node - "$wasm" <<'NODE'
 const crypto = require("crypto");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
+const { spawnSync } = require("child_process");
 
-const wasm = path.resolve(process.argv[2]);
-const parsed = path.parse(wasm);
-const fixturePath = path.join(parsed.dir, `${parsed.name}.json`);
-const expectedWasm = `${parsed.name}.wasm`;
-const expectedWat = `${parsed.name}.wat`;
+const repoRoot = path.resolve(__dirname, "..");
+const args = process.argv.slice(2);
+
+function usage() {
+  process.stderr.write(`Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm...]
+
+Validates corpus fixture metadata against the JSON Schema, checks each module
+against ./scripts/classify for version directory and feature metadata, runs
+Binaryen over each wasm file and its sibling wat file, then checks that the
+binary does not shrink suspiciously after optimization.
+`);
+}
+
+function warn(message) {
+  process.stderr.write(`warning: ${message}\n`);
+}
 
 function fail(message) {
-  console.error(`error: ${message}`);
+  process.stderr.write(`error: ${message}\n`);
   process.exit(1);
 }
 
-if (!fs.existsSync(fixturePath)) {
-  fail(`missing matching fixture metadata: ${fixturePath}`);
+function run(command, commandArgs, options = {}) {
+  return spawnSync(command, commandArgs, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+    ...options,
+  });
 }
 
-let fixture;
+function commandExists(command) {
+  return run("sh", ["-c", `command -v "$1" >/dev/null 2>&1`, "sh", command]).status === 0;
+}
+
+function toPosix(relativePath) {
+  return relativePath.split(path.sep).join("/");
+}
+
+function relativeFromRepo(filePath) {
+  return toPosix(path.relative(repoRoot, path.resolve(filePath)));
+}
+
+function prepareAdvice(wasmPath) {
+  return `copy or move ${relativeFromRepo(wasmPath)} into stage/ and run ./scripts/prepare`;
+}
+
+function fileSize(filePath) {
+  return fs.statSync(filePath).size;
+}
+
+function percentReduction(original, optimized) {
+  if (original === 0 || optimized >= original) return 0;
+  return Math.floor(((original - optimized) * 100) / original);
+}
+
+function sha256(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function binaryenVersion() {
+  const result = run("wasm-opt", ["--version"]);
+  const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+  const match = output.match(/version\s+([0-9]+)/);
+  return match ? match[1] : output;
+}
+
+function runRequired(command, commandArgs, errorMessage) {
+  const result = run(command, commandArgs);
+  if (result.status !== 0) {
+    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    throw new Error(`${errorMessage}${output ? `\n${output}` : ""}`);
+  }
+  return result;
+}
+
+function collectFixtureJsonFiles() {
+  const fixtures = [];
+  for (const dir of ["1.0", "2.0", "3.0"]) {
+    const absoluteDir = path.join(repoRoot, dir);
+    if (!fs.existsSync(absoluteDir)) continue;
+
+    for (const entry of fs.readdirSync(absoluteDir)) {
+      if (entry.endsWith(".json")) {
+        fixtures.push(path.join(dir, entry));
+      }
+    }
+  }
+  return fixtures.sort();
+}
+
+function validateFixtureMetadata() {
+  const fixtures = collectFixtureJsonFiles();
+  if (fixtures.length === 0) return;
+
+  const result = run("npx", [
+    "--yes",
+    "ajv-cli@5",
+    "validate",
+    "--spec=draft2020",
+    "-s",
+    "schema/fixture.schema.json",
+    ...fixtures.flatMap((fixture) => ["-d", fixture]),
+  ]);
+
+  if (result.status !== 0) {
+    process.stdout.write(result.stdout || "");
+    process.stderr.write(result.stderr || "");
+    process.exit(result.status || 1);
+  }
+
+  process.stdout.write(result.stdout || "");
+  process.stderr.write(result.stderr || "");
+}
+
+function readFixture(wasmPath) {
+  const parsed = path.parse(wasmPath);
+  const fixturePath = path.join(parsed.dir, `${parsed.name}.json`);
+
+  if (!fs.existsSync(fixturePath)) {
+    throw new Error(`missing matching fixture metadata: ${fixturePath}`);
+  }
+
+  try {
+    return {
+      path: fixturePath,
+      value: JSON.parse(fs.readFileSync(fixturePath, "utf8")),
+    };
+  } catch (error) {
+    throw new Error(`could not read fixture metadata ${fixturePath}: ${error.message}`);
+  }
+}
+
+function classify(wasmPath) {
+  const classifier = path.join(repoRoot, "scripts", "classify");
+  const result = run(process.execPath, [classifier, wasmPath]);
+  if (result.status !== 0) {
+    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    throw new Error(`scripts/classify failed for ${relativeFromRepo(wasmPath)}${output ? `\n${output}` : ""}`);
+  }
+
+  try {
+    return JSON.parse(result.stdout);
+  } catch (error) {
+    throw new Error(`scripts/classify returned invalid JSON for ${relativeFromRepo(wasmPath)}: ${error.message}`);
+  }
+}
+
+function validateFixtureForWasm(wasmPath, fixturePath, fixture) {
+  const parsed = path.parse(wasmPath);
+  const expectedWasm = `${parsed.name}.wasm`;
+  const expectedWat = `${parsed.name}.wat`;
+
+  if (fixture.path !== expectedWasm) {
+    throw new Error(`${fixturePath} path must be ${expectedWasm}, got ${fixture.path}`);
+  }
+
+  if (fixture.wat !== expectedWat) {
+    throw new Error(`${fixturePath} wat must be ${expectedWat}, got ${fixture.wat}`);
+  }
+
+  if (fixture.name !== parsed.name) {
+    throw new Error(`${fixturePath} name must match basename ${parsed.name}, got ${fixture.name}`);
+  }
+
+  const actualSha256 = sha256(wasmPath);
+  if (fixture.sha256 !== actualSha256) {
+    throw new Error(`${fixturePath} sha256 does not match ${relativeFromRepo(wasmPath)}: expected ${actualSha256}, got ${fixture.sha256}`);
+  }
+}
+
+function validateClassifiedVersion(wasmPath, classification) {
+  const relativeWasm = relativeFromRepo(wasmPath);
+  const versionDir = relativeWasm.split("/")[0];
+
+  if (!["1.0", "2.0", "3.0"].includes(versionDir)) {
+    throw new Error(`${relativeWasm} must be inside 1.0/, 2.0/, or 3.0/`);
+  }
+
+  if (!classification.version) {
+    throw new Error(`${relativeWasm} uses features newer than the supported 1.0/2.0/3.0 corpus directories\n       classifier output: ${JSON.stringify(classification)}`);
+  }
+
+  if (versionDir !== classification.version) {
+    throw new Error(`${relativeWasm} belongs in ${classification.version}/ based on ./scripts/classify, not ${versionDir}/\n       corpus entries must use the lowest version directory that can represent the module\n       classifier output: ${JSON.stringify(classification)}`);
+  }
+}
+
+function validateClassifiedFeatures(wasmPath, fixture, classification) {
+  const declared = new Set(fixture.features || []);
+  const missing = (classification.features || []).filter((feature) => !declared.has(feature));
+
+  if (missing.length > 0) {
+    throw new Error(`${relativeFromRepo(wasmPath)} metadata is missing classifier-detected feature(s): ${missing.join(", ")}\n       declared features: ${(fixture.features || []).join(", ") || "(none)"}\n       classifier output: ${JSON.stringify(classification)}`);
+  }
+}
+
+function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags }) {
+  const optimized = path.join(workDir, "optimized.wasm");
+  const disassembled = path.join(workDir, "module.wat");
+  const watWasm = path.join(workDir, "wat.wasm");
+  const watOptimized = path.join(workDir, "wat-optimized.wasm");
+
+  runRequired("wasm-opt", [wasmPath, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-dis", [optimized, ...binaryenFlags, "-o", disassembled], `Binaryen could not disassemble optimized output for ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-as", [watPath, ...binaryenFlags, "-o", watWasm], `Binaryen could not assemble sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-opt", [watWasm, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+
+  if (!fs.readFileSync(optimized).equals(fs.readFileSync(watOptimized))) {
+    throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
+  }
+
+  return optimized;
+}
+
+function validateShrinkage(wasmPath, optimizedPath, binaryen) {
+  const minSizeCheckBytes = Number.parseInt(process.env.WASM_CORPUS_VALIDATE_MIN_SIZE || "1024", 10);
+  const maxReductionPercent = Number.parseInt(process.env.WASM_CORPUS_VALIDATE_MAX_REDUCTION_PERCENT || "20", 10);
+  const maxReductionBytes = Number.parseInt(process.env.WASM_CORPUS_VALIDATE_MAX_REDUCTION_BYTES || "512", 10);
+
+  const originalSize = fileSize(wasmPath);
+  const optimizedSize = fileSize(optimizedPath);
+  const reductionBytes = optimizedSize < originalSize ? originalSize - optimizedSize : 0;
+  const reductionPercent = percentReduction(originalSize, optimizedSize);
+
+  if (
+    originalSize >= minSizeCheckBytes &&
+    reductionBytes >= maxReductionBytes &&
+    reductionPercent > maxReductionPercent
+  ) {
+    throw new Error(`${relativeFromRepo(wasmPath)} shrank substantially when Binaryen was applied\n       Binaryen version used: ${binaryen}\n       original size:  ${originalSize} bytes\n       optimized size: ${optimizedSize} bytes\n       reduction:      ${reductionBytes} bytes (${reductionPercent}%)\n       this usually means Binaryen has not been applied yet; ${prepareAdvice(wasmPath)}`);
+  }
+
+  return { optimizedSize, reductionBytes, reductionPercent };
+}
+
+function validateOne(wasmPath, workDir, binaryen) {
+  if (!wasmPath.endsWith(".wasm")) {
+    throw new Error(`expected a .wasm file, got: ${wasmPath}`);
+  }
+
+  if (!fs.existsSync(wasmPath)) {
+    throw new Error(`file does not exist: ${wasmPath}`);
+  }
+
+  const watPath = wasmPath.replace(/\.wasm$/, ".wat");
+  const { path: fixturePath, value: fixture } = readFixture(wasmPath);
+  validateFixtureForWasm(wasmPath, fixturePath, fixture);
+
+  if (!fs.existsSync(watPath)) {
+    throw new Error(`missing matching wat file: ${watPath}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to generate it`);
+  }
+
+  const classification = classify(wasmPath);
+  validateClassifiedVersion(wasmPath, classification);
+  validateClassifiedFeatures(wasmPath, fixture, classification);
+
+  const binaryenFlags = classification.binaryen_args || [];
+  const optimized = validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags });
+  const shrinkage = validateShrinkage(wasmPath, optimized, binaryen);
+
+  process.stdout.write(
+    `Validated ${relativeFromRepo(wasmPath)} with Binaryen ${binaryen} and classifier ${classification.version} (${classification.features.length} feature(s); optimized size ${shrinkage.optimizedSize} bytes, reduction ${shrinkage.reductionBytes} bytes / ${shrinkage.reductionPercent}%)\n`,
+  );
+}
+
+if (args.length < 1) {
+  usage();
+  process.exit(1);
+}
+
+const missing = ["wasm-opt", "wasm-dis", "wasm-as", "wasm-tools", "npx", "node"].filter(
+  (command) => !commandExists(command),
+);
+
+if (missing.length > 0) {
+  warn("Binaryen, wasm-tools, Node.js, and npx are required to validate corpus binaries.");
+  warn(`Missing command(s): ${missing.join(" ")}`);
+  warn("Install Binaryen and wasm-tools, then rerun this script. On macOS: brew install binaryen wasm-tools");
+  process.exit(1);
+}
+
+validateFixtureMetadata();
+
+const binaryen = binaryenVersion();
+const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-validate."));
+let status = 0;
+
 try {
-  fixture = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
-} catch (error) {
-  fail(`could not read fixture metadata ${fixturePath}: ${error.message}`);
+  args.forEach((input, index) => {
+    try {
+      const wasmPath = path.resolve(input);
+      const workDir = path.join(tmpdir, String(index + 1));
+      fs.mkdirSync(workDir, { recursive: true });
+      validateOne(wasmPath, workDir, binaryen);
+    } catch (error) {
+      process.stderr.write(`error: ${error.message}\n`);
+      status = 1;
+    }
+  });
+} finally {
+  fs.rmSync(tmpdir, { recursive: true, force: true });
 }
 
-if (fixture.path !== expectedWasm) {
-  fail(`${fixturePath} path must be ${expectedWasm}, got ${fixture.path}`);
-}
-
-if (fixture.wat !== expectedWat) {
-  fail(`${fixturePath} wat must be ${expectedWat}, got ${fixture.wat}`);
-}
-
-if (fixture.name !== parsed.name) {
-  fail(`${fixturePath} name must match basename ${parsed.name}, got ${fixture.name}`);
-}
-
-const actualSha256 = crypto.createHash("sha256").update(fs.readFileSync(wasm)).digest("hex");
-if (fixture.sha256 !== actualSha256) {
-  fail(`${fixturePath} sha256 does not match ${path.relative(process.cwd(), wasm)}: expected ${actualSha256}, got ${fixture.sha256}`);
-}
-NODE
-}
-
-if [[ $# -lt 1 ]]; then
-  usage >&2
-  exit 1
-fi
-
-missing=()
-for cmd in wasm-opt wasm-dis wasm-as; do
-  if ! command -v "$cmd" >/dev/null 2>&1; then
-    missing+=("$cmd")
-  fi
-done
-
-if (( ${#missing[@]} > 0 )); then
-  warn "Binaryen is required to validate corpus binaries."
-  warn "Missing command(s): ${missing[*]}"
-  warn "Install Binaryen, then rerun this script. On macOS: brew install binaryen"
-  exit 1
-fi
-
-binaryen=$(binaryen_version)
-tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/wasm-corpus-validate.XXXXXX")
-trap 'rm -rf "$tmpdir"' EXIT
-
-min_size_check_bytes=${WASM_CORPUS_VALIDATE_MIN_SIZE:-1024}
-max_reduction_percent=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_PERCENT:-20}
-max_reduction_bytes=${WASM_CORPUS_VALIDATE_MAX_REDUCTION_BYTES:-512}
-
-fixture_list=$tmpdir/fixtures.txt
-find ./1.0 ./2.0 ./3.0 -maxdepth 1 -name '*.json' | sort > "$fixture_list"
-
-fixtures=()
-while IFS= read -r fixture; do
-  fixtures+=("$fixture")
-done < "$fixture_list"
-
-validate_fixture_metadata "${fixtures[@]}"
-
-status=0
-index=0
-
-for wasm in "$@"; do
-  index=$((index + 1))
-  if [[ $wasm != *.wasm ]]; then
-    printf 'error: expected a .wasm file, got: %s\n' "$wasm" >&2
-    status=1
-    continue
-  fi
-
-  if [[ ! -f $wasm ]]; then
-    printf 'error: file does not exist: %s\n' "$wasm" >&2
-    status=1
-    continue
-  fi
-
-  if ! validate_fixture_for_wasm "$wasm"; then
-    status=1
-    continue
-  fi
-
-  wat=${wasm%.wasm}.wat
-  if [[ ! -f $wat ]]; then
-    printf 'error: missing matching wat file: %s\n' "$wat" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    printf '       run ./scripts/prepare %s to generate it\n' "$wasm" >&2
-    status=1
-    continue
-  fi
-
-  work=$tmpdir/$index
-  mkdir -p "$work"
-  optimized=$work/optimized.wasm
-  disassembled=$work/module.wat
-  wat_wasm=$work/wat.wasm
-  wat_optimized=$work/wat-optimized.wasm
-
-  if ! wasm-opt "$wasm" -O1 -o "$optimized"; then
-    printf 'error: Binaryen could not optimize %s\n' "$wasm" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    status=1
-    continue
-  fi
-
-  if ! wasm-dis "$optimized" -o "$disassembled"; then
-    printf 'error: Binaryen could not disassemble optimized output for %s\n' "$wasm" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    status=1
-    continue
-  fi
-
-  if ! wasm-as "$wat" -o "$wat_wasm"; then
-    printf 'error: Binaryen could not assemble sibling wat file %s\n' "$wat" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    status=1
-    continue
-  fi
-
-  if ! wasm-opt "$wat_wasm" -O1 -o "$wat_optimized"; then
-    printf 'error: Binaryen could not optimize sibling wat file %s\n' "$wat" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    status=1
-    continue
-  fi
-
-  if ! cmp -s "$optimized" "$wat_optimized"; then
-    printf 'error: %s does not roundtrip to the same optimized module as %s\n' "$wat" "$wasm" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    printf '       run ./scripts/prepare %s to refresh both files\n' "$wasm" >&2
-    status=1
-    continue
-  fi
-
-  original_size=$(file_size "$wasm")
-  optimized_size=$(file_size "$optimized")
-  reduction_bytes=0
-  if (( optimized_size < original_size )); then
-    reduction_bytes=$(( original_size - optimized_size ))
-  fi
-  reduction_percent=$(percent_reduction "$original_size" "$optimized_size")
-
-  if (( original_size >= min_size_check_bytes && reduction_bytes >= max_reduction_bytes && reduction_percent > max_reduction_percent )); then
-    printf 'error: %s shrank substantially when Binaryen was applied\n' "$wasm" >&2
-    printf '       Binaryen version used: %s\n' "$binaryen" >&2
-    printf '       original size:  %s bytes\n' "$original_size" >&2
-    printf '       optimized size: %s bytes\n' "$optimized_size" >&2
-    printf '       reduction:      %s bytes (%s%%)\n' "$reduction_bytes" "$reduction_percent" >&2
-    printf '       this usually means Binaryen has not been applied yet; run ./scripts/prepare %s\n' "$wasm" >&2
-    status=1
-    continue
-  fi
-
-  printf 'Validated %s with Binaryen %s (optimized size %s bytes, reduction %s bytes / %s%%)\n' \
-    "$wasm" "$binaryen" "$optimized_size" "$reduction_bytes" "$reduction_percent"
-done
-
-exit "$status"
+process.exit(status);

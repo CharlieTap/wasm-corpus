@@ -1,0 +1,208 @@
+#!/usr/bin/env node
+"use strict";
+
+const { spawnSync } = require("child_process");
+const fs = require("fs");
+
+const wasmPath = process.argv[2];
+
+if (!wasmPath) {
+  console.error("Usage: ./scripts/classify <path/to/module.wasm>");
+  process.exit(1);
+}
+
+if (!fs.existsSync(wasmPath)) {
+  console.error(`error: file does not exist: ${wasmPath}`);
+  process.exit(1);
+}
+
+function run(command, args, options = {}) {
+  return spawnSync(command, args, {
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+    ...options,
+  });
+}
+
+function validateWith(features) {
+  const result = run("wasm-tools", ["validate", "--features", features, wasmPath]);
+  return {
+    ok: result.status === 0,
+    output: `${result.stdout || ""}${result.stderr || ""}`.trim(),
+  };
+}
+
+function inferVersion() {
+  for (const [features, version] of [
+    ["mvp", "1.0"],
+    ["wasm2", "2.0"],
+    ["wasm3", "3.0"],
+  ]) {
+    if (validateWith(features).ok) return version;
+  }
+
+  if (validateWith("all").ok) return null;
+
+  console.error("error: wasm-tools could not validate module with --features all");
+  const all = validateWith("all");
+  if (all.output) console.error(all.output);
+  process.exit(1);
+}
+
+function addEvidence(evidence, feature, token) {
+  evidence[feature] ||= [];
+  if (!evidence[feature].includes(token)) {
+    evidence[feature].push(token);
+  }
+}
+
+function detectFromText(wat) {
+  const evidence = {};
+
+  if (/^\s*\(component\b/.test(wat)) {
+    addEvidence(evidence, "component-model", "(component");
+  }
+
+  const checks = [
+    ["bulk-memory", /\b(?:memory\.init|data\.drop|memory\.copy|memory\.fill|table\.init|elem\.drop|table\.copy)\b/g],
+    ["tail-call", /\b(?:return_call|return_call_indirect)\b/g],
+    ["exception-handling", /\(tag\b|\b(?:throw|throw_ref|try_table|catch|catch_all|delegate)\b/g],
+    ["saturated-float-to-int", /\b[if](?:32|64)\.trunc_sat_f(?:32|64)_[su]\b/g],
+    ["sign-extensions", /\bi(?:32|64)\.extend(?:8|16|32)_s\b/g],
+    ["simd", /\b(?:v128|i8x16\.[A-Za-z0-9_]+|i16x8\.[A-Za-z0-9_]+|i32x4\.[A-Za-z0-9_]+|i64x2\.[A-Za-z0-9_]+|f32x4\.[A-Za-z0-9_]+|f64x2\.[A-Za-z0-9_]+|v8x16\.[A-Za-z0-9_]+|v16x8\.[A-Za-z0-9_]+|v32x4\.[A-Za-z0-9_]+|v64x2\.[A-Za-z0-9_]+)\b/g],
+    ["relaxed-simd", /\b(?:i8x16|i16x8|i32x4|i64x2|f32x4|f64x2)\.relaxed_[A-Za-z0-9_]+|\brelaxed_[A-Za-z0-9_]+\b/g],
+    ["reference-types", /\b(?:externref|funcref|ref\.null|ref\.is_null|ref\.func|table\.get|table\.set|table\.grow|table\.size|table\.fill)\b/g],
+    ["typed-function-references", /\b(?:call_ref|return_call_ref|ref\.as_non_null|br_on_null|br_on_non_null)\b/g],
+    ["gc", /\b(?:i31ref|eqref|anyref|none|nofunc|noextern|ref\.eq|ref\.test(?:_nullable|_non_null)?|ref\.cast(?:_nullable|_non_null)?|br_on_cast(?:_fail)?|any\.convert_extern|extern\.convert_any|ref\.i31(?:_shared)?|i31\.get_[su]|struct\.(?:new(?:_default)?|get(?:_[su])?|set|atomic_[A-Za-z0-9_]+)|array\.(?:new(?:_default|_fixed|_data|_elem)?|get(?:_[su])?|set|len|fill|copy|init_data|init_elem|atomic_[A-Za-z0-9_]+))\b|\(type\b[^)]*\b(?:struct|array)\b/g],
+    ["more-array-constructors", /\barray\.(?:new_fixed|new_data|new_elem|init_data|init_elem)\b/g],
+    ["memory64", /\bmemory64\b|\(memory\s+(?:\([^)]*\)\s+)?i64\b/g],
+    ["multi-memory", /\bmemory\s+[1-9][0-9]*\b|\(memory\s+\(;[1-9][0-9]*;\)/g],
+    ["mutable-globals", /^\s*\(global\b[^\n]*\(mut\b|\(import\b[^\n]*\(global\b[^\n]*\(mut\b/gm],
+    ["custom-page-sizes", /\(pagesize\s+0x[0-9a-fA-F]+|\(pagesize\s+[0-9]+/g],
+    ["memory-control", /\bmemory\.discard\b/g],
+    ["threads", /\b(?:shared|memory\.atomic\.[A-Za-z0-9_]+|atomic\.fence|i(?:32|64)\.atomic\.[A-Za-z0-9_]+)\b/g],
+    ["shared-everything-threads", /\b(?:global|table|struct|array)\.atomic\.[A-Za-z0-9_]+|\bref\.i31_shared\b/g],
+    ["stack-switching", /(?:^|[\s(])(?:cont\.new|cont\.bind|suspend|resume|resume_throw|switch)\b/g],
+    ["wide-arithmetic", /\bi64\.(?:add128|sub128|mul_wide_[su])\b/g],
+    ["extended-const", /\(global\s+[^)]*\([^)]*(?:i32\.add|i32\.sub|i32\.mul|i64\.add|i64\.sub|i64\.mul|ref\.null|ref\.func)/g],
+  ];
+
+  for (const [feature, regex] of checks) {
+    for (const match of wat.matchAll(regex)) {
+      addEvidence(evidence, feature, match[0]);
+    }
+  }
+
+  const funcTypes = wat.match(/\(func\b[^)]*\(result\s+[^)]*\s+[^)]*\)/g) || [];
+  for (const match of funcTypes) {
+    addEvidence(evidence, "multi-value", match.replace(/\s+/g, " ").trim());
+  }
+
+  return evidence;
+}
+
+function binaryenArgsForFeatures(features) {
+  const flags = new Set();
+  const add = (...items) => items.forEach((item) => flags.add(item));
+
+  for (const feature of features || []) {
+    switch (feature) {
+      case "bulk-memory":
+        add("--enable-bulk-memory");
+        break;
+      case "exception-handling":
+        add("--enable-exception-handling");
+        break;
+      case "extended-const":
+        add("--enable-extended-const");
+        break;
+      case "gc":
+      case "more-array-constructors":
+        add("--enable-gc");
+        break;
+      case "half-precision":
+        add("--enable-fp16");
+        break;
+      case "memory64":
+        add("--enable-memory64");
+        break;
+      case "multi-memory":
+        add("--enable-multimemory");
+        break;
+      case "multi-value":
+        add("--enable-multivalue");
+        break;
+      case "mutable-globals":
+        add("--enable-mutable-globals");
+        break;
+      case "reference-types":
+        add("--enable-reference-types");
+        break;
+      case "relaxed-simd":
+        add("--enable-simd", "--enable-relaxed-simd");
+        break;
+      case "saturated-float-to-int":
+        add("--enable-nontrapping-float-to-int");
+        break;
+      case "shared-everything-threads":
+        add("--enable-shared-everything");
+        break;
+      case "sign-extensions":
+        add("--enable-sign-ext");
+        break;
+      case "simd":
+        add("--enable-simd");
+        break;
+      case "stack-switching":
+        add("--enable-stack-switching");
+        break;
+      case "stringref":
+        add("--enable-strings");
+        break;
+      case "tail-call":
+        add("--enable-tail-call");
+        break;
+      case "threads":
+        add("--enable-threads");
+        break;
+      case "typed-function-references":
+        add("--enable-reference-types", "--enable-typed-function-references");
+        break;
+      case "custom-descriptors":
+        add("--enable-custom-descriptors");
+        break;
+    }
+  }
+
+  return [...flags];
+}
+
+const printed = run("wasm-tools", ["print", wasmPath]);
+if (printed.status !== 0) {
+  console.error(`error: wasm-tools print failed for ${wasmPath}`);
+  const output = `${printed.stdout || ""}${printed.stderr || ""}`.trim();
+  if (output) console.error(output);
+  process.exit(1);
+}
+
+const version = inferVersion();
+const evidence = detectFromText(printed.stdout);
+const features = Object.keys(evidence).sort();
+const binaryenArgs = binaryenArgsForFeatures(features);
+
+process.stdout.write(
+  `${JSON.stringify(
+    {
+      version,
+      features,
+      binaryen_args: binaryenArgs,
+      evidence: Object.fromEntries(
+        Object.entries(evidence)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([feature, tokens]) => [feature, tokens.sort()]),
+      ),
+    },
+    null,
+    2,
+  )}\n`,
+);
