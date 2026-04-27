@@ -355,6 +355,18 @@ Use `invocations` to capture a small set of representative executable paths. Do 
 }
 ```
 
+## Metadata Quality
+
+Do not stop at the minimum schema fields. The JSON is how corpus consumers decide whether a fixture is useful before opening the WAT, so include enough context to make filtering, review, and execution straightforward.
+
+Use top-level `description` to say what the module actually does and what result its export returns. Mention important constraints directly, such as fixed graph size, bounded numeric domain, deterministic seed, scratch-memory use, or whether `-1` means "not found" or "out of domain".
+
+Use `tags` to describe the Wasm shapes the fixture exposes. Prefer practical search labels such as `algorithm`, `numeric`, `graph`, `traversal`, `loop`, `branching`, `memory`, `imports`, `table`, `trap`, `bounded-domain`, or proposal names when relevant. Tags are not a taxonomy contest; choose the few that would help a consumer find or filter the fixture.
+
+Use `source` for provenance and authorship. Set `source.contributor` to `ai` for AI-authored or AI-generated fixtures, and `human` for fixtures authored by a person or imported from a human-authored upstream project. Add `source.language` when known, and include `source.url` or `source.path` for imported fixtures. Keep `source.description` honest: do not call an AI-authored fixture hand-authored by a human.
+
+Use `notes` for behavior that affects consumers but does not belong in `description`, such as overflow guards, sentinel return values, timeout limits, host-stub assumptions, unusual validation choices, or the memory layout used by a compact fixture. If the fixture intentionally accepts only a bounded domain, document the boundary and the return/trap behavior outside it.
+
 If imports are needed, add simple static stubs:
 
 ```json

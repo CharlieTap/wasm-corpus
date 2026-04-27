@@ -1,9 +1,18 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "bfs",
+  "description": "Queue-based breadth-first traversal over a fixed seven-node binary tree, returning the target node depth or -1 when absent.",
   "path": "bfs.wasm",
   "wat": "bfs.wat",
   "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "traversal",
+    "queue",
+    "memory",
+    "branching"
+  ],
   "exports": [
     {
       "name": "bfs_levels",
@@ -85,9 +94,11 @@
       }
     }
   ],
+  "sha256": "e32ff463139b6e4ad41058c3def930fc5fddb6360f9cf5c980b596b8f326fe35",
   "source": {
     "contributor": "ai",
-    "description": "Hand-authored breadth-first search fixture for the corpus"
+    "language": "wat",
+    "description": "AI-authored breadth-first search fixture for the corpus"
   },
-  "sha256": "e32ff463139b6e4ad41058c3def930fc5fddb6360f9cf5c980b596b8f326fe35"
+  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the BFS queue and distance table."
 }

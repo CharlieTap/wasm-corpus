@@ -1,9 +1,17 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "fibonacci",
+  "description": "Iterative i32 Fibonacci with explicit out-of-domain handling for negative inputs and values that would overflow i32.",
   "path": "fibonacci.wasm",
   "wat": "fibonacci.wat",
   "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "loop",
+    "branching",
+    "bounded-domain"
+  ],
   "exports": [
     {
       "name": "fib",
@@ -106,6 +114,8 @@
   "sha256": "03a29238e8b99a013aae3c908705ee61910eb9e73297b31c6363199efe2aaecb",
   "source": {
     "contributor": "ai",
-    "description": "Hand-authored fibonacci fixture for the corpus"
-  }
+    "language": "wat",
+    "description": "AI-authored fibonacci fixture for the corpus"
+  },
+  "notes": "Returns -1 for inputs outside 0..46 so the fixture avoids i32 overflow while still exercising iterative state updates."
 }

@@ -1,9 +1,18 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "dfs",
+  "description": "Stack-based depth-first preorder traversal over a fixed seven-node binary tree, returning the target visit order or -1 when absent.",
   "path": "dfs.wasm",
   "wat": "dfs.wat",
   "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "traversal",
+    "stack",
+    "memory",
+    "branching"
+  ],
   "exports": [
     {
       "name": "dfs_visit",
@@ -85,9 +94,11 @@
       }
     }
   ],
+  "sha256": "186f806ba5d06456c18715bc78429b2869a2668d9e4da42cd6d6e1b8f4e91159",
   "source": {
     "contributor": "ai",
-    "description": "Hand-authored depth-first search preorder fixture for the corpus"
+    "language": "wat",
+    "description": "AI-authored depth-first search preorder fixture for the corpus"
   },
-  "sha256": "186f806ba5d06456c18715bc78429b2869a2668d9e4da42cd6d6e1b8f4e91159"
+  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the DFS stack."
 }

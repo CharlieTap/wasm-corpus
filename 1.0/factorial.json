@@ -1,9 +1,17 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "factorial",
+  "description": "Iterative i32 factorial with explicit out-of-domain handling for negative inputs and values that would overflow i32.",
   "path": "factorial.wasm",
   "wat": "factorial.wat",
   "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "loop",
+    "branching",
+    "bounded-domain"
+  ],
   "exports": [
     {
       "name": "fac",
@@ -106,6 +114,8 @@
   "sha256": "7aac2fccd50e3f8b79c4d27480e1c1aa0cbcc01ac3d143dda7a232d0bce59d62",
   "source": {
     "contributor": "ai",
-    "description": "Hand-authored factorial fixture for the corpus"
-  }
+    "language": "wat",
+    "description": "AI-authored factorial fixture for the corpus"
+  },
+  "notes": "Returns -1 for inputs outside 0..12 so the fixture avoids i32 overflow while still exercising loop multiplication."
 }

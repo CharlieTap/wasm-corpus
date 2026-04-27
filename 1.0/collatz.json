@@ -1,9 +1,17 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "collatz",
+  "description": "Iterative Collatz step counter for positive i32 inputs with guards for invalid inputs and overflowing odd steps.",
   "path": "collatz.wasm",
   "wat": "collatz.wat",
   "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "loop",
+    "branching",
+    "bounded-domain"
+  ],
   "exports": [
     {
       "name": "steps",
@@ -107,6 +115,7 @@
   "source": {
     "contributor": "ai",
     "language": "wat",
-    "description": "Hand-authored Collatz fixture for the corpus"
-  }
+    "description": "AI-authored Collatz fixture for the corpus"
+  },
+  "notes": "Returns -1 for non-positive inputs, for odd steps where 3n + 1 would overflow i32, or if the loop exceeds 10000 steps."
 }
