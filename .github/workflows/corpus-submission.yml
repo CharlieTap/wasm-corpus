@@ -28,10 +28,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Binaryen
+      - name: Install Binaryen and wasm-tools
         run: |
           sudo apt-get update
           sudo apt-get install -y binaryen
+          cargo install wasm-tools --version 1.239.0 --locked
 
       - name: Find WASM files to validate
         id: wasm-files
