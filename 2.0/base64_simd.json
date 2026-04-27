@@ -1,0 +1,204 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "base64_simd",
+  "description": "SIMD-accelerated Base64 encoder/decoder module from @addmaple/base64, using bulk memory and v128 instructions in its real package build.",
+  "path": "base64_simd.wasm",
+  "wat": "base64_simd.wat",
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "simd"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "alloc_bytes",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free_bytes",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "encode_std",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "encode_url",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "decode_std",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "decode_url",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__data_end",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "__heap_base",
+      "kind": "global",
+      "type": "(global i32)"
+    }
+  ],
+  "tags": [
+    "base64",
+    "encoding",
+    "simd",
+    "bulk-memory",
+    "real-world",
+    "npm"
+  ],
+  "invocations": [
+    {
+      "name": "encode-std-empty",
+      "function": "encode_std",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "encode-url-empty",
+      "function": "encode_url",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "decode-std-empty",
+      "function": "decode_std",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "decode-url-empty",
+      "function": "decode_url",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        },
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    }
+  ],
+  "sha256": "2b3ca4fbf7ab8de532d9babd9c9eb55cf0fdcadd2226f9fc7932ad81e64b0b18",
+  "source": {
+    "contributor": "human",
+    "url": "https://www.npmjs.com/package/@addmaple/base64/v/0.3.2",
+    "path": "dist/wasm/base64_simd.simd.wasm",
+    "language": "rust",
+    "description": "MIT-licensed @addmaple/base64 0.3.2 SIMD WebAssembly build from npm, repository git+https://github.com/addmaple/base64-simd.git"
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The package's normal JS wrapper allocates input/output buffers and writes bytes into exported memory before calling encode/decode. The current corpus runner cannot pre-seed exported memory, so invocations exercise the zero-length encode/decode paths while the committed binary still exposes the real SIMD and bulk-memory instruction shapes for consumers."
+}
