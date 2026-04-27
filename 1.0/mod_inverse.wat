@@ -26,12 +26,20 @@
     (then
      (if
       (i32.eq
-       (i32.rem_u
-        (i32.mul
-         (local.get $0)
-         (local.get $2)
+       (i32.wrap_i64
+        (i64.rem_u
+         (i64.mul
+          (i64.extend_i32_u
+           (local.get $0)
+          )
+          (i64.extend_i32_u
+           (local.get $2)
+          )
+         )
+         (i64.extend_i32_u
+          (local.get $1)
+         )
         )
-        (local.get $1)
        )
        (i32.const 1)
       )

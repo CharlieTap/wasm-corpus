@@ -129,9 +129,31 @@
           }
         ]
       }
+    },
+    {
+      "name": "large-input-no-wraparound",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "1837719394"
+        },
+        {
+          "type": "i32",
+          "value": "5"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "4"
+          }
+        ]
+      }
     }
   ],
-  "sha256": "48dd78ddc94329024d3a30adb78b355aa82be7a38016e0b2b956442796be6f03",
+  "sha256": "8d636b77b4115ae9f1b3a687b4e19edf13132bf746d735c0a276c2dbf67eccb9",
   "source": {
     "contributor": "ai",
     "language": "wat",
