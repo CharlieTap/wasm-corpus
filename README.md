@@ -35,7 +35,7 @@ Each version directory contains:
 
 The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
 
-The `stage/` directory is the authoring drop zone. Put candidate `.wasm` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
+The `stage/` directory is the authoring drop zone. Put candidate `.wasm` or `.wat` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
 
 ## Submitting Fixtures
 

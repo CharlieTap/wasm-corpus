@@ -23,12 +23,12 @@ brew install binaryen wasm-tools
 
 ## Core Flow
 
-1. Place one or more candidate `.wasm` files directly in `stage/`.
-2. Run `./scripts/prepare`.
-3. Edit the generated JSON metadata.
-4. Run the `validate` command printed by `prepare`.
-5. Run the `execute` command printed by `prepare`.
-6. Commit the prepared `.wasm`, `.wat`, and `.json` files.
+1. Place one or more candidate `.wasm` or `.wat` files directly in `stage/`
+2. Run `./scripts/prepare`
+3. Edit the generated JSON metadata
+4. Run the `validate` command printed by `prepare`
+5. Run the `execute` command printed by `prepare`
+6. Commit the prepared `.wasm`, `.wat`, and `.json` files
 
 Example:
 
@@ -40,7 +40,9 @@ cp /tmp/gcd.wasm stage/gcd.wasm
 ./scripts/execute 1.0/gcd.wasm
 ```
 
-`prepare` scans every `.wasm` file directly inside `stage/`. It classifies each binary, applies the required Binaryen flags, writes the optimized `.wasm`, matching `.wat`, and matching `.json` into the inferred `1.0/`, `2.0/`, or `3.0/` directory, then removes the staged source binary. If `stage/` is empty, `prepare` exits successfully with a no-op message.
+`prepare` scans every `.wasm` or `.wat` file directly inside `stage/`. For staged WAT, it first compiles the text format to a temporary binary. It then classifies the module, applies the required Binaryen flags, writes the optimized `.wasm`, matching `.wat`, and matching `.json` into the inferred `1.0/`, `2.0/`, or `3.0/` directory, then removes the staged source file. If `stage/` is empty, `prepare` exits successfully with a no-op message.
+
+Stage only one source file per basename. For example, use either `stage/gcd.wasm` or `stage/gcd.wat`, not both, because both prepare to the same `gcd.wasm`, `gcd.wat`, and `gcd.json` outputs.
 
 ## Generated Metadata
 
@@ -146,9 +148,9 @@ Numeric values should be strings so consumers do not lose precision when reading
 
 Before opening a PR:
 
-- `stage/` contains no candidate `.wasm` files.
-- The generated `.wat` is readable and matches the `.wasm`.
-- Metadata has no placeholders.
-- `./scripts/validate ...` passes.
-- `./scripts/execute ...` passes.
-- Source license and provenance are clear.
+- `stage/` contains no candidate `.wasm` or `.wat` files
+- The generated `.wat` is readable and matches the `.wasm`
+- Metadata has no placeholders
+- `./scripts/validate ...` passes
+- `./scripts/execute ...` passes
+- Source license and provenance are clear
