@@ -3,12 +3,32 @@
  (export "fac" (func $0))
  (func $0 (param $0 i32) (result i32)
   (local $1 i32)
+  (if
+   (i32.or
+    (i32.lt_s
+     (local.get $0)
+     (i32.const 0)
+    )
+    (i32.gt_s
+     (local.get $0)
+     (i32.const 12)
+    )
+   )
+   (then
+    (return
+     (i32.const -1)
+    )
+   )
+  )
   (local.set $1
    (i32.const 1)
   )
   (loop $label
    (if
-    (local.get $0)
+    (i32.gt_s
+     (local.get $0)
+     (i32.const 1)
+    )
     (then
      (local.set $1
       (i32.mul

@@ -9,16 +9,10 @@
     "path",
     "wat",
     "features",
-    "sha256"
+    "invocations",
+    "sha256",
+    "source"
   ],
-  "dependentRequired": {
-    "args": [
-      "function"
-    ],
-    "expected": [
-      "function"
-    ]
-  },
   "properties": {
     "$schema": {
       "type": "string"
@@ -57,24 +51,12 @@
         "$ref": "#/$defs/export"
       }
     },
-    "function": {
-      "type": "string"
-    },
-    "args": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/value"
-      },
-      "default": []
-    },
-    "expected": {
-      "$ref": "#/$defs/expected"
-    },
     "invocations": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/invocation"
-      }
+      },
+      "minItems": 1
     },
     "sha256": {
       "type": "string",
@@ -99,100 +81,6 @@
     }
   },
   "$defs": {
-    "binary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name",
-        "path",
-        "wat",
-        "features"
-      ],
-      "dependentRequired": {
-        "args": [
-          "function"
-        ],
-        "expected": [
-          "function"
-        ]
-      },
-      "properties": {
-        "name": {
-          "type": "string",
-          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
-        },
-        "path": {
-          "type": "string",
-          "pattern": "^[^/].*\\.wasm$"
-        },
-        "wat": {
-          "type": "string",
-          "pattern": "^[^/].*\\.wat$"
-        },
-        "description": {
-          "type": "string"
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/feature"
-          },
-          "uniqueItems": true
-        },
-        "imports": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/import"
-          }
-        },
-        "exports": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/export"
-          }
-        },
-        "function": {
-          "type": "string"
-        },
-        "args": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/value"
-          },
-          "default": []
-        },
-        "expected": {
-          "$ref": "#/$defs/expected"
-        },
-        "invocations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/invocation"
-          }
-        },
-        "sha256": {
-          "type": "string",
-          "pattern": "^[a-f0-9]{64}$"
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
-        "toolchain": {
-          "$ref": "#/$defs/toolchain"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9._-]*$"
-          },
-          "uniqueItems": true
-        },
-        "notes": {
-          "type": "string"
-        }
-      }
-    },
     "feature": {
       "type": "string",
       "enum": [
@@ -559,6 +447,13 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "contributor": {
+          "type": "string",
+          "enum": [
+            "human",
+            "ai"
+          ]
+        },
         "language": {
           "type": "string"
         },
@@ -571,7 +466,10 @@
         "description": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "contributor"
+      ]
     },
     "toolchain": {
       "type": "object",

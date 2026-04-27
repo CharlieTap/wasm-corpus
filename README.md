@@ -39,7 +39,7 @@ When adding a binary:
 
 1. Put the `.wasm` file in the lowest version directory that can represent it, such as `1.0/`, `2.0/`, or `3.0/`.
 2. Add or update exactly one matching metadata file with the same basename as the `.wasm`, such as `1.0/gcd.json` for `1.0/gcd.wasm`. See [Fixture Metadata Format](#fixture-metadata-format).
-3. Include useful metadata: stable `name`, relative `path` and `wat`, `features`, exports, imports, callable `function`/`args`, expected results, and any source/toolchain notes. See [Fixture Metadata Format](#fixture-metadata-format).
+3. Include useful metadata: stable `name`, relative `path` and `wat`, `features`, exports, imports, runnable `invocations` with expected results, and any source/toolchain notes. See [Fixture Metadata Format](#fixture-metadata-format).
 4. Run `./scripts/prepare` for the `.wasm`. See [Preparing Binaries](#preparing-binaries).
 5. Update the fixture metadata `sha256` after prepare has produced the final `.wasm`.
 6. Commit the prepared `.wasm`, matching `.wat`, and matching `.json` file.
@@ -59,9 +59,19 @@ Each binary has one colocated JSON metadata file with the same basename:
   "path": "test.wasm",
   "wat": "test.wat",
   "features": ["exception-handling"],
-  "function": "callme",
-  "args": [
-    { "type": "i32", "value": "1" }
+  "invocations": [
+    {
+      "name": "smoke",
+      "function": "callme",
+      "args": [
+        { "type": "i32", "value": "1" }
+      ],
+      "expected": {
+        "returns": [
+          { "type": "i32", "value": "2" }
+        ]
+      }
+    }
   ]
 }
 ```
@@ -74,11 +84,9 @@ Metadata fields for each binary:
 - `features`: required or notable features, such as `gc`, `simd`, `threads`, `exception-handling`, or `multi-memory`.
 - `imports`: host imports required to instantiate the module.
 - `exports`: exported functions, globals, memories, tables, or tags that are useful to consumers.
-- `function` and `args`: the primary function call consumers can run as a smoke test.
-- `expected`: optional expected return values or trap for the primary function call.
-- `invocations`: additional function calls when a binary has more than one useful test case.
+- `invocations`: required smoke-test calls consumers can run. Prefer a few meaningful cases over one happy path when alternate inputs naturally exercise different branches, loop counts, traps, base cases, import-stub paths, or out-of-domain handling. This is not intended to be exhaustive correctness coverage; the goal is to help corpus consumers encounter varied WebAssembly instruction shapes and to make constant-return stubs obvious in review.
 - `sha256`: checksum of the `.wasm` file. This is required and must match the prepared binary.
-- `source`: optional source/provenance metadata.
+- `source`: required source/provenance metadata. It must include `contributor`, set to `human` for human-authored fixtures or `ai` for AI-authored/generated fixtures.
 - `toolchain`: optional compiler or tool information.
 - `tags`: searchable labels such as `smoke`, `edge-case`, `validation`, or `runtime`.
 
@@ -237,7 +245,7 @@ To run metadata-declared smoke tests with Node:
 ./scripts/execute 1.0/test.wasm
 ```
 
-`execute` finds the `.json` metadata file with the same basename as the `.wasm`, instantiates the module, applies simple function/global import stubs, and runs the primary `function`/`args` call plus any `invocations`. If an invocation has `expected.returns` or `expected.trap`, the runner asserts the result.
+`execute` finds the `.json` metadata file with the same basename as the `.wasm`, instantiates the module, applies simple function/global import stubs, and runs every entry in `invocations`. If an invocation has `expected.returns` or `expected.trap`, the runner asserts the result.
 
 The Node runner is intended for lightweight smoke tests. It supports numeric values (`i32`, `i64`, `f32`, `f64`) and null `externref`/`funcref` values.
 

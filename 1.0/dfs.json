@@ -11,23 +11,83 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "function": "dfs_visit",
-  "args": [
+  "invocations": [
     {
-      "type": "i32",
-      "value": "6"
+      "name": "rightmost-leaf",
+      "function": "dfs_visit",
+      "args": [
+        {
+          "type": "i32",
+          "value": "6"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "6"
+          }
+        ]
+      }
+    },
+    {
+      "name": "root",
+      "function": "dfs_visit",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "left-leaf",
+      "function": "dfs_visit",
+      "args": [
+        {
+          "type": "i32",
+          "value": "3"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-node",
+      "function": "dfs_visit",
+      "args": [
+        {
+          "type": "i32",
+          "value": "7"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "-1"
+          }
+        ]
+      }
     }
   ],
-  "expected": {
-    "returns": [
-      {
-        "type": "i32",
-        "value": "2"
-      }
-    ]
-  },
   "source": {
-    "description": "Hand-authored depth-first search fixture for the corpus"
+    "contributor": "ai",
+    "description": "Hand-authored depth-first search preorder fixture for the corpus"
   },
-  "sha256": "de636a3b665e0b63cceeb1245e299beece525a2a6fb35dba6ef3b6a52d3bcde8"
+  "sha256": "186f806ba5d06456c18715bc78429b2869a2668d9e4da42cd6d6e1b8f4e91159"
 }

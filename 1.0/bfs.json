@@ -11,23 +11,83 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "function": "bfs_levels",
-  "args": [
+  "invocations": [
     {
-      "type": "i32",
-      "value": "4"
+      "name": "target-four",
+      "function": "bfs_levels",
+      "args": [
+        {
+          "type": "i32",
+          "value": "4"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "root",
+      "function": "bfs_levels",
+      "args": [
+        {
+          "type": "i32",
+          "value": "0"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "same-depth-node",
+      "function": "bfs_levels",
+      "args": [
+        {
+          "type": "i32",
+          "value": "6"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-node",
+      "function": "bfs_levels",
+      "args": [
+        {
+          "type": "i32",
+          "value": "7"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "-1"
+          }
+        ]
+      }
     }
   ],
-  "expected": {
-    "returns": [
-      {
-        "type": "i32",
-        "value": "4"
-      }
-    ]
-  },
   "source": {
+    "contributor": "ai",
     "description": "Hand-authored breadth-first search fixture for the corpus"
   },
-  "sha256": "53e9a0e476ac7c74aade933e0b960c9cd810c73eacfc5eddd00fefc9f05de06f"
+  "sha256": "e32ff463139b6e4ad41058c3def930fc5fddb6360f9cf5c980b596b8f326fe35"
 }

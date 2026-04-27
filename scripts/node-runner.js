@@ -237,17 +237,7 @@ async function instantiate(wasmPath, entry) {
 }
 
 function invocationList(entry) {
-  const invocations = [];
-  if (entry.function) {
-    invocations.push({
-      name: "primary",
-      function: entry.function,
-      args: entry.args || [],
-      expected: entry.expected,
-    });
-  }
-  invocations.push(...(entry.invocations || []));
-  return invocations;
+  return entry.invocations || [];
 }
 
 function assertExpected(result, expected, context) {
@@ -309,7 +299,7 @@ async function executeWasm(inputPath) {
 
   const invocations = invocationList(entry);
   if (invocations.length === 0) {
-    console.log(`Instantiating ${inputPath} (no invocations declared)`);
+    fail(`${inputPath}: fixture metadata must declare at least one invocation`);
   }
 
   const instance = await instantiate(wasmPath, entry);

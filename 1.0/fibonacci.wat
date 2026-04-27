@@ -7,7 +7,24 @@
   (local $3 i32)
   (local $4 i32)
   (if
-   (i32.lt_u
+   (i32.or
+    (i32.lt_s
+     (local.get $0)
+     (i32.const 0)
+    )
+    (i32.gt_s
+     (local.get $0)
+     (i32.const 46)
+    )
+   )
+   (then
+    (return
+     (i32.const -1)
+    )
+   )
+  )
+  (if
+   (i32.lt_s
     (local.get $0)
     (i32.const 2)
    )
@@ -40,7 +57,7 @@
     (local.get $4)
    )
    (if
-    (i32.gt_u
+    (i32.gt_s
      (local.get $0)
      (local.get $2)
     )
