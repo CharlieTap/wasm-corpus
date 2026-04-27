@@ -3,7 +3,10 @@
   "name": "integer_log2",
   "description": "Computes floor(log2(n)) for positive i32 inputs by repeatedly shifting right, returning -1 for zero or negative inputs.",
   "path": "integer_log2.wasm",
-  "wat": "integer_log2.wat",
+  "wat": {
+    "status": "present",
+    "path": "integer_log2.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -19,116 +22,6 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "zero",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "negative",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "-7"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "one",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "1"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "non-power-of-two",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "3"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "power-of-two",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "16"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "4"
-          }
-        ]
-      }
-    },
-    {
-      "name": "largest-positive-i32",
-      "function": "integer_log2",
-      "args": [
-        {
-          "type": "i32",
-          "value": "2147483647"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "30"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "f158a9c3eeee1777eb8ebb12655821eac6eb7b48707392fd65150b8ae7853184",
   "source": {
     "contributor": "ai",
@@ -140,5 +33,133 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "notes": "The fixture intentionally uses a shift-and-count loop rather than a closed-form builtin so consumers encounter integer comparisons, early return, unsigned shifts, and loop-carried state."
+  "notes": "The fixture intentionally uses a shift-and-count loop rather than a closed-form builtin so consumers encounter integer comparisons, early return, unsigned shifts, and loop-carried state.",
+  "tests": [
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "one",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "non-power-of-two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "power-of-two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "largest-positive-i32",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "integer_log2",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2147483647"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

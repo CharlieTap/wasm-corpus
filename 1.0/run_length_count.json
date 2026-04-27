@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "run_length_count",
+  "description": "Run-length encoding pass over decimal digits, returning the number of runs.",
+  "path": "run_length_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "run_length_count.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "run_length_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "2a54819bb0c82e529a5e6810a7db1b8efbef018df813b7af2c66280248a11a49",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of run length count compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "grouped",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "run_length_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1112223"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternating",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "run_length_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1212"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "run_length_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

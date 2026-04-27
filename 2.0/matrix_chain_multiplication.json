@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "matrix_chain_multiplication",
+  "description": "Matrix-chain multiplication DP for four dimension entries.",
+  "path": "matrix_chain_multiplication.wasm",
+  "wat": {
+    "status": "present",
+    "path": "matrix_chain_multiplication.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "matrix_chain_multiplication",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "711bd1ecc7c4dfecd09c209bec38e2efcee05b23228a41b2bc9f70ef2112a9e4",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of matrix chain multiplication compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "classic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "matrix_chain_multiplication",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4500"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "small",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "matrix_chain_multiplication",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "330"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

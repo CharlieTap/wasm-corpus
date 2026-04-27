@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lcs_length",
+  "description": "Longest common subsequence length between ABCDE and one of two small strings.",
+  "path": "lcs_length.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lcs_length.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "lcs_length",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "78a82be6fd09c880d32bf09d1aa9f2e850e12dd3d822b468906109151bcf61ba",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of lcs length compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "ace",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lcs_length",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "aec",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lcs_length",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

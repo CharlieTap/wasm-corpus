@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "prim_mst",
+  "description": "Prim minimum spanning tree over a fixed weighted four-node graph.",
+  "path": "prim_mst.wasm",
+  "wat": {
+    "status": "present",
+    "path": "prim_mst.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "prim_mst",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "5ae81d59663810e20c28dcee126436c54ec98d4bad3a9b0c013f6364ddd8ff15",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of prim mst compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "normal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "prim_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "expensive-edge",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "prim_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "cheap-final-edge",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "prim_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

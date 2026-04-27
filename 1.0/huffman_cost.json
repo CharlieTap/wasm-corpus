@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "huffman_cost",
+  "description": "Huffman coding merge-cost calculation over four weights.",
+  "path": "huffman_cost.wasm",
+  "wat": {
+    "status": "present",
+    "path": "huffman_cost.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "huffman_cost",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "135a7669de231a7ab03a0e3fb786ed54144787d422745656f882639d46db15a5",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of huffman cost compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "classic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "huffman_cost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "78"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "equal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "huffman_cost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "skewed-weights",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "huffman_cost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "38"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,8 @@
 
 const { spawnSync } = require("child_process");
 const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
 const wasmPath = process.argv[2];
 
@@ -19,9 +21,22 @@ if (!fs.existsSync(wasmPath)) {
 function run(command, args, options = {}) {
   return spawnSync(command, args, {
     encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
+    maxBuffer: 512 * 1024 * 1024,
     ...options,
   });
+}
+
+function runToFile(command, args, outputPath) {
+  const fd = fs.openSync(outputPath, "w");
+  try {
+    return spawnSync(command, args, {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ["ignore", fd, "pipe"],
+    });
+  } finally {
+    fs.closeSync(fd);
+  }
 }
 
 function validateWith(features) {
@@ -177,17 +192,55 @@ function binaryenArgsForFeatures(features) {
   return [...flags];
 }
 
-const printed = run("wasm-tools", ["print", wasmPath]);
-if (printed.status !== 0) {
-  console.error(`error: wasm-tools print failed for ${wasmPath}`);
-  const output = `${printed.stdout || ""}${printed.stderr || ""}`.trim();
-  if (output) console.error(output);
-  process.exit(1);
+function featureIsAllowedForVersion(feature, version) {
+  if (!version) return true;
+
+  const wasm2Features = new Set([
+    "bulk-memory",
+    "mutable-globals",
+    "multi-value",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "simd",
+  ]);
+
+  const wasm3Features = new Set([
+    ...wasm2Features,
+    "custom-page-sizes",
+    "exception-handling",
+    "extended-const",
+    "gc",
+    "memory64",
+    "multi-memory",
+    "tail-call",
+    "typed-function-references",
+  ]);
+
+  if (version === "1.0") return false;
+  if (version === "2.0") return wasm2Features.has(feature);
+  if (version === "3.0") return wasm3Features.has(feature);
+  return true;
 }
 
 const version = inferVersion();
-const evidence = detectFromText(printed.stdout);
-const features = Object.keys(evidence).sort();
+const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-classify-"));
+const printedPath = path.join(workDir, "module.wat");
+const printed = runToFile("wasm-tools", ["print", wasmPath], printedPath);
+if (printed.status !== 0) {
+  console.error(`error: wasm-tools print failed for ${wasmPath}`);
+  const output = `${printed.stderr || ""}`.trim();
+  if (output) console.error(output);
+  fs.rmSync(workDir, { recursive: true, force: true });
+  process.exit(1);
+}
+
+const evidence = detectFromText(fs.readFileSync(printedPath, "utf8"));
+fs.rmSync(workDir, { recursive: true, force: true });
+const filteredEvidence = Object.fromEntries(
+  Object.entries(evidence).filter(([feature]) => featureIsAllowedForVersion(feature, version)),
+);
+const features = Object.keys(filteredEvidence).sort();
 const binaryenArgs = binaryenArgsForFeatures(features);
 
 process.stdout.write(
@@ -197,7 +250,7 @@ process.stdout.write(
       features,
       binaryen_args: binaryenArgs,
       evidence: Object.fromEntries(
-        Object.entries(evidence)
+        Object.entries(filteredEvidence)
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([feature, tokens]) => [feature, tokens.sort()]),
       ),

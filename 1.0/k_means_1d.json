@@ -1,0 +1,85 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "k_means_1d",
+  "description": "Two-cluster k-means over four one-dimensional points, returning packed centroids.",
+  "path": "k_means_1d.wasm",
+  "wat": {
+    "status": "present",
+    "path": "k_means_1d.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "ml",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "k_means_1d",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "2fa3c723827013995c0563a065709706df13fd40e8142715c82b8a5f40f6eff5",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of k means 1d compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "good-seed",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "k_means_1d",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "111"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "middle-seed",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "k_means_1d",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "111"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

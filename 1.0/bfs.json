@@ -3,7 +3,10 @@
   "name": "bfs",
   "description": "Queue-based breadth-first traversal over a fixed seven-node binary tree, returning the target node depth or -1 when absent.",
   "path": "bfs.wasm",
-  "wat": "bfs.wat",
+  "wat": {
+    "status": "present",
+    "path": "bfs.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -20,85 +23,97 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "target-four",
-      "function": "bfs_levels",
-      "args": [
-        {
-          "type": "i32",
-          "value": "4"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "2"
-          }
-        ]
-      }
-    },
-    {
-      "name": "root",
-      "function": "bfs_levels",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "same-depth-node",
-      "function": "bfs_levels",
-      "args": [
-        {
-          "type": "i32",
-          "value": "6"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "2"
-          }
-        ]
-      }
-    },
-    {
-      "name": "missing-node",
-      "function": "bfs_levels",
-      "args": [
-        {
-          "type": "i32",
-          "value": "7"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "e32ff463139b6e4ad41058c3def930fc5fddb6360f9cf5c980b596b8f326fe35",
   "source": {
     "contributor": "ai",
     "language": "wat",
     "description": "AI-authored breadth-first search fixture for the corpus"
   },
-  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the BFS queue and distance table."
+  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the BFS queue and distance table.",
+  "tests": [
+    {
+      "description": "target-four",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bfs_levels",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "root",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bfs_levels",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "same-depth-node",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bfs_levels",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing-node",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bfs_levels",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

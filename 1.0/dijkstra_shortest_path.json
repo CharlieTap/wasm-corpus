@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "dijkstra_shortest_path",
+  "description": "Dijkstra shortest path on a fixed weighted four-node graph from source 0.",
+  "path": "dijkstra_shortest_path.wasm",
+  "wat": {
+    "status": "present",
+    "path": "dijkstra_shortest_path.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "dijkstra_shortest_path",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "d261388a83a36e1750569786bcca55ab591e0a95c9af4192db393c468c584081",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of dijkstra shortest path compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "to-self",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dijkstra_shortest_path",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "via-relaxation",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dijkstra_shortest_path",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dijkstra_shortest_path",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

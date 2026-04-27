@@ -3,7 +3,10 @@
   "name": "mod_inverse",
   "description": "Brute-force modular multiplicative inverse over positive i32 inputs, returning the first inverse in 1..m-1 or 0 when no inverse exists.",
   "path": "mod_inverse.wasm",
-  "wat": "mod_inverse.wat",
+  "wat": {
+    "status": "present",
+    "path": "mod_inverse.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -19,140 +22,6 @@
       "type": "(func (param i32 i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "small-prime-modulus",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "3"
-        },
-        {
-          "type": "i32",
-          "value": "11"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "4"
-          }
-        ]
-      }
-    },
-    {
-      "name": "later-match",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "10"
-        },
-        {
-          "type": "i32",
-          "value": "17"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "12"
-          }
-        ]
-      }
-    },
-    {
-      "name": "not-coprime",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "6"
-        },
-        {
-          "type": "i32",
-          "value": "9"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "invalid-modulus",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "5"
-        },
-        {
-          "type": "i32",
-          "value": "1"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "identity",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "1"
-        },
-        {
-          "type": "i32",
-          "value": "19"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "large-input-no-wraparound",
-      "function": "mod_inverse",
-      "args": [
-        {
-          "type": "i32",
-          "value": "1837719394"
-        },
-        {
-          "type": "i32",
-          "value": "5"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "4"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "8d636b77b4115ae9f1b3a687b4e19edf13132bf746d735c0a276c2dbf67eccb9",
   "source": {
     "contributor": "ai",
@@ -164,5 +33,157 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "notes": "This fixture intentionally uses a simple bounded search instead of the extended Euclidean algorithm so the WAT stays small while still exercising loops, modulo arithmetic, early returns, and an exhausted-search fallback."
+  "notes": "This fixture intentionally uses a simple bounded search instead of the extended Euclidean algorithm so the WAT stays small while still exercising loops, modulo arithmetic, early returns, and an exhausted-search fallback.",
+  "tests": [
+    {
+      "description": "small-prime-modulus",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "later-match",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "17"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "not-coprime",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "invalid-modulus",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "identity",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "19"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "large-input-no-wraparound",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mod_inverse",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1837719394"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

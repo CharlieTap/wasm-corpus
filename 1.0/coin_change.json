@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "coin_change",
+  "description": "Minimum-coin dynamic programming with denominations 1, 3, and 4.",
+  "path": "coin_change.wasm",
+  "wat": {
+    "status": "present",
+    "path": "coin_change.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "coin_change",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "beb6b4d61748c14470a71ca85fb0abaee9443023879b92dfb55b913cab027edf",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of coin change compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "six",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "coin_change",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "seven",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "coin_change",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "coin_change",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

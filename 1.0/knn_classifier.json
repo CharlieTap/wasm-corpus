@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "knn_classifier",
+  "description": "k-nearest-neighbor classifier over four labelled one-dimensional samples.",
+  "path": "knn_classifier.wasm",
+  "wat": {
+    "status": "present",
+    "path": "knn_classifier.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "ml",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "knn_classifier",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "4d397d0b840caed4ccf16028ef37220e904ca9ea52a6b6417f422f1b25cfb00c",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of knn classifier compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "near-low",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "knn_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "near-high",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "knn_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "knn_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

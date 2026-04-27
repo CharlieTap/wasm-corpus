@@ -9,6 +9,7 @@ const { spawnSync } = require("child_process");
 
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
+const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/prepare
@@ -41,10 +42,15 @@ function run(command, commandArgs, options = {}) {
 function runRequired(command, commandArgs, options = {}) {
   const result = run(command, commandArgs, options);
   if (result.status !== 0) {
-    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    const output = truncateOutput(`${result.stderr || ""}${result.stdout || ""}`.trim());
     fail(`${command} ${commandArgs.join(" ")} failed${output ? `\n${output}` : ""}`);
   }
   return result;
+}
+
+function truncateOutput(output, limit = 8192) {
+  if (output.length <= limit) return output;
+  return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
 }
 
 function commandExists(command) {
@@ -316,7 +322,7 @@ function tagTypeFromNode(tagNode, types) {
 }
 
 function inferWasmAbi(wasmPath) {
-  const printed = runRequired("wasm-tools", ["print", wasmPath]);
+  const printed = runRequired("wasm-tools", ["print", "--skeleton", wasmPath]);
   const root = parseWat(printed.stdout).find((node) => Array.isArray(node) && node[0] === "module");
   if (!root) return { imports: [], exports: [] };
 
@@ -408,6 +414,7 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
   for (let pass = 1; pass <= 5; pass += 1) {
     const candidate = path.join(tmpdir, `candidate-${pass}.wasm`);
     const candidateWat = path.join(tmpdir, `candidate-${pass}.wat`);
+    const readableWat = path.join(tmpdir, `readable-${pass}.wat`);
     const roundtrip = path.join(tmpdir, `roundtrip-${pass}.wasm`);
     const checked = path.join(tmpdir, `checked-${pass}.wasm`);
 
@@ -417,9 +424,24 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     runRequired("wasm-opt", [roundtrip, ...binaryenArgs, "-O1", "-o", checked]);
 
     if (fs.readFileSync(candidate).equals(fs.readFileSync(checked))) {
+      runRequired("wasm-tools", ["print", candidate, "-o", readableWat]);
+      const watSize = fs.statSync(readableWat).size;
+      if (watSize > maxWatDisassemblyBytes) {
+        fs.copyFileSync(candidate, output);
+        fs.rmSync(outputWat, { force: true });
+        return {
+          status: "too_large_for_corpus",
+          generated_size: watSize,
+          limit: maxWatDisassemblyBytes,
+          tool: "wasm-tools print",
+        };
+      }
       fs.copyFileSync(candidate, output);
-      fs.copyFileSync(candidateWat, outputWat);
-      return;
+      fs.copyFileSync(readableWat, outputWat);
+      return {
+        status: "present",
+        path: path.basename(outputWat),
+      };
     }
 
     current = checked;
@@ -526,7 +548,25 @@ function mergeExports(inferred, existing) {
   });
 }
 
-function scaffoldMetadata({ wasmPath, watPath, jsonPath, classification, stagedPath }) {
+function inferredTags(imports, existingTags) {
+  const hasWasiP1 = imports.some((item) => item.module === "wasi_snapshot_preview1");
+  const tags = [...(existingTags || [])].filter((tag) => {
+    if (tag === "wasi:p1") return false;
+    if (hasWasiP1 && tag === "wasi") return false;
+    return true;
+  });
+  const addTag = (tag) => {
+    if (!tags.includes(tag)) tags.push(tag);
+  };
+
+  if (hasWasiP1) {
+    addTag("wasi-p1");
+  }
+
+  return tags;
+}
+
+function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath }) {
   const parsed = path.parse(wasmPath);
   const existing = readExistingJson(jsonPath);
   const previous = existing || {};
@@ -535,18 +575,40 @@ function scaffoldMetadata({ wasmPath, watPath, jsonPath, classification, stagedP
   const command = "./scripts/prepare";
   const imports = mergeImports(moduleShape.imports, previous.imports);
   const exports = mergeExports(moduleShape.exports, previous.exports);
+  const tags = inferredTags(imports, previous.tags);
+  const assertionFromExpected = (expected) => {
+    if (!expected) return {};
+    if (expected.returns) return { results: expected.returns };
+    if (expected.trap) return { trap: expected.trap };
+    return {};
+  };
+  const tests = previous.tests || (previous.invocations || []).map((invocation) => {
+    const { name, expected, function: functionExport, ...rest } = invocation;
+    return {
+      ...(name ? { description: name } : {}),
+      steps: [
+        {
+          type: "function.invoke",
+          function: functionExport,
+          ...(rest.args ? { params: rest.args } : {}),
+          ...Object.fromEntries(Object.entries(rest).filter(([key]) => key !== "args")),
+          ...assertionFromExpected(expected),
+        },
+      ],
+    };
+  });
 
   const metadata = {
     $schema: previous.$schema || schemaPath,
     name: parsed.name,
     ...(previous.description ? { description: previous.description } : {}),
     path: path.basename(wasmPath),
-    wat: path.basename(watPath),
+    wat,
     features: classification.features || [],
-    ...(previous.tags ? { tags: previous.tags } : {}),
+    ...(tags.length > 0 ? { tags } : {}),
     ...(imports.length > 0 || previous.imports ? { imports } : {}),
     ...(exports.length > 0 || previous.exports ? { exports } : {}),
-    invocations: previous.invocations || [],
+    tests,
     sha256: sha256(wasmPath),
     source: previous.source || {
       contributor: "TODO: human or ai",
@@ -565,6 +627,7 @@ function scaffoldMetadata({ wasmPath, watPath, jsonPath, classification, stagedP
 
   const knownKeys = new Set(Object.keys(metadata));
   for (const [key, value] of Object.entries(previous)) {
+    if (key === "invocations") continue;
     if (!knownKeys.has(key)) {
       metadata[key] = value;
     }
@@ -645,7 +708,7 @@ try {
 
     const prepared = path.join(work, "prepared.wasm");
     const watTmp = path.join(work, "module.wat");
-    prepareBinary(sourceWasm, prepared, watTmp, initialClassification.binaryen_args || [], work);
+    const watMetadata = prepareBinary(sourceWasm, prepared, watTmp, initialClassification.binaryen_args || [], work);
 
     const finalClassification = classify(prepared);
     if (!finalClassification.version) {
@@ -660,10 +723,15 @@ try {
     const json = path.join(targetDir, `${parsed.name}.json`);
 
     fs.renameSync(prepared, wasm);
-    fs.renameSync(watTmp, wat);
+    if (watMetadata.status === "present") {
+      fs.renameSync(watTmp, wat);
+      watMetadata.path = path.basename(wat);
+    } else {
+      fs.rmSync(wat, { force: true });
+    }
     scaffoldMetadata({
       wasmPath: wasm,
-      watPath: wat,
+      wat: watMetadata,
       jsonPath: json,
       classification: finalClassification,
       stagedPath: staged,
@@ -672,7 +740,11 @@ try {
 
     process.stdout.write(`Prepared ${stagedRelative}\n`);
     process.stdout.write(`Wrote ${relativeFromRepo(wasm)}\n`);
-    process.stdout.write(`Wrote ${relativeFromRepo(wat)}\n`);
+    if (watMetadata.status === "present") {
+      process.stdout.write(`Wrote ${relativeFromRepo(wat)}\n`);
+    } else {
+      process.stdout.write(`Skipped ${relativeFromRepo(wat)} (${watMetadata.tool} generated ${watMetadata.generated_size} bytes; limit ${watMetadata.limit})\n`);
+    }
     process.stdout.write(`Wrote ${relativeFromRepo(json)}\n`);
     process.stdout.write(`Removed ${stagedRelative}\n`);
     process.stdout.write(`${sha256(wasm)}  ${relativeFromRepo(wasm)}\n`);

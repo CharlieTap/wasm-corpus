@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "naive_bayes_classifier",
+  "description": "Naive Bayes classifier for two boolean features with scaled integer probabilities.",
+  "path": "naive_bayes_classifier.wasm",
+  "wat": {
+    "status": "present",
+    "path": "naive_bayes_classifier.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "ml",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "naive_bayes_classifier",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "995c0c5f0bb3eab31568e33a971f56c1ca2c7dc78eb08aecd37d648c485283a8",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of naive bayes classifier compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "class-zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "naive_bayes_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "class-one",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "naive_bayes_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "both",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "naive_bayes_classifier",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

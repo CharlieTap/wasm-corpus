@@ -9,6 +9,7 @@ const { spawnSync } = require("child_process");
 
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
+const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm...]
@@ -77,10 +78,15 @@ function binaryenVersion() {
 function runRequired(command, commandArgs, errorMessage) {
   const result = run(command, commandArgs);
   if (result.status !== 0) {
-    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+    const output = truncateOutput(`${result.stderr || ""}${result.stdout || ""}`.trim());
     throw new Error(`${errorMessage}${output ? `\n${output}` : ""}`);
   }
   return result;
+}
+
+function truncateOutput(output, limit = 8192) {
+  if (output.length <= limit) return output;
+  return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
 }
 
 function collectFixtureJsonFiles() {
@@ -158,14 +164,22 @@ function classify(wasmPath) {
 function validateFixtureForWasm(wasmPath, fixturePath, fixture) {
   const parsed = path.parse(wasmPath);
   const expectedWasm = `${parsed.name}.wasm`;
-  const expectedWat = `${parsed.name}.wat`;
 
   if (fixture.path !== expectedWasm) {
     throw new Error(`${fixturePath} path must be ${expectedWasm}, got ${fixture.path}`);
   }
 
-  if (fixture.wat !== expectedWat) {
-    throw new Error(`${fixturePath} wat must be ${expectedWat}, got ${fixture.wat}`);
+  if (fixture.wat.status === "present") {
+    const expectedWat = `${parsed.name}.wat`;
+    if (fixture.wat.path !== expectedWat) {
+      throw new Error(`${fixturePath} wat.path must be ${expectedWat}, got ${fixture.wat.path}`);
+    }
+  } else if (fixture.wat.status === "too_large_for_corpus") {
+    if (fixture.wat.generated_size <= fixture.wat.limit) {
+      throw new Error(`${fixturePath} wat.generated_size must be greater than wat.limit when status is too_large_for_corpus`);
+    }
+  } else {
+    throw new Error(`${fixturePath} wat.status must be present or too_large_for_corpus`);
   }
 
   if (fixture.name !== parsed.name) {
@@ -204,22 +218,25 @@ function validateClassifiedFeatures(wasmPath, fixture, classification) {
   }
 }
 
-function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags }) {
+function optimizeWithBinaryen({ wasmPath, workDir, binaryen, binaryenFlags }) {
   const optimized = path.join(workDir, "optimized.wasm");
+  runRequired("wasm-opt", [wasmPath, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  return optimized;
+}
+
+function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags, optimized }) {
   const disassembled = path.join(workDir, "module.wat");
   const watWasm = path.join(workDir, "wat.wasm");
   const watOptimized = path.join(workDir, "wat-optimized.wasm");
 
-  runRequired("wasm-opt", [wasmPath, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
   runRequired("wasm-dis", [optimized, ...binaryenFlags, "-o", disassembled], `Binaryen could not disassemble optimized output for ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
-  runRequired("wasm-as", [watPath, ...binaryenFlags, "-o", watWasm], `Binaryen could not assemble sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-tools", ["parse", watPath, "-o", watWasm], `wasm-tools could not assemble sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
   runRequired("wasm-opt", [watWasm, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
 
   if (!fs.readFileSync(optimized).equals(fs.readFileSync(watOptimized))) {
     throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
   }
 
-  return optimized;
 }
 
 function validateShrinkage(wasmPath, optimizedPath, binaryen) {
@@ -243,6 +260,25 @@ function validateShrinkage(wasmPath, optimizedPath, binaryen) {
   return { optimizedSize, reductionBytes, reductionPercent };
 }
 
+function validateWatReadability(watPath) {
+  const watSize = fileSize(watPath);
+  if (watSize > maxWatDisassemblyBytes) {
+    throw new Error(`${relativeFromRepo(watPath)} is too large to review as readable WAT\n       WAT size:         ${watSize} bytes\n       maximum WAT size: ${maxWatDisassemblyBytes} bytes\n       ${prepareAdvice(watPath.replace(/\.wat$/, ".wasm"))} after choosing a smaller module`);
+  }
+
+  const fd = fs.openSync(watPath, "r");
+  const buffer = Buffer.alloc(Math.min(watSize, 1024 * 1024));
+  try {
+    fs.readSync(fd, buffer, 0, buffer.length, 0);
+  } finally {
+    fs.closeSync(fd);
+  }
+  const prefix = buffer.toString("utf8");
+  if (prefix.includes("(module binary")) {
+    throw new Error(`${relativeFromRepo(watPath)} uses '(module binary ...)' instead of readable WAT\n       ${prepareAdvice(watPath.replace(/\.wat$/, ".wasm"))} to regenerate a readable disassembly`);
+  }
+}
+
 function validateOne(wasmPath, workDir, binaryen) {
   if (!wasmPath.endsWith(".wasm")) {
     throw new Error(`expected a .wasm file, got: ${wasmPath}`);
@@ -252,20 +288,31 @@ function validateOne(wasmPath, workDir, binaryen) {
     throw new Error(`file does not exist: ${wasmPath}`);
   }
 
-  const watPath = wasmPath.replace(/\.wasm$/, ".wat");
   const { path: fixturePath, value: fixture } = readFixture(wasmPath);
   validateFixtureForWasm(wasmPath, fixturePath, fixture);
-
-  if (!fs.existsSync(watPath)) {
-    throw new Error(`missing matching wat file: ${watPath}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to generate it`);
-  }
 
   const classification = classify(wasmPath);
   validateClassifiedVersion(wasmPath, classification);
   validateClassifiedFeatures(wasmPath, fixture, classification);
 
   const binaryenFlags = classification.binaryen_args || [];
-  const optimized = validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags });
+  const optimized = optimizeWithBinaryen({ wasmPath, workDir, binaryen, binaryenFlags });
+  const watPath = fixture.wat.status === "present"
+    ? path.join(path.dirname(wasmPath), fixture.wat.path)
+    : null;
+
+  if (fixture.wat.status === "present") {
+    if (!fs.existsSync(watPath)) {
+      throw new Error(`missing matching wat file: ${watPath}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to generate it`);
+    }
+    validateWatReadability(watPath);
+    validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags, optimized });
+  } else {
+    const siblingWat = wasmPath.replace(/\.wasm$/, ".wat");
+    if (fs.existsSync(siblingWat)) {
+      throw new Error(`${relativeFromRepo(siblingWat)} exists but ${relativeFromRepo(fixturePath)} marks WAT as too_large_for_corpus`);
+    }
+  }
   const shrinkage = validateShrinkage(wasmPath, optimized, binaryen);
 
   process.stdout.write(

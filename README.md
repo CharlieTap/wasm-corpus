@@ -23,6 +23,7 @@ The repository is organised by WebAssembly core version:
 │   ├── execute
 │   ├── prepare
 │   └── validate
+├── corpus
 └── schema/
     └── fixture.schema.json
 ```
@@ -30,12 +31,22 @@ The repository is organised by WebAssembly core version:
 Each version directory contains:
 
 - `*.wasm`: binary modules available to consumers.
-- `*.wat`: readable text format for the matching module, committed so reviewers can eyeball submissions.
+- `*.wat`: readable text format for the matching module, committed when it fits within the corpus readability limit.
 - `*.json`: fixture metadata for the matching module. The basename must match the `.wasm` file, such as `gcd.json` for `gcd.wasm`.
 
 The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
 
+Fixture JSON files include runnable `tests`: small step sequences that can call exported functions, inspect exported memory, tables, and globals, or provide declared host import profiles for command-style modules. The repository runner uses these tests as smoke checks and as executable examples of each module's ABI.
+
 The `stage/` directory is the authoring drop zone. Put candidate `.wasm` or `.wat` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
+
+Use `./corpus` to print fixture metadata as one JSON array. With no filters it returns every fixture in version order, and filters can narrow by version, features, or tags:
+
+```sh
+./corpus
+./corpus --version 2.0
+./corpus --feature simd --tag npm
+```
 
 ## Submitting Fixtures
 

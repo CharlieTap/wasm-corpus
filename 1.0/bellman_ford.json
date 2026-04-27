@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bellman_ford",
+  "description": "Bellman-Ford relaxation over a small edge list with a negative edge and no negative cycle.",
+  "path": "bellman_ford.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bellman_ford.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "bellman_ford",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "8fd0d8c9f2e586829df1ddaffb313b44c9df5b0ccf13900c12cde8a21c76590a",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of bellman ford compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "negative-edge",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bellman_ford",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "to-end",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bellman_ford",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "source",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bellman_ford",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "extended_euclidean",
+  "description": "Extended Euclidean algorithm returning the x coefficient for ax + by = gcd(a,b).",
+  "path": "extended_euclidean.wasm",
+  "wat": {
+    "status": "present",
+    "path": "extended_euclidean.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "extended_euclidean",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "ce5ddaf61e805a2c1e7ba71a3fe59a9466baaa7a0e63c1a97a9404ce7222fb2f",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of extended euclidean compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "thirty-forty-six",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "extended_euclidean",
+          "params": [
+            {
+              "type": "i32",
+              "value": "30"
+            },
+            {
+              "type": "i32",
+              "value": "46"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "seventeen-five",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "extended_euclidean",
+          "params": [
+            {
+              "type": "i32",
+              "value": "17"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

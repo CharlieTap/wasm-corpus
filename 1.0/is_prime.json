@@ -1,0 +1,127 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "is_prime",
+  "description": "Trial-division primality test with early exits for small and even values.",
+  "path": "is_prime.wasm",
+  "wat": {
+    "status": "present",
+    "path": "is_prime.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "is_prime",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "6d1ef74447866b192bb01009f7846ab95d1851ee84cac83f3739409078fd39ec",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of is prime compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "small-prime",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "is_prime",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "odd-prime",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "is_prime",
+          "params": [
+            {
+              "type": "i32",
+              "value": "29"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "composite",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "is_prime",
+          "params": [
+            {
+              "type": "i32",
+              "value": "49"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "below-two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "is_prime",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,849 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "base64_simd",
+  "description": "SIMD-accelerated Base64 encoder/decoder module from @addmaple/base64, using bulk memory and v128 instructions in its real package build.",
+  "path": "base64_simd.wasm",
+  "wat": {
+    "status": "present",
+    "path": "base64_simd.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "simd"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "alloc_bytes",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free_bytes",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "encode_std",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "encode_url",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "decode_std",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "decode_url",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__data_end",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "__heap_base",
+      "kind": "global",
+      "type": "(global i32)"
+    }
+  ],
+  "tags": [
+    "base64",
+    "encoding",
+    "simd",
+    "bulk-memory",
+    "real-world",
+    "npm"
+  ],
+  "sha256": "2b3ca4fbf7ab8de532d9babd9c9eb55cf0fdcadd2226f9fc7932ad81e64b0b18",
+  "source": {
+    "contributor": "human",
+    "url": "https://www.npmjs.com/package/@addmaple/base64/v/0.3.2",
+    "path": "dist/wasm/base64_simd.simd.wasm",
+    "language": "rust",
+    "description": "MIT-licensed @addmaple/base64 0.3.2 SIMD WebAssembly build from npm, repository git+https://github.com/addmaple/base64-simd.git"
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The tests allocate input/output buffers through exported allocator functions, write input bytes into exported linear memory, call encode/decode exports, assert output bytes, and free the buffers. The longer cases cross multiple SIMD-sized chunks.",
+  "tests": [
+    {
+      "description": "encode-std-hello-question",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Hello?"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode",
+          "function": "encode_std",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read encoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "SGVsbG8/"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "encode-url-hello-question",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Hello?"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode",
+          "function": "encode_url",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read encoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "SGVsbG8_"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "decode-std-hello-question",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write encoded input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "SGVsbG8/"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode",
+          "function": "decode_std",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read decoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "Hello?"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "decode-url-hello-question",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write encoded input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "SGVsbG8_"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode",
+          "function": "decode_url",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read decoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "Hello?"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "encode-std-long-vector-sized-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode",
+          "function": "encode_std",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "84"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read encoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4gUGFjayBteSBib3ggd2l0aCBmaXZlIGRvemVuIGxpcXVvciBqdWdz"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "decode-std-long-vector-sized-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "alloc input",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "alloc output",
+          "function": "alloc_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write encoded input",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4gUGFjayBteSBib3ggd2l0aCBmaXZlIGRvemVuIGxpcXVvciBqdWdz"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode",
+          "function": "decode_std",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "112"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "read decoded output",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free output",
+          "function": "free_bytes",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "84"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ]
+}

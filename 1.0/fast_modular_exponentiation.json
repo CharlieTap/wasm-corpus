@@ -1,0 +1,130 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "fast_modular_exponentiation",
+  "description": "Modular exponentiation by repeated squaring.",
+  "path": "fast_modular_exponentiation.wasm",
+  "wat": {
+    "status": "present",
+    "path": "fast_modular_exponentiation.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "fast_modular_exponentiation",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "7934a49650085b60f51cc85001e5780e4ba122b2c9bc173e258be513c248efe2",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of fast modular exponentiation compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "small",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fast_modular_exponentiation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "1000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "24"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "prime-mod",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fast_modular_exponentiation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero-exp",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fast_modular_exponentiation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

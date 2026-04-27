@@ -3,7 +3,10 @@
   "name": "gcd",
   "description": "Unsigned Euclidean greatest-common-divisor implementation for two i32 values.",
   "path": "gcd.wasm",
-  "wat": "gcd.wat",
+  "wat": {
+    "status": "present",
+    "path": "gcd.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -18,96 +21,6 @@
       "type": "(func (param i32 i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "shared-factor",
-      "function": "gcd",
-      "args": [
-        {
-          "type": "i32",
-          "value": "48"
-        },
-        {
-          "type": "i32",
-          "value": "18"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "6"
-          }
-        ]
-      }
-    },
-    {
-      "name": "coprime",
-      "function": "gcd",
-      "args": [
-        {
-          "type": "i32",
-          "value": "35"
-        },
-        {
-          "type": "i32",
-          "value": "64"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "zero-divisor-path",
-      "function": "gcd",
-      "args": [
-        {
-          "type": "i32",
-          "value": "42"
-        },
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "42"
-          }
-        ]
-      }
-    },
-    {
-      "name": "equal-inputs",
-      "function": "gcd",
-      "args": [
-        {
-          "type": "i32",
-          "value": "21"
-        },
-        {
-          "type": "i32",
-          "value": "21"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "21"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "17f8ba3725bd7448c69bd5a2226967ca57e4865cd38be1b76040b6b81d721c75",
   "source": {
     "contributor": "ai",
@@ -119,5 +32,107 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "notes": "Treats inputs as unsigned i32 values for the remainder operation. The zero-divisor invocation exercises the loop exit path before i32.rem_u executes."
+  "notes": "Treats inputs as unsigned i32 values for the remainder operation. The zero-divisor test exercises the loop exit path before i32.rem_u executes.",
+  "tests": [
+    {
+      "description": "shared-factor",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gcd",
+          "params": [
+            {
+              "type": "i32",
+              "value": "48"
+            },
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "coprime",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gcd",
+          "params": [
+            {
+              "type": "i32",
+              "value": "35"
+            },
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero-divisor-path",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gcd",
+          "params": [
+            {
+              "type": "i32",
+              "value": "42"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "equal-inputs",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gcd",
+          "params": [
+            {
+              "type": "i32",
+              "value": "21"
+            },
+            {
+              "type": "i32",
+              "value": "21"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "21"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

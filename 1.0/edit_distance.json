@@ -1,0 +1,85 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "edit_distance",
+  "description": "Levenshtein edit distance from kitten to either sitting or kitten.",
+  "path": "edit_distance.wasm",
+  "wat": {
+    "status": "present",
+    "path": "edit_distance.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "edit_distance",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "3a83e0b011f2ed7902be40c0f99d9608c983e39ce88ff25e63497a68e3951339",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of edit distance compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "kitten-sitting",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "edit_distance",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "identical",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "edit_distance",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

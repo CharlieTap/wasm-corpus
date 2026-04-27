@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "difference_array",
+  "description": "Difference-array range updates materialized for a five-element output.",
+  "path": "difference_array.wasm",
+  "wat": {
+    "status": "present",
+    "path": "difference_array.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "difference_array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "6671ca08e6367b5942368f4f17aee41d6db822369b62725077ea6451ff523338",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of difference array compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "left",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "difference_array",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "overlap",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "difference_array",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "right",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "difference_array",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lis_length",
+  "description": "Longest increasing subsequence dynamic programming over four inputs.",
+  "path": "lis_length.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lis_length.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "lis_length",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "ef0d83e47dfc7621cecda5e8b2558dc6d678ce8bf0b72bd79ba69fe38bb9fc8e",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of lis length compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "increasing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lis_length",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mixed",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lis_length",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "decreasing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lis_length",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

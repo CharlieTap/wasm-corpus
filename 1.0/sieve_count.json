@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "sieve_count",
+  "description": "Sieve of Eratosthenes over a bounded 0..31 range, returning the count of primes up to n.",
+  "path": "sieve_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "sieve_count.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "sieve_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "74b13670048cf7ed070523e3b5699eb603da87749e21ca98e1559e5f21e73877",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of sieve count compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "ten",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sieve_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "thirty",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sieve_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "below-two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sieve_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

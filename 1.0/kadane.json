@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kadane",
+  "description": "Kadane maximum-subarray algorithm over four signed inputs.",
+  "path": "kadane.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kadane.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "kadane",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "4c3e56673cdc339c65bb9438d464035a462416b692fd05e57c85775a79dbb98b",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of kadane compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "mixed",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kadane",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "all-negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kadane",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-5"
+            },
+            {
+              "type": "i32",
+              "value": "-2"
+            },
+            {
+              "type": "i32",
+              "value": "-7"
+            },
+            {
+              "type": "i32",
+              "value": "-3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "prefix",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kadane",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

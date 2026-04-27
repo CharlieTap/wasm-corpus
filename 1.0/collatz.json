@@ -3,7 +3,10 @@
   "name": "collatz",
   "description": "Iterative Collatz step counter for positive i32 inputs with guards for invalid inputs and overflowing odd steps.",
   "path": "collatz.wasm",
-  "wat": "collatz.wat",
+  "wat": {
+    "status": "present",
+    "path": "collatz.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -19,103 +22,118 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "twenty-seven",
-      "function": "steps",
-      "args": [
-        {
-          "type": "i32",
-          "value": "27"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "111"
-          }
-        ]
-      }
-    },
-    {
-      "name": "zero",
-      "function": "steps",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "overflow",
-      "function": "steps",
-      "args": [
-        {
-          "type": "i32",
-          "value": "715827883"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "one",
-      "function": "steps",
-      "args": [
-        {
-          "type": "i32",
-          "value": "1"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "twelve",
-      "function": "steps",
-      "args": [
-        {
-          "type": "i32",
-          "value": "12"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "9"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "f3d10b856c80a987d7b5c063ca78a137e072c7e69d80690a39f350e47f952a53",
   "source": {
     "contributor": "ai",
     "language": "wat",
     "description": "AI-authored Collatz fixture for the corpus"
   },
-  "notes": "Returns -1 for non-positive inputs, for odd steps where 3n + 1 would overflow i32, or if the loop exceeds 10000 steps."
+  "notes": "Returns -1 for non-positive inputs, for odd steps where 3n + 1 would overflow i32, or if the loop exceeds 10000 steps.",
+  "tests": [
+    {
+      "description": "twenty-seven",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "steps",
+          "params": [
+            {
+              "type": "i32",
+              "value": "27"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "111"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "steps",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "overflow",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "steps",
+          "params": [
+            {
+              "type": "i32",
+              "value": "715827883"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "one",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "steps",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "twelve",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "steps",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
