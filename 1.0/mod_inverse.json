@@ -1,0 +1,146 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "mod_inverse",
+  "description": "Brute-force modular multiplicative inverse over positive i32 inputs, returning the first inverse in 1..m-1 or 0 when no inverse exists.",
+  "path": "mod_inverse.wasm",
+  "wat": "mod_inverse.wat",
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "modular-arithmetic",
+    "loop",
+    "branching"
+  ],
+  "exports": [
+    {
+      "name": "mod_inverse",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "invocations": [
+    {
+      "name": "small-prime-modulus",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "3"
+        },
+        {
+          "type": "i32",
+          "value": "11"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "4"
+          }
+        ]
+      }
+    },
+    {
+      "name": "later-match",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "10"
+        },
+        {
+          "type": "i32",
+          "value": "17"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "12"
+          }
+        ]
+      }
+    },
+    {
+      "name": "not-coprime",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "6"
+        },
+        {
+          "type": "i32",
+          "value": "9"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-modulus",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "5"
+        },
+        {
+          "type": "i32",
+          "value": "1"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identity",
+      "function": "mod_inverse",
+      "args": [
+        {
+          "type": "i32",
+          "value": "1"
+        },
+        {
+          "type": "i32",
+          "value": "19"
+        }
+      ],
+      "expected": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1"
+          }
+        ]
+      }
+    }
+  ],
+  "sha256": "48dd78ddc94329024d3a30adb78b355aa82be7a38016e0b2b956442796be6f03",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored modular inverse fixture for the corpus"
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "This fixture intentionally uses a simple bounded search instead of the extended Euclidean algorithm so the WAT stays small while still exercising loops, modulo arithmetic, early returns, and an exhausted-search fallback."
+}
