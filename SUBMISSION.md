@@ -148,7 +148,7 @@ Numeric values should be strings so consumers do not lose precision when reading
 
 Before opening a PR:
 
-- `stage/` contains no candidate `.wasm` files
+- `stage/` contains no candidate `.wasm` or `.wat` files
 - The generated `.wat` is readable and matches the `.wasm`
 - Metadata has no placeholders
 - `./scripts/validate ...` passes
