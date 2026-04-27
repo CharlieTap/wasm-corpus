@@ -8,10 +8,10 @@ Use this document as context when autonomously finding and adding new WebAssembl
 - Prefer small modules with clear provenance, readable source or WAT, deterministic exports, and simple imports.
 - Avoid single-operation or hello-world-style modules. Aim for at least factorial-level behavior: control flow, memory/table/import interaction, or a recognizable algorithm.
 - Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
-- Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, or complex host APIs that cannot be represented by the fixture metadata import stubs.
+- Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, WASI APIs beyond Preview 1, or complex host APIs that cannot be represented by the fixture metadata import stubs.
 - Do not add programs from `WebAssembly/testsuite` or equivalent conformance suites. This corpus should complement conformance suites rather than duplicate them.
 - Every submitted binary must follow [SUBMISSION.md](SUBMISSION.md) and be executable by Node through `./scripts/execute`.
-- Never commit or validate fixture metadata with placeholder provenance or missing invocations.
+- Never commit or validate fixture metadata with placeholder provenance or missing tests.
 
 ## Required Local Tools
 
@@ -38,7 +38,8 @@ git switch -c codex/add-wabt-callback-fixture
 After adding the fixture and passing local checks:
 
 ```sh
-git add <version>/<fixture>.wasm <version>/<fixture>.wat <version>/<fixture>.json
+git add <version>/<fixture>.wasm <version>/<fixture>.json
+# Also add <version>/<fixture>.wat when prepare generated one.
 git commit -m "Add <fixture> <version> fixture"
 git push -u origin codex/add-<fixture-name>
 gh pr create --base main --head codex/add-<fixture-name> --title "Add <fixture> <version> fixture" --body "Adds a prepared WebAssembly fixture with matching WAT and fixture metadata."
@@ -90,6 +91,17 @@ GitHub path search can return files whose names end in `.wasm` but are not WebAs
 file /tmp/candidate.wasm
 wasm-opt /tmp/candidate.wasm -o /tmp/candidate.checked.wasm
 wasm-tools parse /tmp/candidate.wat -o /tmp/candidate.checked.wasm
+```
+
+Use [grep.app](https://grep.app/) as another GitHub-scale discovery tool when GitHub Code Search is sparse or rate-limited. It is especially useful for finding `.wat` source files. It can also find textual references to `.wasm` paths, though binary `.wasm` files themselves are not usually searchable by content. Treat matches as leads only, then inspect the upstream repository, license, and actual file contents before staging anything.
+
+Known-good browser/API-style searches:
+
+```text
+https://grep.app/search?q=%28module&f.path.pattern=.wat
+https://grep.app/search?q=memory&f.path.pattern=.wat
+https://grep.app/search?q=%22.wasm%22&f.path.pattern=examples
+https://grep.app/search?q=%22.wasm%22&f.path.pattern=fixtures
 ```
 
 When a repo looks promising, clone it into a temporary directory and inspect licenses and files locally:
@@ -153,10 +165,11 @@ Before staging anything for the corpus, answer these questions:
 - Can `prepare` place the fixture into a supported `1.0/`, `2.0/`, or `3.0/` directory?
 - Which schema-supported `features` are required?
 - Does it export at least one deterministic function that Node can call?
-- Are imports absent or simple enough to describe with fixture metadata import stubs?
+- Are imports absent, WASI Preview 1 via `wasi_snapshot_preview1`, or simple enough to describe with fixture metadata import stubs?
 - Can the values be represented by the Node runner: `i32`, `i64`, `f32`, `f64`, null `externref`, or null `funcref`?
 - Is the module at least factorial-level in behavioral substance, or a compact known algorithm worth keeping?
 - Are there easy alternate inputs that exercise different code paths, such as base cases, loop bodies, false branches, trap paths, import stubs, negative/out-of-domain handling, or distinct traversal paths?
+- For pointer-and-length APIs, can tests use exported allocators with `capture` variables, write real bytes into exported memory, and read the result back instead of passing all-zero pointers?
 - Is the module small enough to review, or is there a strong reason to add a larger real-world binary?
 
 Reject the candidate if the answer is weak on license, provenance, determinism, host requirements, or behavioral substance. A file can look promising by name and still be a stub; inspect the WAT or run it before adding it.
@@ -213,7 +226,7 @@ WebAssembly.instantiate(bytes, imports).then(({ instance }) => {
 EOF
 ```
 
-Reject the candidate if Node cannot instantiate and execute it because it needs WASI, components, threads, browser APIs, unsupported proposals, or complex imports.
+Reject the candidate if Node cannot instantiate and execute it because it needs WASI Preview 2, components, threads, browser APIs, unsupported proposals, or complex imports.
 
 ## Add And Validate The Fixture
 

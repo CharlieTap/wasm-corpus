@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kahn_topological_sort",
+  "description": "Kahn topological ordering over two fixed four-node DAG variants, returned as packed node IDs.",
+  "path": "kahn_topological_sort.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kahn_topological_sort.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "kahn_topological_sort",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "diamond-dag",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kahn_topological_sort",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "66051"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-root-dag",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kahn_topological_sort",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "16777731"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "14efa25c151a560afd293b374571b34e2e8cf37924b589255a1456b9946b4a73",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of kahn topological sort compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub."
+}

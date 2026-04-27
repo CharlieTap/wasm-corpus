@@ -1,0 +1,89 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kosaraju_scc",
+  "description": "Kosaraju two-pass SCC count for a fixed directed graph.",
+  "path": "kosaraju_scc.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kosaraju_scc.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "kosaraju_scc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "24c6b21c373b0ab32c4a756088e4a40a972d7489da02206df0f2a0d117366190",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of kosaraju scc compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "two-components",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kosaraju_scc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "one-component",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kosaraju_scc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

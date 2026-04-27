@@ -9,7 +9,7 @@
     "path",
     "wat",
     "features",
-    "invocations",
+    "tests",
     "sha256",
     "source"
   ],
@@ -26,8 +26,7 @@
       "pattern": "^[^/].*\\.wasm$"
     },
     "wat": {
-      "type": "string",
-      "pattern": "^[^/].*\\.wat$"
+      "$ref": "#/$defs/wat"
     },
     "description": {
       "type": "string"
@@ -51,10 +50,10 @@
         "$ref": "#/$defs/export"
       }
     },
-    "invocations": {
+    "tests": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/invocation"
+        "$ref": "#/$defs/test"
       },
       "minItems": 1
     },
@@ -81,6 +80,59 @@
     }
   },
   "$defs": {
+    "wat": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/presentWat"
+        },
+        {
+          "$ref": "#/$defs/tooLargeWat"
+        }
+      ]
+    },
+    "presentWat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "path"
+      ],
+      "properties": {
+        "status": {
+          "const": "present"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[^/].*\\.wat$"
+        }
+      }
+    },
+    "tooLargeWat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "generated_size",
+        "limit",
+        "tool"
+      ],
+      "properties": {
+        "status": {
+          "const": "too_large_for_corpus"
+        },
+        "generated_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tool": {
+          "type": "string"
+        }
+      }
+    },
     "feature": {
       "type": "string",
       "enum": [
@@ -247,7 +299,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "args": {
+        "params": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/value"
@@ -322,30 +374,138 @@
         }
       }
     },
-    "invocation": {
+    "test": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "function"
+        "steps"
       ],
       "properties": {
-        "name": {
+        "description": {
           "type": "string"
+        },
+        "shared_instance": {
+          "type": "boolean",
+          "default": false
+        },
+        "host": {
+          "$ref": "#/$defs/host"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "step": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/invokeStep"
+        },
+        {
+          "$ref": "#/$defs/memoryWriteStep"
+        },
+        {
+          "$ref": "#/$defs/memoryReadStep"
+        },
+        {
+          "$ref": "#/$defs/globalReadStep"
+        },
+        {
+          "$ref": "#/$defs/globalWriteStep"
+        },
+        {
+          "$ref": "#/$defs/tableWriteStep"
+        },
+        {
+          "$ref": "#/$defs/tableReadStep"
+        }
+      ]
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wasi_preview_1": {
+          "$ref": "#/$defs/wasiPreview1Host"
+        }
+      }
+    },
+    "wasiPreview1Host": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "command_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "system_env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "preopened_directories": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "stdin": {
+          "$ref": "#/$defs/bytes"
+        }
+      }
+    },
+    "invokeStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "function",
+        "params",
+        "results"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "function.invoke"
         },
         "function": {
           "type": "string"
         },
-        "args": {
+        "params": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/value"
+            "$ref": "#/$defs/valueExpression"
           },
           "default": []
         },
-        "expected": {
-          "$ref": "#/$defs/expected"
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resultValue"
+          }
         },
-        "timeoutMs": {
+        "trap": {
+          "type": "string"
+        },
+        "host_effects": {
+          "$ref": "#/$defs/hostEffectsAssertion"
+        },
+        "timeout_ms": {
           "type": "integer",
           "minimum": 1
         },
@@ -354,31 +514,283 @@
         }
       }
     },
-    "expected": {
+    "memoryWriteStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "offset",
+        "bytes"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "memory.write"
+        },
+        "memory": {
+          "type": "string",
+          "default": "memory"
+        },
+        "offset": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "bytes": {
+          "$ref": "#/$defs/bytes"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "memoryReadStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "offset",
+        "assert"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "memory.read"
+        },
+        "memory": {
+          "type": "string",
+          "default": "memory"
+        },
+        "offset": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "length": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "assert": {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "globalReadStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "global",
+        "assert"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "global.read"
+        },
+        "global": {
+          "type": "string"
+        },
+        "assert": {
+          "$ref": "#/$defs/valueAssertion"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "globalWriteStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "global",
+        "value"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "global.write"
+        },
+        "global": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/valueExpression"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "tableWriteStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "index",
+        "value"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "table.write"
+        },
+        "table": {
+          "type": "string",
+          "default": "table"
+        },
+        "index": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "value": {
+          "$ref": "#/$defs/tableValue"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "tableReadStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "index",
+        "assert"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "table.read"
+        },
+        "table": {
+          "type": "string",
+          "default": "table"
+        },
+        "index": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "assert": {
+          "$ref": "#/$defs/valueAssertion"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "hostEffectsAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exit_code": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stdout": {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        "stderr": {
+          "$ref": "#/$defs/bytesAssertion"
+        }
+      }
+    },
+    "trapAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "message"
+      ],
+      "properties": {
+        "type": {
+          "const": "trap"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "bytesAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "bytes"
+      ],
+      "properties": {
+        "type": {
+          "const": "bytes"
+        },
+        "bytes": {
+          "$ref": "#/$defs/bytes"
+        }
+      }
+    },
+    "valueAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "value"
+        },
+        "value": {
+          "$ref": "#/$defs/valueAssertionValue"
+        }
+      }
+    },
+    "bytes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "encoding",
+        "value"
+      ],
+      "properties": {
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "hex",
+            "base64",
+            "utf8"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "tableValue": {
       "oneOf": [
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "returns"
-          ],
-          "properties": {
-            "returns": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/value"
-              }
-            }
-          }
+          "$ref": "#/$defs/nullReferenceValue"
         },
         {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "trap"
+            "type",
+            "export"
           ],
           "properties": {
-            "trap": {
+            "type": {
+              "const": "funcref"
+            },
+            "export": {
               "type": "string"
             }
           }
@@ -392,6 +804,62 @@
         },
         {
           "$ref": "#/$defs/nullReferenceValue"
+        }
+      ]
+    },
+    "valueAssertionValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/value"
+        },
+        {
+          "$ref": "#/$defs/typeOnlyValue"
+        }
+      ]
+    },
+    "resultValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/valueAssertionValue"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "capture"
+          ],
+          "properties": {
+            "type": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/numericValueType"
+                },
+                {
+                  "$ref": "#/$defs/referenceValueType"
+                }
+              ]
+            },
+            "value": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "capture": {
+              "$ref": "#/$defs/variableName"
+            }
+          }
+        }
+      ]
+    },
+    "valueExpression": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/value"
+        },
+        {
+          "$ref": "#/$defs/variableValue"
         }
       ]
     },
@@ -411,6 +879,22 @@
         }
       }
     },
+    "variableValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "var"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
+        },
+        "var": {
+          "$ref": "#/$defs/variableName"
+        }
+      }
+    },
     "nullReferenceValue": {
       "type": "object",
       "additionalProperties": false,
@@ -424,6 +908,25 @@
         },
         "value": {
           "const": null
+        }
+      }
+    },
+    "typeOnlyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/numericValueType"
+            },
+            {
+              "$ref": "#/$defs/referenceValueType"
+            }
+          ]
         }
       }
     },
@@ -442,6 +945,33 @@
         "externref",
         "funcref"
       ]
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "integerExpression": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "var"
+          ],
+          "properties": {
+            "var": {
+              "$ref": "#/$defs/variableName"
+            }
+          }
+        }
+      ]
+    },
+    "variableName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
     },
     "source": {
       "type": "object",

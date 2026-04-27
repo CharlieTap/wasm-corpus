@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gradient_descent_step",
+  "description": "Fixed-point gradient descent on f(x)=(x-10)^2 for a few iterations.",
+  "path": "gradient_descent_step.wasm",
+  "wat": {
+    "status": "present",
+    "path": "gradient_descent_step.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "ml",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "gradient_descent_step",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "9245a0b94c2a61d58f186f23f0bf3dcb265c29434fe31b534bd674a6da284536",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of gradient descent step compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "from-zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gradient_descent_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "672"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "from-far",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gradient_descent_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1328"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "at-minimum",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gradient_descent_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

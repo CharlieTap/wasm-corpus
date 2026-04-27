@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "newton_sqrt",
+  "description": "Integer square root using Newton-Raphson iteration.",
+  "path": "newton_sqrt.wasm",
+  "wat": {
+    "status": "present",
+    "path": "newton_sqrt.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "newton_sqrt",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "bc7af7fc8256d1b858a91ddb996b13749986feb8e0d7b98891c7e88d29b3c6ae",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of newton sqrt compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "perfect",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "newton_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "81"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "floor",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "newton_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "80"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "newton_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

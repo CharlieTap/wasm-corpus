@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "binary_search",
+  "description": "Binary search over a fixed sorted table, returning the found index or -1.",
+  "path": "binary_search.wasm",
+  "wat": {
+    "status": "present",
+    "path": "binary_search.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "search",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "binary_search",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "906404efa304ada7a9cd2bdec5f0a610d0ac119945d459b04c8e224adfa3071c",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of binary search compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "found-middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "found-end",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

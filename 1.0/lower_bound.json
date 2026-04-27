@@ -3,7 +3,10 @@
   "name": "lower_bound",
   "description": "Binary search over an embedded sorted i32 table, returning the first index whose value is greater than or equal to the target.",
   "path": "lower_bound.wasm",
-  "wat": "lower_bound.wat",
+  "wat": {
+    "status": "present",
+    "path": "lower_bound.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -25,98 +28,6 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "before-first",
-      "function": "lower_bound",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "exact-middle",
-      "function": "lower_bound",
-      "args": [
-        {
-          "type": "i32",
-          "value": "18"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "3"
-          }
-        ]
-      }
-    },
-    {
-      "name": "between-values",
-      "function": "lower_bound",
-      "args": [
-        {
-          "type": "i32",
-          "value": "12"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "3"
-          }
-        ]
-      }
-    },
-    {
-      "name": "upper-exact",
-      "function": "lower_bound",
-      "args": [
-        {
-          "type": "i32",
-          "value": "42"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "6"
-          }
-        ]
-      }
-    },
-    {
-      "name": "after-last",
-      "function": "lower_bound",
-      "args": [
-        {
-          "type": "i32",
-          "value": "65"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "8"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "1c1cfcf02c45e2fd255e8c24180d58bb74d48ef8fff945d9139711146c4f1a8f",
   "source": {
     "contributor": "ai",
@@ -128,5 +39,112 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "notes": "The embedded sorted table is [3, 7, 11, 18, 29, 31, 42, 64]. The invocations cover targets before the first element, exact matches, gaps between values, and the insertion point after the last element."
+  "notes": "The embedded sorted table is [3, 7, 11, 18, 29, 31, 42, 64]. The tests cover targets before the first element, exact matches, gaps between values, and the insertion point after the last element.",
+  "tests": [
+    {
+      "description": "before-first",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lower_bound",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exact-middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lower_bound",
+          "params": [
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "between-values",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lower_bound",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "upper-exact",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lower_bound",
+          "params": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "after-last",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lower_bound",
+          "params": [
+            {
+              "type": "i32",
+              "value": "65"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

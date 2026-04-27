@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bisection_sqrt",
+  "description": "Integer square root using bisection over the answer range.",
+  "path": "bisection_sqrt.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bisection_sqrt.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "bisection_sqrt",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "6f4f940d009c9a6efe6faea86cfbc4cd8a703efa1ca59c7833bffa38610034dd",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of bisection sqrt compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "perfect",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bisection_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "144"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "floor",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bisection_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "143"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "small",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bisection_sqrt",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

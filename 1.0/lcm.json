@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lcm",
+  "description": "Least common multiple using Euclidean GCD before multiplication.",
+  "path": "lcm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lcm.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "lcm",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "933889a7266596c68e75dfee9d511d906f1314953dceb10ef0230309f9f0a83e",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of lcm compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "shared-factor",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lcm",
+          "params": [
+            {
+              "type": "i32",
+              "value": "21"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "coprime",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lcm",
+          "params": [
+            {
+              "type": "i32",
+              "value": "13"
+            },
+            {
+              "type": "i32",
+              "value": "17"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "221"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "lcm",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

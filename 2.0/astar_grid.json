@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "astar_grid",
+  "description": "A* search on a fixed 3x3 grid with mode-selected obstacle layouts, including an unreachable layout.",
+  "path": "astar_grid.wasm",
+  "wat": {
+    "status": "present",
+    "path": "astar_grid.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "tags": [
+    "algorithm",
+    "search",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "astar_grid",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "open-grid",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "astar_grid",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "blocked-center-detour",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "astar_grid",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "blocked-start-neighbors",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "astar_grid",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "b3b986289430fa62ec418053b0443e398e9fb0ede64c96f5c56ffe5d2397cc6a",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of astar grid compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub."
+}

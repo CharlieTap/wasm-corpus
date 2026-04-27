@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "merge_sort",
+  "description": "merge sort over four byte-sized values, returned as a packed sorted tuple.",
+  "path": "merge_sort.wasm",
+  "wat": {
+    "status": "present",
+    "path": "merge_sort.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "sorting",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "merge_sort",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "3e9a3e4aff185adf73405332eedc573b6cf414508ff46439022ac0db3b9d2658",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of merge sort compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "mixed",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "merge_sort",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "16909060"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "duplicates",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "merge_sort",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "16843266"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "already",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "merge_sort",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "16909060"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,10 @@
   "name": "dfs",
   "description": "Stack-based depth-first preorder traversal over a fixed seven-node binary tree, returning the target visit order or -1 when absent.",
   "path": "dfs.wasm",
-  "wat": "dfs.wat",
+  "wat": {
+    "status": "present",
+    "path": "dfs.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -20,85 +23,97 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "rightmost-leaf",
-      "function": "dfs_visit",
-      "args": [
-        {
-          "type": "i32",
-          "value": "6"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "6"
-          }
-        ]
-      }
-    },
-    {
-      "name": "root",
-      "function": "dfs_visit",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "left-leaf",
-      "function": "dfs_visit",
-      "args": [
-        {
-          "type": "i32",
-          "value": "3"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "2"
-          }
-        ]
-      }
-    },
-    {
-      "name": "missing-node",
-      "function": "dfs_visit",
-      "args": [
-        {
-          "type": "i32",
-          "value": "7"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "186f806ba5d06456c18715bc78429b2869a2668d9e4da42cd6d6e1b8f4e91159",
   "source": {
     "contributor": "ai",
     "language": "wat",
     "description": "AI-authored depth-first search preorder fixture for the corpus"
   },
-  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the DFS stack."
+  "notes": "The fixture stores graph degree and adjacency tables in linear memory and uses scratch memory for the DFS stack.",
+  "tests": [
+    {
+      "description": "rightmost-leaf",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dfs_visit",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "root",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dfs_visit",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "left-leaf",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dfs_visit",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing-node",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dfs_visit",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

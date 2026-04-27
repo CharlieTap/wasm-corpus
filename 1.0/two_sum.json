@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "two_sum",
+  "description": "Two-sum pair search over a fixed array, returning packed indices or -1.",
+  "path": "two_sum.wasm",
+  "wat": {
+    "status": "present",
+    "path": "two_sum.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "numeric",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "two_sum",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "11e0e196481ac3162109badae6e1994eee2e8132387e2fe5d9aceef12fd290cb",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of two sum compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "found",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "two_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "later",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "two_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "26"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "515"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "two_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

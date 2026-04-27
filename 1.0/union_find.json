@@ -1,0 +1,130 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "union_find",
+  "description": "Disjoint-set union with path compression over four elements.",
+  "path": "union_find.wasm",
+  "wat": {
+    "status": "present",
+    "path": "union_find.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "union_find",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "8c5e5a0018c026705fc70945dd05454a1d3221d3d83c463ee7c054ef9ebff1ce",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of union find compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "same-set",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "union_find",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "different",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "union_find",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "bridged",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "union_find",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

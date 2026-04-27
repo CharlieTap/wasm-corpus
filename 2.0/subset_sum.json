@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "subset_sum",
+  "description": "Subset-sum reachability DP over a fixed five-number set.",
+  "path": "subset_sum.wasm",
+  "wat": {
+    "status": "present",
+    "path": "subset_sum.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "subset_sum",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "5ae2082dd5b4e3e0635ba84d5b8f287536b0996b6272b3f5e2b50522445b0063",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of subset sum compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "reachable",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "subset_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "also-reachable",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "subset_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "19"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "subset_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

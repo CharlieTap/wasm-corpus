@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kruskal_mst",
+  "description": "Kruskal minimum spanning tree over a fixed four-node graph.",
+  "path": "kruskal_mst.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kruskal_mst.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "kruskal_mst",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "sha256": "ad1c1d12e26c1d79fbf23f985b8ac35b1ac4e08195c542b63aa8321378599758",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of kruskal mst compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "normal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kruskal_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "cheap-extra",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kruskal_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "expensive-extra-edge",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "kruskal_mst",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,10 @@
   "name": "fibonacci",
   "description": "Iterative i32 Fibonacci with explicit out-of-domain handling for negative inputs and values that would overflow i32.",
   "path": "fibonacci.wasm",
-  "wat": "fibonacci.wat",
+  "wat": {
+    "status": "present",
+    "path": "fibonacci.wat"
+  },
   "features": [],
   "tags": [
     "algorithm",
@@ -19,103 +22,118 @@
       "type": "(func (param i32) (result i32))"
     }
   ],
-  "invocations": [
-    {
-      "name": "ten",
-      "function": "fib",
-      "args": [
-        {
-          "type": "i32",
-          "value": "10"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "55"
-          }
-        ]
-      }
-    },
-    {
-      "name": "negative",
-      "function": "fib",
-      "args": [
-        {
-          "type": "i32",
-          "value": "-1"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "overflow",
-      "function": "fib",
-      "args": [
-        {
-          "type": "i32",
-          "value": "47"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "-1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "zero",
-      "function": "fib",
-      "args": [
-        {
-          "type": "i32",
-          "value": "0"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "seven",
-      "function": "fib",
-      "args": [
-        {
-          "type": "i32",
-          "value": "7"
-        }
-      ],
-      "expected": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "13"
-          }
-        ]
-      }
-    }
-  ],
   "sha256": "03a29238e8b99a013aae3c908705ee61910eb9e73297b31c6363199efe2aaecb",
   "source": {
     "contributor": "ai",
     "language": "wat",
     "description": "AI-authored fibonacci fixture for the corpus"
   },
-  "notes": "Returns -1 for inputs outside 0..46 so the fixture avoids i32 overflow while still exercising iterative state updates."
+  "notes": "Returns -1 for inputs outside 0..46 so the fixture avoids i32 overflow while still exercising iterative state updates.",
+  "tests": [
+    {
+      "description": "ten",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fib",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fib",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "overflow",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fib",
+          "params": [
+            {
+              "type": "i32",
+              "value": "47"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fib",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "seven",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fib",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

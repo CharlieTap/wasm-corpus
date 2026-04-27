@@ -1,0 +1,304 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "esbuild",
+  "path": "esbuild.wasm",
+  "wat": {
+    "status": "too_large_for_corpus",
+    "generated_size": 457791800,
+    "limit": 67108864,
+    "tool": "wasm-tools print"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "bundler",
+    "cli",
+    "go",
+    "large",
+    "npm",
+    "real-world",
+    "wasi-p1"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "sched_yield",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "poll_oneoff",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_pread",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_readdir",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_filestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_create_directory",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_filestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_readlink",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_remove_directory",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_unlink_file",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_open",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i64 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_set_flags",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_dir_name",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "sock_accept",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "sock_shutdown",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 644)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "bundle-stdin-source",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "esbuild",
+            "--bundle",
+            "--platform=node",
+            "--sourcefile=source.js"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "const answer = 21 * 2;\nconsole.log(\"answer\", answer);\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "// source.js\nvar answer = 21 * 2;\nconsole.log(\"answer\", answer);\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "invalid-flag-error",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "esbuild",
+            "--definitely-not-a-real-flag"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 1,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "base64",
+                "value": "4pyYIFtFUlJPUl0gSW52YWxpZCB0cmFuc2Zvcm0gZmxhZzogIi0tZGVmaW5pdGVseS1ub3QtYS1yZWFsLWZsYWciCgoxIGVycm9yCg=="
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "5d5ffd2db382877c87c3e988268aef2e92347395fb4a5b2075e6c064a0cfe9ab",
+  "source": {
+    "contributor": "human",
+    "url": "https://www.npmjs.com/package/@esbuild/wasi-preview1/v/0.28.0",
+    "path": "esbuild.wasm",
+    "language": "go",
+    "description": "MIT-licensed @esbuild/wasi-preview1 npm package for esbuild 0.28.0, repository git+https://github.com/evanw/esbuild.git"
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "WASI Preview 1 build of esbuild 0.28.0, a real-world JavaScript bundler and minifier compiled from Go to WebAssembly.",
+  "notes": "Readable WAT generated by wasm-tools print is too large for the corpus limit, so wat metadata records the generated size instead of committing a misleading text stand-in. Tests run the WASI Preview 1 command entrypoint with stdin bundling input plus an invalid-flag error path."
+}

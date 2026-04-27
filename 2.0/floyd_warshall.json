@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "floyd_warshall",
+  "description": "Floyd-Warshall all-pairs shortest path on a fixed four-node graph.",
+  "path": "floyd_warshall.wasm",
+  "wat": {
+    "status": "present",
+    "path": "floyd_warshall.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "floyd_warshall",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "0c7de2dc8301d16b26b80a94fe919d0653d3df0a2b05151d9f1895cdab54cdf7",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of floyd warshall compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: the module embeds the small dataset/graph/model and the exported parameter selects a query or variant. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "improved",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_warshall",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "direct",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_warshall",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "self",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_warshall",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

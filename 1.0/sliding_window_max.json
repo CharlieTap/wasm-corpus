@@ -1,0 +1,154 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "sliding_window_max",
+  "description": "Sliding-window maximum using a tiny monotonic deque, summed across windows.",
+  "path": "sliding_window_max.wasm",
+  "wat": {
+    "status": "present",
+    "path": "sliding_window_max.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "sliding_window_max",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "sha256": "80cea4b1554af9796d17dcef81ec1f724375f2defec9a33c009c4f39a2208dd7",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "AI-authored freestanding C implementation of sliding window max compiled to WebAssembly for corpus coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: the exported function accepts input values within the small integer/domain bounds described by the signature and tests. Tests cover alternate branches or outcomes so the fixture represents the claimed algorithmic shape rather than a constant-return stub.",
+  "tests": [
+    {
+      "description": "window-two",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sliding_window_max",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "window-three",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sliding_window_max",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "whole-window",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "sliding_window_max",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
