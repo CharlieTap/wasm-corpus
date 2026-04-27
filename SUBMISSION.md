@@ -254,7 +254,7 @@ Function imports can include static stubs when the fixture can be instantiated w
   "kind": "function",
   "type": "(func (param i32) (result i32))",
   "stub": {
-    "args": [
+    "params": [
       {
         "type": "i32",
         "value": "1"

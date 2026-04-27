@@ -250,7 +250,7 @@ function normalizeResults(result, expectedCount) {
 
 function buildFunctionStub(importEntry) {
   const stub = importEntry.stub || {};
-  const expectedArgs = stub.args || [];
+  const expectedArgs = stub.params || stub.args || [];
   const returnValues = stub.returns || [];
 
   return (...actualArgs) => {
@@ -500,8 +500,8 @@ function executeWasiPreview1Start(runtime, step, context) {
   if ((step.params || []).length > 0) {
     fail(`${label}: _start does not take arguments; use test.host.wasi_preview_1.command_args for command-line arguments`);
   }
-  if ((step.results || []).some((expected) => expected && expected.capture)) {
-    fail(`${label}: _start does not produce result values to capture`);
+  if ((step.results || []).length > 0) {
+    fail(`${label}: _start does not produce result values`);
   }
 
   const result = runWasiPreview1InChild(runtime);
