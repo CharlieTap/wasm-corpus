@@ -66,7 +66,7 @@ Work from high-signal sources first. Keep notes on source URL, license, module p
 
 ### GitHub Code Search
 
-Search for WAT first because it is reviewable and easy to compile:
+Search for WAT first because it is reviewable and can be staged directly:
 
 ```sh
 gh search code wasm --extension wat --owner WebAssembly --limit 20 --json path,url,repository
@@ -83,11 +83,12 @@ gh search code examples --extension wasm --match path --limit 20 --json path,url
 gh search code fixtures --extension wasm --match path --limit 20 --json path,url,repository
 ```
 
-GitHub path search can return files whose names end in `.wasm` but are not WebAssembly binaries. After downloading a candidate, verify it with Binaryen or by checking the file type before triage:
+GitHub path search can return files whose names end in `.wasm` but are not WebAssembly binaries. After downloading a candidate, verify it with Binaryen, wasm-tools, or by checking the file type before triage:
 
 ```sh
 file /tmp/candidate.wasm
 wasm-opt /tmp/candidate.wasm -o /tmp/candidate.checked.wasm
+wasm-tools parse /tmp/candidate.wat -o /tmp/candidate.checked.wasm
 ```
 
 When a repo looks promising, clone it into a temporary directory and inspect licenses and files locally:

@@ -13,10 +13,10 @@ const args = process.argv.slice(2);
 function usage() {
   process.stderr.write(`Usage: ./scripts/prepare
 
-Finds every .wasm file directly inside stage/, classifies each one, uses the
-classifier-provided Binaryen flags to prepare it, then writes the optimized
-.wasm, matching .wat, and fixture JSON into the correct 1.0/, 2.0/, or 3.0/
-corpus directory.
+Finds every .wasm or .wat file directly inside stage/, classifies each one,
+uses the classifier-provided Binaryen flags to prepare it, then writes the
+optimized .wasm, matching .wat, and fixture JSON into the correct 1.0/, 2.0/,
+or 3.0/ corpus directory.
 `);
 }
 
@@ -443,6 +443,10 @@ function classify(wasmPath) {
   }
 }
 
+function compileWat(stagedWat, outputWasm) {
+  runRequired("wasm-tools", ["parse", stagedWat, "-o", outputWasm]);
+}
+
 function inspectModule(wasmPath) {
   const bytes = fs.readFileSync(wasmPath);
   const inferred = inferWasmAbi(wasmPath);
@@ -571,24 +575,32 @@ function scaffoldMetadata({ wasmPath, watPath, jsonPath, classification, stagedP
 
 if (args.length > 0) {
   usage();
-  fail("prepare reads stage/*.wasm automatically; move candidate binaries into stage/ and run ./scripts/prepare");
+  fail("prepare reads stage/*.wasm and stage/*.wat automatically; move candidate modules into stage/ and run ./scripts/prepare");
 }
 
 const stageDir = path.join(repoRoot, "stage");
 if (!fs.existsSync(stageDir)) {
-  fail("stage/ does not exist; create it and place .wasm files there");
+  fail("stage/ does not exist; create it and place .wasm or .wat files there");
 }
 
-args.push(
-  ...fs
-    .readdirSync(stageDir)
-    .filter((entry) => entry.endsWith(".wasm"))
-    .sort()
-    .map((entry) => path.join("stage", entry)),
-);
+const stagedEntries = fs
+  .readdirSync(stageDir)
+  .filter((entry) => entry.endsWith(".wasm") || entry.endsWith(".wat"))
+  .sort();
+
+const stagedBasenames = new Set();
+for (const entry of stagedEntries) {
+  const basename = path.parse(entry).name;
+  if (stagedBasenames.has(basename)) {
+    fail(`stage/ contains multiple candidate sources named ${basename}; keep either ${basename}.wasm or ${basename}.wat`);
+  }
+  stagedBasenames.add(basename);
+}
+
+args.push(...stagedEntries.map((entry) => path.join("stage", entry)));
 
 if (args.length === 0) {
-  process.stdout.write("No staged wasm files found. Place candidate binaries in stage/ and run ./scripts/prepare.\n");
+  process.stdout.write("No staged wasm or wat files found. Place candidate modules in stage/ and run ./scripts/prepare.\n");
   process.exit(0);
 }
 
@@ -608,8 +620,8 @@ try {
     const stagedRelative = relativeFromRepo(staged);
     const parsed = path.parse(staged);
 
-    if (!staged.endsWith(".wasm")) {
-      fail(`expected a .wasm file, got: ${input}`);
+    if (!staged.endsWith(".wasm") && !staged.endsWith(".wat")) {
+      fail(`expected a .wasm or .wat file, got: ${input}`);
     }
 
     if (!fs.existsSync(staged)) {
@@ -617,18 +629,23 @@ try {
     }
 
     if (!stagedRelative.startsWith("stage/") || stagedRelative.split("/").length !== 2) {
-      fail(`prepare inputs must be .wasm files directly inside stage/, got: ${input}`);
+      fail(`prepare inputs must be .wasm or .wat files directly inside stage/, got: ${input}`);
     }
 
-    const initialClassification = classify(staged);
+    const work = fs.mkdtempSync(path.join(tmpdir, `${parsed.name}.`));
+    const sourceWasm = staged.endsWith(".wat") ? path.join(work, "source.wasm") : staged;
+    if (staged.endsWith(".wat")) {
+      compileWat(staged, sourceWasm);
+    }
+
+    const initialClassification = classify(sourceWasm);
     if (!initialClassification.version) {
       fail(`${stagedRelative} uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
     }
 
-    const work = fs.mkdtempSync(path.join(tmpdir, `${parsed.name}.`));
     const prepared = path.join(work, "prepared.wasm");
     const watTmp = path.join(work, "module.wat");
-    prepareBinary(staged, prepared, watTmp, initialClassification.binaryen_args || [], work);
+    prepareBinary(sourceWasm, prepared, watTmp, initialClassification.binaryen_args || [], work);
 
     const finalClassification = classify(prepared);
     if (!finalClassification.version) {
