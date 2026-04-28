@@ -156,6 +156,53 @@ function decodeBytes(bytes, context) {
   }
 }
 
+function numericValueSize(type) {
+  switch (type) {
+    case "i32":
+    case "f32":
+      return 4;
+    case "i64":
+    case "f64":
+      return 8;
+    default:
+      fail(`unsupported numeric memory value type: ${type}`);
+  }
+}
+
+function writeNumericValue(view, offset, value, vars, context) {
+  switch (value.type) {
+    case "i32":
+      view.setInt32(offset, decodeValue(value, vars, context), true);
+      return;
+    case "i64":
+      view.setBigInt64(offset, decodeValue(value, vars, context), true);
+      return;
+    case "f32":
+      view.setFloat32(offset, decodeValue(value, vars, context), true);
+      return;
+    case "f64":
+      view.setFloat64(offset, decodeValue(value, vars, context), true);
+      return;
+    default:
+      fail(`${context}: unsupported numeric memory value type ${value.type}`);
+  }
+}
+
+function readNumericValue(view, offset, type, context) {
+  switch (type) {
+    case "i32":
+      return view.getInt32(offset, true);
+    case "i64":
+      return view.getBigInt64(offset, true);
+    case "f32":
+      return view.getFloat32(offset, true);
+    case "f64":
+      return view.getFloat64(offset, true);
+    default:
+      fail(`${context}: unsupported numeric memory value type ${type}`);
+  }
+}
+
 function expectedValueLabel(value) {
   return `${value.type}:${value.value == null ? "null" : JSON.stringify(value.value)}`;
 }
@@ -292,12 +339,27 @@ function buildGlobalStub(importEntry) {
   );
 }
 
+function parseMemoryType(type) {
+  const match = /^\(memory\s+(\d+)(?:\s+(\d+))?\)$/.exec(type || "");
+  if (!match) {
+    fail(`memory import requires a parseable type such as (memory 1) or (memory 1 2), got ${type || "unknown"}`);
+  }
+  const descriptor = { initial: Number(match[1]) };
+  if (match[2] != null) descriptor.maximum = Number(match[2]);
+  return descriptor;
+}
+
+function importKey(importEntry) {
+  return `${importEntry.module}.${importEntry.name}`;
+}
+
 function isWasiPreview1Import(importEntry) {
   return importEntry.module === "wasi_snapshot_preview1";
 }
 
 function buildImports(entry) {
   const imports = {};
+  const memories = new Map();
 
   for (const importEntry of entry.imports || []) {
     imports[importEntry.module] ||= {};
@@ -310,6 +372,9 @@ function buildImports(entry) {
         imports[importEntry.module][importEntry.name] = buildGlobalStub(importEntry);
         break;
       case "memory":
+        imports[importEntry.module][importEntry.name] = new WebAssembly.Memory(parseMemoryType(importEntry.type));
+        memories.set(importKey(importEntry), imports[importEntry.module][importEntry.name]);
+        break;
       case "table":
       case "tag":
         fail(
@@ -321,11 +386,15 @@ function buildImports(entry) {
     }
   }
 
-  return imports;
+  return { imports, memories };
 }
 
 function usesWasiPreview1(module) {
   return WebAssembly.Module.imports(module).some((importEntry) => isWasiPreview1Import(importEntry));
+}
+
+function invokesWasiStart(test) {
+  return (test?.steps || []).some((step) => step.type === "function.invoke" && step.function === "_start");
 }
 
 async function instantiate(wasmPath, entry, test) {
@@ -333,7 +402,7 @@ async function instantiate(wasmPath, entry, test) {
   const module = new WebAssembly.Module(bytes);
   const host = test?.host || {};
 
-  if (usesWasiPreview1(module)) {
+  if (usesWasiPreview1(module) && invokesWasiStart(test)) {
     if (!host.wasi_preview_1) {
       fail(`${wasmPath}: module imports wasi_snapshot_preview1 but test does not declare host.wasi_preview_1`);
     }
@@ -341,15 +410,17 @@ async function instantiate(wasmPath, entry, test) {
       instance: null,
       host,
       wasmPath,
+      memories: new Map(),
     };
   }
 
-  const imports = buildImports(entry);
+  const { imports, memories } = buildImports(entry);
   const instance = await WebAssembly.instantiate(module, imports);
   return {
     instance,
     host: {},
     wasmPath,
+    memories,
   };
 }
 
@@ -565,39 +636,62 @@ function executeInvoke(runtime, step, vars, context) {
   }
 }
 
-function exportedMemory(instance, step, context) {
+function runtimeMemory(runtime, step, context) {
   const memoryName = step.memory || "memory";
-  const memory = instance.exports[memoryName];
+  const memory = runtime.instance.exports[memoryName] || runtime.memories.get(memoryName);
   if (!(memory instanceof WebAssembly.Memory)) {
     fail(`${context}:${step.type} ${memoryName}: export is not a memory`);
   }
   return { memory, memoryName };
 }
 
-function executeMemoryWrite(instance, step, vars, context) {
-  const { memory, memoryName } = exportedMemory(instance, step, context);
+function executeMemoryWrite(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
   const offset = integerField(step.offset, vars, `${context}:memory.write offset`);
-  const bytes = decodeBytes(step.bytes, `${context}:memory.write`);
-  const view = new Uint8Array(memory.buffer);
-  if (offset + bytes.length > view.length) {
+  const view = new DataView(memory.buffer);
+  const length = step.bytes ? decodeBytes(step.bytes, `${context}:memory.write`).length : numericValueSize(step.value.type);
+
+  if (offset + length > view.byteLength) {
     fail(`${context}:memory.write ${memoryName}: write exceeds memory bounds`);
   }
-  view.set(bytes, offset);
+
+  if (step.bytes) {
+    new Uint8Array(memory.buffer).set(decodeBytes(step.bytes, `${context}:memory.write`), offset);
+  } else {
+    writeNumericValue(view, offset, step.value, vars, `${context}:memory.write value`);
+  }
 }
 
-function executeMemoryRead(instance, step, vars, context) {
-  const { memory, memoryName } = exportedMemory(instance, step, context);
+function executeMemoryRead(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
   const offset = integerField(step.offset, vars, `${context}:memory.read offset`);
-  const expected = decodeBytes(step.assert.bytes, `${context}:memory.read assert`);
-  const length = step.length == null ? expected.length : integerField(step.length, vars, `${context}:memory.read length`);
-  const view = new Uint8Array(memory.buffer);
-  if (offset + length > view.length) {
+  const isBytesAssertion = step.assert && step.assert.type === "bytes";
+  const numericType = step.capture ? step.capture.type : step.assert?.value?.type;
+  const defaultLength = isBytesAssertion
+    ? decodeBytes(step.assert.bytes, `${context}:memory.read assert`).length
+    : numericValueSize(numericType);
+  const length = step.length == null ? defaultLength : integerField(step.length, vars, `${context}:memory.read length`);
+  const byteView = new Uint8Array(memory.buffer);
+  if (offset + length > byteView.length) {
     fail(`${context}:memory.read ${memoryName}: read exceeds memory bounds`);
   }
 
-  const actual = Buffer.from(view.slice(offset, offset + length));
-  if (actual.length !== expected.length || !actual.equals(expected)) {
-    fail(`${context}:memory.read ${memoryName}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+  if (isBytesAssertion) {
+    const expected = decodeBytes(step.assert.bytes, `${context}:memory.read assert`);
+    const actual = Buffer.from(byteView.slice(offset, offset + length));
+    if (actual.length !== expected.length || !actual.equals(expected)) {
+      fail(`${context}:memory.read ${memoryName}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+    }
+    return;
+  }
+
+  const dataView = new DataView(memory.buffer);
+  const actual = readNumericValue(dataView, offset, numericType, `${context}:memory.read`);
+  if (step.assert) {
+    assertActualMatchesValue(actual, step.assert.value, `${context}:memory.read ${memoryName}`);
+  }
+  if (step.capture) {
+    vars.set(step.capture.capture, actual);
   }
 }
 
@@ -677,10 +771,10 @@ async function executeStep(runtime, step, vars, context) {
       executeInvoke(runtime, step, vars, context);
       return;
     case "memory.write":
-      executeMemoryWrite(instance, step, vars, context);
+      executeMemoryWrite(runtime, step, vars, context);
       return;
     case "memory.read":
-      executeMemoryRead(instance, step, vars, context);
+      executeMemoryRead(runtime, step, vars, context);
       return;
     case "global.read":
       executeGlobalRead(instance, step, context);

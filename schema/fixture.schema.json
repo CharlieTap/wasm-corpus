@@ -519,8 +519,7 @@
       "additionalProperties": false,
       "required": [
         "type",
-        "offset",
-        "bytes"
+        "offset"
       ],
       "properties": {
         "description": {
@@ -539,18 +538,32 @@
         "bytes": {
           "$ref": "#/$defs/bytes"
         },
+        "value": {
+          "$ref": "#/$defs/valueExpression"
+        },
         "notes": {
           "type": "string"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "bytes"
+          ]
+        },
+        {
+          "required": [
+            "value"
+          ]
+        }
+      ]
     },
     "memoryReadStep": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "type",
-        "offset",
-        "assert"
+        "offset"
       ],
       "properties": {
         "description": {
@@ -570,12 +583,27 @@
           "$ref": "#/$defs/integerExpression"
         },
         "assert": {
-          "$ref": "#/$defs/bytesAssertion"
+          "$ref": "#/$defs/memoryReadAssertion"
+        },
+        "capture": {
+          "$ref": "#/$defs/memoryReadCapture"
         },
         "notes": {
           "type": "string"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "assert"
+          ]
+        },
+        {
+          "required": [
+            "capture"
+          ]
+        }
+      ]
     },
     "globalReadStep": {
       "type": "object",
@@ -734,6 +762,32 @@
         },
         "bytes": {
           "$ref": "#/$defs/bytes"
+        }
+      }
+    },
+    "memoryReadAssertion": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        {
+          "$ref": "#/$defs/valueAssertion"
+        }
+      ]
+    },
+    "memoryReadCapture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "capture"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
+        },
+        "capture": {
+          "$ref": "#/$defs/variableName"
         }
       }
     },
