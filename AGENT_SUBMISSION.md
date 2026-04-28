@@ -8,6 +8,7 @@ Use this document as context when autonomously finding and adding new WebAssembl
 - Prefer small modules with clear provenance, readable source or WAT, deterministic exports, and simple imports.
 - Avoid single-operation or hello-world-style modules. Aim for at least factorial-level behavior: control flow, memory/table/import interaction, or a recognizable algorithm.
 - Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
+- Only add a fixture when the metadata tests can exercise representative behavior in the binary. A module that merely validates, instantiates, or exposes one trivial utility export is not enough if the claimed value is a larger runtime, library, compiler, or algorithm.
 - Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, WASI APIs beyond Preview 1, or complex host APIs that cannot be represented by the fixture metadata import stubs.
 - Do not add programs from `WebAssembly/testsuite` or equivalent conformance suites. This corpus should complement conformance suites rather than duplicate them.
 - Every submitted binary must follow [SUBMISSION.md](SUBMISSION.md) and be executable by Node through `./scripts/execute`.
@@ -168,11 +169,12 @@ Before staging anything for the corpus, answer these questions:
 - Are imports absent, WASI Preview 1 via `wasi_snapshot_preview1`, or simple enough to describe with fixture metadata import stubs?
 - Can the values be represented by the Node runner: `i32`, `i64`, `f32`, `f64`, null `externref`, or null `funcref`?
 - Is the module at least factorial-level in behavioral substance, or a compact known algorithm worth keeping?
+- Can the fixture tests reach the code paths that make this binary worth adding, rather than just a metadata, version, allocation, or marker helper export?
 - Are there easy alternate inputs that exercise different code paths, such as base cases, loop bodies, false branches, trap paths, import stubs, negative/out-of-domain handling, or distinct traversal paths?
 - For pointer-and-length APIs, can tests use exported allocators with `capture` variables, write real bytes into exported memory, and read the result back instead of passing all-zero pointers?
 - Is the module small enough to review, or is there a strong reason to add a larger real-world binary?
 
-Reject the candidate if the answer is weak on license, provenance, determinism, host requirements, or behavioral substance. A file can look promising by name and still be a stub; inspect the WAT or run it before adding it.
+Reject the candidate if the answer is weak on license, provenance, determinism, host requirements, behavioral substance, or testability. A file can look promising by name and still be a stub; inspect the WAT or run it before adding it. For example, do not submit a Python runtime fixture if the only runnable exports are tiny error marker helpers, and do not submit a compiler or database fixture if the only practical test is `--version`; those binaries may be real, but the corpus entry would not expose consumers to meaningful permutations of the module's code.
 
 ## Node Compatibility Probe
 
