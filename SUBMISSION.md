@@ -129,14 +129,14 @@ Each test runs a sequence of steps against one module instance. Tests use a fres
 Supported steps:
 
 - `function.invoke`: call an exported function by `function` name with typed `params`; use `results` to assert or capture result values, or `trap` to assert a trap message. `params` and `results` are required on every invoke step; use empty arrays when there are no parameters or results. When a host-profile command module exports `_start`, invoke `_start` with empty Wasm params/results and use `host_effects` for effects such as `proc_exit`, stdout, and stderr.
-- `memory.write`: write `hex`, `base64`, or `utf8` bytes into an exported memory.
-- `memory.read`: read bytes from an exported memory; a `bytes` assertion is required and `length` can be omitted when it should equal the asserted byte length.
+- `memory.write`: write `hex`, `base64`, `utf8`, or a little-endian numeric `value` into an exported memory or an imported memory addressed as `module.name`, such as `env.memory`.
+- `memory.read`: read bytes or a little-endian numeric value from an exported memory or an imported memory addressed as `module.name`; use `assert` to check the read value or `capture` to store it for later steps. `length` can be omitted for byte assertions when it should equal the asserted byte length, and for numeric values because their type implies the byte width.
 - `global.read`: read an exported global; a `value` assertion is required.
 - `global.write`: write an exported mutable global.
 - `table.read`: read an exported table entry; a `value` assertion is required.
 - `table.write`: write `null` or an exported function reference into an exported table.
 
-Use `function` for `function.invoke` steps. Other steps use a target field matching the item kind: `memory` for `memory.*`, `global` for `global.*`, and `table` for `table.*`.
+Use `function` for `function.invoke` steps. Other steps use a target field matching the item kind: `memory` for `memory.*`, `global` for `global.*`, and `table` for `table.*`. Imported memories are named with their import module and field, for example `env.memory`.
 
 For modules that import `wasi_snapshot_preview1`, declare a test-level `host.wasi_preview_1` profile. This is not a Node API contract: it describes the environment captured by the WASI host functions that must be allocated and passed as module imports under the standard WebAssembly embedding model. The field names mirror the `EmbedderHost` concepts used by the Chasm WASI integration: the module observes `command_args`, `system_env`, `preopened_directories`, and `stdin` by calling its imported WASI functions; the test still invokes the exported `_start` function with no Wasm arguments.
 
@@ -193,6 +193,23 @@ Captured variables can be used in numeric fields and typed numeric params:
 ```json
 { "offset": { "var": "ptr" } }
 { "type": "i32", "var": "ptr" }
+```
+
+Numeric memory values are read and written little-endian, matching WebAssembly memory conventions:
+
+```json
+{
+  "type": "memory.write",
+  "memory": "env.memory",
+  "offset": { "var": "out_ptr" },
+  "value": { "type": "i32", "value": "0" }
+}
+{
+  "type": "memory.read",
+  "memory": "env.memory",
+  "offset": { "var": "out_ptr" },
+  "capture": { "type": "i32", "capture": "db_ptr" }
+}
 ```
 
 Assertions use explicit typed values:
@@ -270,7 +287,7 @@ Function imports can include static stubs when the fixture can be instantiated w
 }
 ```
 
-Use `stub.trap` instead of `stub.returns` when the host stub should trap. Imported memory, table, and tag values should be described with `type` and `description`; metadata does not try to encode full host behavior for them.
+Use `stub.trap` instead of `stub.returns` when the host stub should trap. Imported memory values are created by the runner from their inferred `type` and can be targeted in `memory.write` and `memory.read` steps as `module.name`. Imported table and tag values should be described with `type` and `description`; metadata does not try to encode full host behavior for them.
 
 ## Values
 

@@ -1,0 +1,2478 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "sqlite3",
+  "path": "sqlite3.wasm",
+  "wat": {
+    "status": "present",
+    "path": "sqlite3.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "bulk-memory",
+    "c-api",
+    "database",
+    "emscripten",
+    "imported-memory",
+    "mutable-globals",
+    "npm",
+    "parser",
+    "pattern-matching",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "sql",
+    "sqlite",
+    "wasi-p1"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "__syscall_faccessat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_date_now",
+      "kind": "function",
+      "type": "(func (result f64))",
+      "stub": {
+        "returns": [
+          {
+            "type": "f64",
+            "value": "0"
+          }
+        ],
+        "notes": "Deterministic wall-clock stub for tests that do not depend on time."
+      }
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchmod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_chmod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchown32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fcntl64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_openat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "-44"
+          }
+        ],
+        "notes": "Return Emscripten ENOENT for filesystem probes. SQLite still opens :memory: databases without a backing filesystem."
+      }
+    },
+    {
+      "module": "env",
+      "name": "__syscall_ioctl",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fstat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_stat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_newfstatat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_lstat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_sync",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_ftruncate64",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getcwd",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_mkdirat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_get_now",
+      "kind": "function",
+      "type": "(func (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "_tzset_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_localtime_js",
+      "kind": "function",
+      "type": "(func (param i64 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_munmap_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i64) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_mmap_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_readlinkat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_rmdir",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_get_heap_max",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_unlinkat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_utimensat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_resize_heap",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 128 32768)",
+      "description": "Emscripten linear memory imported by the SQLite module; tests address it as env.memory."
+    }
+  ],
+  "exports": [
+    {
+      "name": "__wasm_call_ctors",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "sqlite3_status64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_status",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_db_status64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__indirect_function_table",
+      "kind": "table",
+      "type": "(table 634 funcref)"
+    },
+    {
+      "name": "sqlite3_msize",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_db_status",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vfs_find",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_initialize",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_vfs_register",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vfs_unregister",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_malloc64",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "sqlite3_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_realloc64",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_text",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_randomness",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3_stricmp",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_strnicmp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_uri_parameter",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_uri_boolean",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_serialize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_prepare_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_step",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_int64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_reset",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_exec",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_int",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_finalize",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_file_control",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_text",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_type",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_errmsg",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_deserialize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i64 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_clear_bindings",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_blob",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_bytes",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_double",
+      "kind": "function",
+      "type": "(func (param i32) (result f64))"
+    },
+    {
+      "name": "sqlite3_value_int",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_int64",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_value_subtype",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_pointer",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_type",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_nochange",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_frombind",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_dup",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_result_blob",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_error_toobig",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_result_error_nomem",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_result_double",
+      "kind": "function",
+      "type": "(func (param i32 f64))"
+    },
+    {
+      "name": "sqlite3_result_error",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_int",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_int64",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "sqlite3_result_null",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_result_pointer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_subtype",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_text",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_zeroblob",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3_result_zeroblob64",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "sqlite3_result_error_code",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3_user_data",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_context_db_handle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_nochange",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_in_first",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_in_next",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_aggregate_context",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_get_auxdata",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_set_auxdata",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_column_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_data_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_blob",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_bytes",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_double",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result f64))"
+    },
+    {
+      "name": "sqlite3_column_value",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_decltype",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_database_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_table_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_column_origin_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_blob",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_double",
+      "kind": "function",
+      "type": "(func (param i32 i32 f64) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_int",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_int64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_null",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_pointer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_text",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_zeroblob",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_parameter_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_parameter_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_bind_parameter_index",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_db_handle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_stmt_readonly",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_stmt_isexplain",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_stmt_explain",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_stmt_busy",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_next_stmt",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_stmt_status",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_sql",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_expanded_sql",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_old",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_depth",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_blobwrite",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_new",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_value_numeric_type",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_set_authorizer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_strglob",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_strlike",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_auto_extension",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_cancel_auto_extension",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_reset_auto_extension",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "sqlite3_prepare_v3",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_module",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_module_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_drop_modules",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_declare_vtab",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_on_conflict",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_collation",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_in",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_rhs_value",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_vtab_distinct",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_keyword_name",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_keyword_count",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3_keyword_check",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_complete",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_libversion",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3_libversion_number",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3_shutdown",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3_last_insert_rowid",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_set_last_insert_rowid",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "sqlite3_changes64",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_changes",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_total_changes64",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3_total_changes",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_txn_state",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_close_v2",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_busy_handler",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_progress_handler",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3_busy_timeout",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_interrupt",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3_is_interrupted",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_function",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_function_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_window_function",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_overload_function",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_trace_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_commit_hook",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_update_hook",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_rollback_hook",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_preupdate_hook",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_set_errmsg",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_error_offset",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_errcode",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_extended_errcode",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_errstr",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_limit",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_open",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_open_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_collation",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_create_collation_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_collation_needed",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_get_autocommit",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_table_column_metadata",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_extended_result_codes",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_uri_key",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_uri_int64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i64))"
+    },
+    {
+      "name": "sqlite3_db_name",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_db_filename",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_db_readonly",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_compileoption_used",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_compileoption_get",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_diff",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_attach",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_create",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_delete",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3session_table_filter",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "sqlite3session_changeset",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_changeset_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_patchset_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_patchset",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_enable",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_indirect",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_isempty",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_memory_used",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3session_object_config",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_changeset_size",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3changeset_start",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_start_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_start_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_start_v2_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_next",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_op",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_pk",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_old",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_new",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_conflict",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_fk_conflicts",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_finalize",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_invert",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_invert_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply_v2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply_v3",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply_v3_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply_v2_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_apply_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_new",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_add",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_output",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_add_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_output_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changegroup_delete",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3changeset_concat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3changeset_concat_strm",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3session_config",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3_sourceid",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_pstack_ptr",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_pstack_restore",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3__wasm_pstack_alloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_pstack_remaining",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_pstack_quota",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_struct",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3__wasm_enum_json",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_vfs_unlink",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_vfs",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_reset",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_export_chunked",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_serialize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_vfs_create_file",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_posix_create_file",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_kvvfsMakeKey",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_kvvfs_methods",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_vtab_config",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_config_ip",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_config_pii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_db_config_s",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_config_i",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_config_ii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_config_j",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_qfmt_token",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_kvvfs_decode",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_kvvfs_encode",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_init_wasmfs",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_intptr",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_voidptr",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_int64_max",
+      "kind": "function",
+      "type": "(func (result i64))"
+    },
+    {
+      "name": "sqlite3__wasm_test_int64_min",
+      "kind": "function",
+      "type": "(func (result i64))"
+    },
+    {
+      "name": "sqlite3__wasm_test_int64_times2",
+      "kind": "function",
+      "type": "(func (param i64) (result i64))"
+    },
+    {
+      "name": "sqlite3__wasm_test_int64_minmax",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_int64ptr",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "sqlite3__wasm_test_stack_overflow",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sqlite3__wasm_test_str_hello",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sqlite3__wasm_SQLTester_strglob",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "emscripten_builtin_memalign",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "_emscripten_stack_restore",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "_emscripten_stack_alloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "emscripten_stack_get_current",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "inspect SQLite library metadata",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "SQLite version number is 3.53.0",
+          "function": "sqlite3_libversion_number",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3053000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "keyword table exposes expected count",
+          "function": "sqlite3_keyword_count",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "147"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "initialize the library",
+          "function": "sqlite3_initialize",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "shutdown the library",
+          "function": "sqlite3_shutdown",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "parse complete and incomplete SQL statements",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate complete SQL text",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "complete_sql"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write complete SQL",
+          "memory": "env.memory",
+          "offset": {
+            "var": "complete_sql"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "select 1;\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "complete SQL returns true",
+          "function": "sqlite3_complete",
+          "params": [
+            {
+              "type": "i32",
+              "var": "complete_sql"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free complete SQL text",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "complete_sql"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate incomplete SQL text",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "incomplete_sql"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write incomplete SQL",
+          "memory": "env.memory",
+          "offset": {
+            "var": "incomplete_sql"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "select 1\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "incomplete SQL returns false",
+          "function": "sqlite3_complete",
+          "params": [
+            {
+              "type": "i32",
+              "var": "incomplete_sql"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free incomplete SQL text",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "incomplete_sql"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "classify SQLite keywords and non-keywords",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate SELECT keyword",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "select_word"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write SELECT keyword",
+          "memory": "env.memory",
+          "offset": {
+            "var": "select_word"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "select\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "SELECT is a SQLite keyword",
+          "function": "sqlite3_keyword_check",
+          "params": [
+            {
+              "type": "i32",
+              "var": "select_word"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free SELECT keyword",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "select_word"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate non-keyword",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "ordinary_word"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write non-keyword",
+          "memory": "env.memory",
+          "offset": {
+            "var": "ordinary_word"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "notakeyword\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "ordinary word is not a SQLite keyword",
+          "function": "sqlite3_keyword_check",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ordinary_word"
+            },
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free non-keyword",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ordinary_word"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "exercise SQLite LIKE and GLOB pattern helpers",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate LIKE pattern",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "like_pattern"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write LIKE pattern",
+          "memory": "env.memory",
+          "offset": {
+            "var": "like_pattern"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "a__\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate abc text",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "abc_text"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write abc text",
+          "memory": "env.memory",
+          "offset": {
+            "var": "abc_text"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "LIKE pattern matches abc",
+          "function": "sqlite3_strlike",
+          "params": [
+            {
+              "type": "i32",
+              "var": "like_pattern"
+            },
+            {
+              "type": "i32",
+              "var": "abc_text"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate ac text",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "ac_text"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write ac text",
+          "memory": "env.memory",
+          "offset": {
+            "var": "ac_text"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "ac\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "LIKE pattern rejects ac",
+          "function": "sqlite3_strlike",
+          "params": [
+            {
+              "type": "i32",
+              "var": "like_pattern"
+            },
+            {
+              "type": "i32",
+              "var": "ac_text"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate GLOB pattern",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "glob_pattern"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write GLOB pattern",
+          "memory": "env.memory",
+          "offset": {
+            "var": "glob_pattern"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "a?c\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "GLOB pattern matches abc",
+          "function": "sqlite3_strglob",
+          "params": [
+            {
+              "type": "i32",
+              "var": "glob_pattern"
+            },
+            {
+              "type": "i32",
+              "var": "abc_text"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free LIKE pattern",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "like_pattern"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free GLOB pattern",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "glob_pattern"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free abc text",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "abc_text"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free ac text",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ac_text"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "open an in-memory database and step a scalar SELECT statement",
+      "notes": "Uses SQLite C API pointer-out parameters with typed memory reads/writes, then executes SELECT 40 + 2 against a real :memory: database.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate :memory: filename",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "filename"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write in-memory database filename",
+          "memory": "env.memory",
+          "offset": {
+            "var": "filename"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": ":memory:\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate sqlite3 pointer output slot",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "db_out"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "clear sqlite3 pointer output slot",
+          "memory": "env.memory",
+          "offset": {
+            "var": "db_out"
+          },
+          "value": {
+            "type": "i32",
+            "value": "0"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "open in-memory database",
+          "function": "sqlite3_open",
+          "params": [
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "var": "db_out"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "capture sqlite3 pointer",
+          "memory": "env.memory",
+          "offset": {
+            "var": "db_out"
+          },
+          "capture": {
+            "type": "i32",
+            "capture": "db"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate SELECT SQL text",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "sql"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write SELECT SQL",
+          "memory": "env.memory",
+          "offset": {
+            "var": "sql"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "select 40 + 2;\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate statement pointer output slot",
+          "function": "sqlite3_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "stmt_out"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "clear statement pointer output slot",
+          "memory": "env.memory",
+          "offset": {
+            "var": "stmt_out"
+          },
+          "value": {
+            "type": "i32",
+            "value": "0"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "prepare SELECT statement",
+          "function": "sqlite3_prepare_v2",
+          "params": [
+            {
+              "type": "i32",
+              "var": "db"
+            },
+            {
+              "type": "i32",
+              "var": "sql"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "var": "stmt_out"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "capture statement pointer",
+          "memory": "env.memory",
+          "offset": {
+            "var": "stmt_out"
+          },
+          "capture": {
+            "type": "i32",
+            "capture": "stmt"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "step returns SQLITE_ROW",
+          "function": "sqlite3_step",
+          "params": [
+            {
+              "type": "i32",
+              "var": "stmt"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "100"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "read first result column",
+          "function": "sqlite3_column_int",
+          "params": [
+            {
+              "type": "i32",
+              "var": "stmt"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "second step returns SQLITE_DONE",
+          "function": "sqlite3_step",
+          "params": [
+            {
+              "type": "i32",
+              "var": "stmt"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "101"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "finalize statement",
+          "function": "sqlite3_finalize",
+          "params": [
+            {
+              "type": "i32",
+              "var": "stmt"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "close database",
+          "function": "sqlite3_close_v2",
+          "params": [
+            {
+              "type": "i32",
+              "var": "db"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free filename",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "filename"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free SQL text",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "sql"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free database pointer slot",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "db_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free statement pointer slot",
+          "function": "sqlite3_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "stmt_out"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "803a6702e8af5a949b7abf24730ffaf3149d9d668a759b9e573a5eee70d1ecd3",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "url": "https://www.npmjs.com/package/@sqlite.org/sqlite-wasm/v/3.53.0-build1",
+    "description": "The sqlite3.wasm binary from @sqlite.org/sqlite-wasm 3.53.0-build1, a package based on the SQLite WebAssembly project and published as an ES module wrapper."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "SQLite 3.53.0 WebAssembly build from @sqlite.org/sqlite-wasm, exposing the SQLite C API with imported Emscripten memory.",
+  "notes": "This fixture uses the official @sqlite.org/sqlite-wasm package binary rather than a synthetic SQLite-like wrapper. The tests exercise direct SQLite C API exports, imported env.memory writes, pointer-out reads, a real in-memory SELECT query, SQL statement completeness parsing, keyword lookup, and SQLite LIKE/GLOB helpers without relying on JavaScript glue. The Emscripten openat import is stubbed to report ENOENT for filesystem probes, which still allows SQLite :memory: databases to work."
+}

@@ -519,8 +519,7 @@
       "additionalProperties": false,
       "required": [
         "type",
-        "offset",
-        "bytes"
+        "offset"
       ],
       "properties": {
         "description": {
@@ -539,18 +538,32 @@
         "bytes": {
           "$ref": "#/$defs/bytes"
         },
+        "value": {
+          "$ref": "#/$defs/valueExpression"
+        },
         "notes": {
           "type": "string"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "bytes"
+          ]
+        },
+        {
+          "required": [
+            "value"
+          ]
+        }
+      ]
     },
     "memoryReadStep": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "type",
-        "offset",
-        "assert"
+        "offset"
       ],
       "properties": {
         "description": {
@@ -570,12 +583,27 @@
           "$ref": "#/$defs/integerExpression"
         },
         "assert": {
-          "$ref": "#/$defs/bytesAssertion"
+          "$ref": "#/$defs/memoryReadAssertion"
+        },
+        "capture": {
+          "$ref": "#/$defs/memoryReadCapture"
         },
         "notes": {
           "type": "string"
         }
-      }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "assert"
+          ]
+        },
+        {
+          "required": [
+            "capture"
+          ]
+        }
+      ]
     },
     "globalReadStep": {
       "type": "object",
@@ -737,6 +765,48 @@
         }
       }
     },
+    "memoryReadAssertion": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        {
+          "$ref": "#/$defs/numericValueAssertion"
+        }
+      ]
+    },
+    "numericValueAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "value"
+        },
+        "value": {
+          "$ref": "#/$defs/numericValueAssertionValue"
+        }
+      }
+    },
+    "memoryReadCapture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "capture"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
+        },
+        "capture": {
+          "$ref": "#/$defs/variableName"
+        }
+      }
+    },
     "valueAssertion": {
       "type": "object",
       "additionalProperties": false,
@@ -814,6 +884,16 @@
         },
         {
           "$ref": "#/$defs/typeOnlyValue"
+        }
+      ]
+    },
+    "numericValueAssertionValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/numericValue"
+        },
+        {
+          "$ref": "#/$defs/numericTypeOnlyValue"
         }
       ]
     },
@@ -927,6 +1007,18 @@
               "$ref": "#/$defs/referenceValueType"
             }
           ]
+        }
+      }
+    },
+    "numericTypeOnlyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
         }
       }
     },
