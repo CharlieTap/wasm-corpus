@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "catboost",
+  "path": "catboost.wasm",
+  "wat": {
+    "status": "present",
+    "path": "catboost.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "catboost",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catboost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "106"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catboost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "199"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catboost",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "594"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "4bdd1e44d9ee24f1952e61931350b7380dc4d0564eb9b885bba121ab666f77e3",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of CatBoost for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Ordered categorical boosting score over fixed category statistics.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "ensemble",
+    "catboost"
+  ],
+  "notes": "Bounded-general fixture for CatBoost. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative boosting behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

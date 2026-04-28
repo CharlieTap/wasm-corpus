@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "non_negative_matrix_factorization",
+  "path": "non_negative_matrix_factorization.wasm",
+  "wat": {
+    "status": "present",
+    "path": "non_negative_matrix_factorization.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "non_negative_matrix_factorization",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "non_negative_matrix_factorization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4449"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "non_negative_matrix_factorization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3266"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "non_negative_matrix_factorization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2047"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "ee93718ce9f273631f42d18b378d9b2226453d7d5ea116aa9628304b94663732",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Non-negative Matrix Factorization for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "NMF multiplicative-update reconstruction loss.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "linear-algebra",
+    "negative",
+    "matrix",
+    "factorization"
+  ],
+  "notes": "Bounded-general fixture for Non-negative Matrix Factorization. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative matrix behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

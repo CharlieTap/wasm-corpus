@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "backpropagation",
+  "path": "backpropagation.wasm",
+  "wat": {
+    "status": "present",
+    "path": "backpropagation.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "backpropagation",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "backpropagation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4863"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "backpropagation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1483"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "backpropagation",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1477"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "2cf5c275a1c9ecd04138dd41276b8cd7b47e08c0f7d2d14becc550d8650352e3",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Backpropagation for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Two-layer network backpropagation gradient accumulation.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "backpropagation"
+  ],
+  "notes": "Bounded-general fixture for Backpropagation. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative neural behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

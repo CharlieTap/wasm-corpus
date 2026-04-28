@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "dropout",
+  "path": "dropout.wasm",
+  "wat": {
+    "status": "present",
+    "path": "dropout.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "dropout",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dropout",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2070"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dropout",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5059"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dropout",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2056"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "ce4cf8226f0ab1d8c5a38ea7d90d3e975e777f3013fd5b79aaf34d76c657e08c",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Dropout for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Deterministic dropout mask application and rescaling.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "dropout"
+  ],
+  "notes": "Bounded-general fixture for Dropout. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative dropout behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "principal_component_analysis",
+  "path": "principal_component_analysis.wasm",
+  "wat": {
+    "status": "present",
+    "path": "principal_component_analysis.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "principal_component_analysis",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "principal_component_analysis",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4362"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "principal_component_analysis",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3107"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "principal_component_analysis",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3187"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "4ef35ec8787791a6e05fd4b4245fe8702bdecb043dae82ed4263f49284999f4d",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Principal Component Analysis for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "PCA projection variance over a fixed covariance matrix.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "linear-algebra",
+    "principal",
+    "component",
+    "analysis"
+  ],
+  "notes": "Bounded-general fixture for Principal Component Analysis. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative matrix behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "singular_value_decomposition",
+  "path": "singular_value_decomposition.wasm",
+  "wat": {
+    "status": "present",
+    "path": "singular_value_decomposition.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "singular_value_decomposition",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "singular_value_decomposition",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3781"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "singular_value_decomposition",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5092"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "singular_value_decomposition",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5340"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "b6bc9415d9e14bd876f709a02a59b296d0d401878f3d967fd956524cd1f15384",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Singular Value Decomposition for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "SVD power-iteration singular value estimate.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "linear-algebra",
+    "singular",
+    "value",
+    "decomposition"
+  ],
+  "notes": "Bounded-general fixture for Singular Value Decomposition. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative matrix behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

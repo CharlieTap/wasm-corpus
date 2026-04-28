@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "monte_carlo_tree_search",
+  "path": "monte_carlo_tree_search.wasm",
+  "wat": {
+    "status": "present",
+    "path": "monte_carlo_tree_search.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "monte_carlo_tree_search",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "monte_carlo_tree_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5369"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "monte_carlo_tree_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5173"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "monte_carlo_tree_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5049"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "01771a38e27a0e4acc138b33aba4d9934a6411e2f786b892d5ce4759e786da0e",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Monte Carlo Tree Search for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "MCTS UCB child selection over fixed visit/reward counts.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "game-search",
+    "monte",
+    "carlo",
+    "tree"
+  ],
+  "notes": "Bounded-general fixture for Monte Carlo Tree Search. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative mcts behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

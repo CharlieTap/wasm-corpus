@@ -1,0 +1,122 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "restricted_boltzmann_machine",
+  "path": "restricted_boltzmann_machine.wasm",
+  "wat": {
+    "status": "present",
+    "path": "restricted_boltzmann_machine.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "restricted_boltzmann_machine",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "restricted_boltzmann_machine",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3806"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "restricted_boltzmann_machine",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7187"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "restricted_boltzmann_machine",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5354"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "ebd6eb4e93e0e6c9c98e7a7da8e0070c3ae019050a0a0a22c69170dc431d2986",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Restricted Boltzmann Machine for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "RBM contrastive-divergence energy difference.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "energy-model",
+    "restricted",
+    "boltzmann",
+    "machine"
+  ],
+  "notes": "Bounded-general fixture for Restricted Boltzmann Machine. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative energy behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

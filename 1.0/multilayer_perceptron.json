@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "multilayer_perceptron",
+  "path": "multilayer_perceptron.wasm",
+  "wat": {
+    "status": "present",
+    "path": "multilayer_perceptron.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "multilayer_perceptron",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "multilayer_perceptron",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4106"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "multilayer_perceptron",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6635"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "multilayer_perceptron",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "469"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "876c671c6097c15feb8c2cf0a69969075318e28c68207896c479aeedd96151c0",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Multilayer perceptron for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Multilayer perceptron forward pass through hidden units.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "multilayer",
+    "perceptron"
+  ],
+  "notes": "Bounded-general fixture for Multilayer perceptron. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative neural behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

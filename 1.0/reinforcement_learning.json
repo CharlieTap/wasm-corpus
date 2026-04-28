@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "reinforcement_learning",
+  "path": "reinforcement_learning.wasm",
+  "wat": {
+    "status": "present",
+    "path": "reinforcement_learning.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "reinforcement_learning",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reinforcement_learning",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5094"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reinforcement_learning",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5012"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reinforcement_learning",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5087"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "c2757bda8db0471ad7d5cce376bc29f3f41d043411c35a81468fdbc8630973cc",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Reinforcement learning for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Discounted return accumulation over fixed rewards.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "reinforcement-learning",
+    "reinforcement",
+    "learning"
+  ],
+  "notes": "Bounded-general fixture for Reinforcement learning. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative rl behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}

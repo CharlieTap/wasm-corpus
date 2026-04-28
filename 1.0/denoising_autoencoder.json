@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "denoising_autoencoder",
+  "path": "denoising_autoencoder.wasm",
+  "wat": {
+    "status": "present",
+    "path": "denoising_autoencoder.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "denoising_autoencoder",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "denoising_autoencoder",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5969"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "denoising_autoencoder",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1733"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "denoising_autoencoder",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3175"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "2b126e5766f9d55164075d0b145a8e3ece42c2fc4cf78aa40940f187bd8c19c3",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Denoising autoencoder for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Denoising autoencoder masked-input reconstruction score.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "denoising",
+    "autoencoder"
+  ],
+  "notes": "Bounded-general fixture for Denoising autoencoder. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative autoencoder behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+}
