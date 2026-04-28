@@ -87,6 +87,8 @@ Every fixture needs runnable `tests`. Prefer a few meaningful cases over a singl
 
 This is not intended to be exhaustive correctness coverage. The goal is to help corpus consumers encounter varied WebAssembly instruction shapes and to make constant-return stubs obvious in review.
 
+Do not submit a fixture if the available tests cannot exercise the binary's representative behavior. Smoke tests that only call a version export, an allocation helper, or a tiny marker function may prove the module instantiates, but they do not make a useful corpus entry for a larger runtime, library, compiler, or database. In that case, either add enough setup steps to drive real behavior, such as memory writes, host stubs, or WASI input, or choose a different candidate.
+
 Each test runs a sequence of steps against one module instance. Tests use a fresh instance by default, so steps in one test can set up memory or globals without leaking into another test. Use `shared_instance: true` only when separate tests intentionally need to observe shared state.
 
 ```json
