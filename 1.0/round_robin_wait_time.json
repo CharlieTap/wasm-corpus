@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "round_robin_wait_time",
+  "path": "round_robin_wait_time.wasm",
+  "wat": {
+    "status": "present",
+    "path": "round_robin_wait_time.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "round_robin_wait_time",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "short-quantum",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "round_robin_wait_time",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "larger-quantum",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "round_robin_wait_time",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "round_robin_wait_time",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "c53e84734bb12b956cb7b32da0a6b193c566f6a9cfde835d2c538bbc85a40106",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Round-robin scheduler simulation returning average waiting time for fixed burst sets.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "scheduling"
+  ],
+  "notes": "Fixed-dataset fixture: Round-robin scheduler simulation returning average waiting time for fixed burst sets. Tests cover short-quantum, larger-quantum, alternate, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "suffix_array_rank",
+  "path": "suffix_array_rank.wasm",
+  "wat": {
+    "status": "present",
+    "path": "suffix_array_rank.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "suffix_array_rank",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "banana-start",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "suffix_array_rank",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "banana-ana",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "suffix_array_rank",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mississippi-ppi",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "suffix_array_rank",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "52dc04b33bea6eb750d2a7974f066c6ddc8a738527ad29245aa1914e7665bb99",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Naive suffix array construction over selected strings, returning the rank of a suffix index.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "string-search"
+  ],
+  "notes": "Fixed-dataset fixture: Naive suffix array construction over selected strings, returning the rank of a suffix index. Tests cover banana-start, banana-ana, mississippi-ppi, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

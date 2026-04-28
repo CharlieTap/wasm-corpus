@@ -1,0 +1,111 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "rabin_karp_search",
+  "description": "Rabin-Karp rolling-hash substring search over fixed haystacks and selected needles.",
+  "path": "rabin_karp_search.wasm",
+  "wat": {
+    "status": "present",
+    "path": "rabin_karp_search.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "sign-extensions",
+    "string-search"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "rabin_karp_search",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "found",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "rabin_karp_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "rabin_karp_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "overlap",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "rabin_karp_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "add0189d353d5e0a6bc3afa41931ada769c170380be7afbe9500a8a35ae8a7b3",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Fixed-dataset fixture: Rabin-Karp rolling-hash substring search over fixed haystacks and selected needles. Tests cover found, missing, overlap, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

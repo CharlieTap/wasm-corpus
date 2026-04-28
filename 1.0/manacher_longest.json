@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "manacher_longest",
+  "path": "manacher_longest.wasm",
+  "wat": {
+    "status": "present",
+    "path": "manacher_longest.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "manacher_longest",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "odd",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "manacher_longest",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "even",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "manacher_longest",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "single",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "manacher_longest",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "b22a8cce88d5935e66210f487a88f29130f7b1502a0e2f7b6b5070acd9143983",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Manacher longest palindromic substring length over selected strings.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "string-search"
+  ],
+  "notes": "Fixed-dataset fixture: Manacher longest palindromic substring length over selected strings. Tests cover odd, even, single, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

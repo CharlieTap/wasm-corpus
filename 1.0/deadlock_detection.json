@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "deadlock_detection",
+  "path": "deadlock_detection.wasm",
+  "wat": {
+    "status": "present",
+    "path": "deadlock_detection.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "deadlock_detection",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "cycle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deadlock_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "acyclic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deadlock_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deadlock_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "1d65b61eef52b34b8beb4f14aa9af6ce7d221b9056f216d3777e2a7f64fb5d41",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Wait-for graph cycle detection over fixed process graphs.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "systems"
+  ],
+  "notes": "Fixed-dataset fixture: Wait-for graph cycle detection over fixed process graphs. Tests cover cycle, acyclic, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

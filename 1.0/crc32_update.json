@@ -1,0 +1,132 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "crc32_update",
+  "path": "crc32_update.wasm",
+  "wat": {
+    "status": "present",
+    "path": "crc32_update.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "crc32_update",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "abc",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "crc32_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "97"
+            },
+            {
+              "type": "i32",
+              "value": "98"
+            },
+            {
+              "type": "i32",
+              "value": "99"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "891568578"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zeros",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "crc32_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-12461806"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "aaa",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "crc32_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "97"
+            },
+            {
+              "type": "i32",
+              "value": "97"
+            },
+            {
+              "type": "i32",
+              "value": "97"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-267947219"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "28dbdd9e555fefe4817cc022128e6ac334857d92763c83316da3cddfef324fdf",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "CRC-32 byte update over three input bytes using the standard reflected polynomial.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "checksum",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: CRC-32 byte update over three input bytes using the standard reflected polynomial. Tests cover abc, zeros, aaa, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

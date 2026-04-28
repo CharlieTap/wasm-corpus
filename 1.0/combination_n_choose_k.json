@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "combination_n_choose_k",
+  "path": "combination_n_choose_k.wasm",
+  "wat": {
+    "status": "present",
+    "path": "combination_n_choose_k.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "combination_n_choose_k",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "edge",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "combination_n_choose_k",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "combination_n_choose_k",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "252"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "invalid",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "combination_n_choose_k",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "7f929801c338ecad537df0e7eb023a720928891b54f2884636dc41a75b039794",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Dynamic-programming binomial coefficient for bounded n and k.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "combinatorics",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Dynamic-programming binomial coefficient for bounded n and k. Tests cover edge, middle, invalid, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "boyer_moore_search",
+  "path": "boyer_moore_search.wasm",
+  "wat": {
+    "status": "present",
+    "path": "boyer_moore_search.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "boyer_moore_search",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "found",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "boyer_moore_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "boyer_moore_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "boyer_moore_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "ab8644e8897e27e9f8019efbc59dab5082979ff4c1f105ccee723b417b646453",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Boyer-Moore-Horspool search using a bad-character shift table.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "string-search"
+  ],
+  "notes": "Fixed-dataset fixture: Boyer-Moore-Horspool search using a bad-character shift table. Tests cover found, missing, repeated, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

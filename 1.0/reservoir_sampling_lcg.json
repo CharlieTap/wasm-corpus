@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "reservoir_sampling_lcg",
+  "path": "reservoir_sampling_lcg.wasm",
+  "wat": {
+    "status": "present",
+    "path": "reservoir_sampling_lcg.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "reservoir_sampling_lcg",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "short",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reservoir_sampling_lcg",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "longer",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reservoir_sampling_lcg",
+          "params": [
+            {
+              "type": "i32",
+              "value": "20"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "invalid",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "reservoir_sampling_lcg",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "4db9bafda32dd6313aeecff7aa51f2b5a3d261761418eecf2056b9e9d1afaf74",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Reservoir sampling of one item driven by a deterministic LCG stream.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory",
+    "sampling"
+  ],
+  "notes": "Bounded-general fixture: Reservoir sampling of one item driven by a deterministic LCG stream. Tests cover short, longer, invalid, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

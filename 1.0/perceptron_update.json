@@ -1,0 +1,156 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "perceptron_update",
+  "path": "perceptron_update.wasm",
+  "wat": {
+    "status": "present",
+    "path": "perceptron_update.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "perceptron_update",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "negative-correction",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "perceptron_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "32381"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "positive-correction",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "perceptron_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "32897"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "already-correct",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "perceptron_update",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "33153"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "0d2103687d5c70bfa0ff54b9709844777e205257ca41078c0643f01a74c19bf9",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "One perceptron training update with packed signed output weights.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "machine-learning",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: One perceptron training update with packed signed output weights. Tests cover negative-correction, positive-correction, already-correct, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

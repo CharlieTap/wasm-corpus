@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "simulated_annealing_accept",
+  "path": "simulated_annealing_accept.wasm",
+  "wat": {
+    "status": "present",
+    "path": "simulated_annealing_accept.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "simulated_annealing_accept",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "improvement",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "simulated_annealing_accept",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "99"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "accept-worse",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "simulated_annealing_accept",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "15"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            },
+            {
+              "type": "i32",
+              "value": "50"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "reject-worse",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "simulated_annealing_accept",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "30"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "80"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "f7fe39a864a025c402415499b1f5e03da0e21efd199ababfba199b168751c4a5",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Deterministic simulated-annealing acceptance rule with scaled temperature and pseudo-random threshold.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory",
+    "optimization"
+  ],
+  "notes": "Bounded-general fixture: Deterministic simulated-annealing acceptance rule with scaled temperature and pseudo-random threshold. Tests cover improvement, accept-worse, reject-worse, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

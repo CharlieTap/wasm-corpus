@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "closest_pair_squared",
+  "path": "closest_pair_squared.wasm",
+  "wat": {
+    "status": "present",
+    "path": "closest_pair_squared.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "closest_pair_squared",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "cluster",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "closest_pair_squared",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "diagonal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "closest_pair_squared",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "closest_pair_squared",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "bdfcdcb8715e64b664693dc904f2c64572055e04c2c2e7157aaab37c114def62",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Closest pair of points by squared Euclidean distance over fixed point clouds.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "geometry",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Closest pair of points by squared Euclidean distance over fixed point clouds. Tests cover cluster, diagonal, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,132 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "median_of_medians_select",
+  "description": "Deterministic selection using median-of-five grouping over a bounded generated dataset.",
+  "path": "median_of_medians_select.wasm",
+  "wat": {
+    "status": "present",
+    "path": "median_of_medians_select.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory",
+    "selection"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "median_of_medians_select",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "small",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "median_of_medians_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "139"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "larger",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "median_of_medians_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "11"
+            },
+            {
+              "type": "i32",
+              "value": "25"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "59"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "clamped",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "median_of_medians_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "40"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "44"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "e97f495570f7a75ffa500621cb4942ce0770351b8046a8a28f6554f64902b2b5",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: Deterministic selection using median-of-five grouping over a bounded generated dataset. Tests cover small, larger, clamped, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

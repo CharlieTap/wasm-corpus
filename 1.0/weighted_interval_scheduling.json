@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "weighted_interval_scheduling",
+  "path": "weighted_interval_scheduling.wasm",
+  "wat": {
+    "status": "present",
+    "path": "weighted_interval_scheduling.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "weighted_interval_scheduling",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "classic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weighted_interval_scheduling",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weighted_interval_scheduling",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weighted_interval_scheduling",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "d1f26a361338e1f3dfa4b2c61c5b0a24e72bc78eecf583979ac35365843276fd",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Dynamic-programming weighted interval scheduling over fixed jobs.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "dynamic-programming",
+    "fixed-dataset",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Dynamic-programming weighted interval scheduling over fixed jobs. Tests cover classic, alternate, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

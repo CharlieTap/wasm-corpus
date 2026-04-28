@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "job_sequencing_deadline",
+  "path": "job_sequencing_deadline.wasm",
+  "wat": {
+    "status": "present",
+    "path": "job_sequencing_deadline.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "job_sequencing_deadline",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "classic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "job_sequencing_deadline",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "142"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "ordered",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "job_sequencing_deadline",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "40"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "job_sequencing_deadline",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "40"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "b07f485469df63421ae5bfb98a7eee75b639f5ce5505f7778f46b03e25b90d5d",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Greedy job sequencing with deadlines and profits over fixed job sets.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "greedy",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Greedy job sequencing with deadlines and profits over fixed job sets. Tests cover classic, ordered, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

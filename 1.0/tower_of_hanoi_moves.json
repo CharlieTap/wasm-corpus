@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "tower_of_hanoi_moves",
+  "path": "tower_of_hanoi_moves.wasm",
+  "wat": {
+    "status": "present",
+    "path": "tower_of_hanoi_moves.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "tower_of_hanoi_moves",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "tower_of_hanoi_moves",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "three",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "tower_of_hanoi_moves",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "ten",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "tower_of_hanoi_moves",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1023"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "8b3363c86a9b7c9b635e8538728982daac6efa68d6ecdd248b56f08cc445184c",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Iterative Tower of Hanoi move count with parity-sensitive peg selection for bounded disk counts.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory",
+    "recursion"
+  ],
+  "notes": "Bounded-general fixture: Iterative Tower of Hanoi move count with parity-sensitive peg selection for bounded disk counts. Tests cover zero, three, ten, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

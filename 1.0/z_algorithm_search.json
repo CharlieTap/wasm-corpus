@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "z_algorithm_search",
+  "path": "z_algorithm_search.wasm",
+  "wat": {
+    "status": "present",
+    "path": "z_algorithm_search.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "z_algorithm_search",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "found",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "z_algorithm_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "missing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "z_algorithm_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "short",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "z_algorithm_search",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "0cb266bde342be5725cbc78c3dab1b4784f5100f1847b81df9132849505b51fb",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Z-algorithm pattern search using pattern + sentinel + text concatenation.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "string-search"
+  ],
+  "notes": "Fixed-dataset fixture: Z-algorithm pattern search using pattern + sentinel + text concatenation. Tests cover found, missing, short, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

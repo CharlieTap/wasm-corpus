@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "graham_scan_hull_size",
+  "path": "graham_scan_hull_size.wasm",
+  "wat": {
+    "status": "present",
+    "path": "graham_scan_hull_size.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "graham_scan_hull_size",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "rectangle-plus-inner",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "graham_scan_hull_size",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "kite",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "graham_scan_hull_size",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "graham_scan_hull_size",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "12e14c8dd9e1190a736623da7dbfc967b7d5ee1060f29b11e68e695491b54d90",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Graham-scan style convex hull over fixed point sets, returning hull size including collinear pruning.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "geometry",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Graham-scan style convex hull over fixed point sets, returning hull size including collinear pruning. Tests cover rectangle-plus-inner, kite, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}
