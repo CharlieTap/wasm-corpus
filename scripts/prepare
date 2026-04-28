@@ -342,7 +342,7 @@ function inferWasmAbi(wasmPath) {
 
     if (node[0] === "type") {
       const funcNode = firstChild(node, "func");
-      if (funcNode) types.push(funcTypeFromNode(funcNode, types));
+      types.push(funcNode ? funcTypeFromNode(funcNode, types) : null);
       continue;
     }
 

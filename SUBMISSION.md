@@ -15,6 +15,8 @@ wasm-as --version
 wasm-tools --version
 ```
 
+Use Node.js 24 or newer when validating and executing the corpus. WebAssembly 3.0 fixtures can use features such as Wasm GC that are not accepted by the Node 20 runtime shipped as the default on some GitHub-hosted runner images.
+
 On macOS:
 
 ```sh

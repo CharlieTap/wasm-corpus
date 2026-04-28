@@ -888,7 +888,14 @@
       ],
       "properties": {
         "type": {
-          "$ref": "#/$defs/numericValueType"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/numericValueType"
+            },
+            {
+              "$ref": "#/$defs/referenceValueType"
+            }
+          ]
         },
         "var": {
           "$ref": "#/$defs/variableName"

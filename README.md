@@ -38,6 +38,8 @@ The directory version describes the core WebAssembly version family the binary b
 
 Fixture JSON files include runnable `tests`: small step sequences that can call exported functions, inspect exported memory, tables, and globals, or provide declared host import profiles for command-style modules. The repository runner uses these tests as smoke checks and as executable examples of each module's ABI.
 
+The repository smoke runner uses Node.js 24 or newer so `3.0` fixtures that require features such as Wasm GC can be validated and executed in CI. Consumers should still treat version and feature filters as the compatibility contract for their own runtimes.
+
 The `stage/` directory is the authoring drop zone. Put candidate `.wasm` or `.wat` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
 
 Use `./corpus` to print fixture metadata as one JSON array. With no filters it returns every fixture in version order, and filters can narrow by version, features, or tags:

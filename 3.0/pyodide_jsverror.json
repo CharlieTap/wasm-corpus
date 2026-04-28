@@ -1,0 +1,99 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "pyodide_jsverror",
+  "path": "pyodide_jsverror.wasm",
+  "wat": {
+    "status": "present",
+    "path": "pyodide_jsverror.wat"
+  },
+  "features": [
+    "gc",
+    "reference-types"
+  ],
+  "exports": [
+    {
+      "name": "Jsv_GetError_import",
+      "kind": "function",
+      "type": "(func (result externref))"
+    },
+    {
+      "name": "JsvError_Check",
+      "kind": "function",
+      "type": "(func (param externref) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "created Pyodide error marker is recognized",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "Jsv_GetError_import",
+          "params": [],
+          "results": [
+            {
+              "type": "externref",
+              "capture": "marker"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "JsvError_Check",
+          "params": [
+            {
+              "type": "externref",
+              "var": "marker"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "null externref is not a Pyodide error marker",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "JsvError_Check",
+          "params": [
+            {
+              "type": "externref",
+              "value": null
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "cefe7f653901df7ba71b6ede88d3baf8dd8aef2706339d7e065be422c009d60b",
+  "source": {
+    "contributor": "human",
+    "url": "https://github.com/pyodide/pyodide/blob/5354cfe3135251e4f20ec21520a5a9766a7c67a3/src/core/jsverror.wat",
+    "path": "src/core/jsverror.wat",
+    "language": "wat",
+    "description": "MPL-2.0 Pyodide helper module used to represent JavaScript error markers with Wasm GC structs and externref conversion."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Pyodide Wasm GC helper that creates an opaque JavaScript error marker and checks whether an externref carries that marker.",
+  "tags": [
+    "pyodide",
+    "wasm-gc",
+    "externref"
+  ]
+}
