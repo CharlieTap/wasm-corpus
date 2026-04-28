@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "activity_selection",
+  "path": "activity_selection.wasm",
+  "wat": {
+    "status": "present",
+    "path": "activity_selection.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "activity_selection",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "classic",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "activity_selection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "overlap-heavy",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "activity_selection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "activity_selection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "99ba76e98cda4c68b9a6b5f36f8cead181be3cdb343a3b3096894e0862bafaf4",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Greedy activity selection sorted by finish time over fixed activity sets.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "greedy",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Greedy activity selection sorted by finish time over fixed activity sets. Tests cover classic, overlap-heavy, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

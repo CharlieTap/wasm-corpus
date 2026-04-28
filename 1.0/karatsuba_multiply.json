@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "karatsuba_multiply",
+  "path": "karatsuba_multiply.wasm",
+  "wat": {
+    "status": "present",
+    "path": "karatsuba_multiply.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "karatsuba_multiply",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "balanced",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "karatsuba_multiply",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1234"
+            },
+            {
+              "type": "i32",
+              "value": "5678"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7006652"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zeros",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "karatsuba_multiply",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1000"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "20000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "invalid",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "karatsuba_multiply",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "42c2f9e3d7e75874179de4e5d5dcb583945a58e156c30f15d816436368464ec4",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Karatsuba multiplication for two non-negative four-digit integers.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "math",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Karatsuba multiplication for two non-negative four-digit integers. Tests cover balanced, zeros, invalid, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

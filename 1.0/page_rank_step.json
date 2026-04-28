@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "page_rank_step",
+  "path": "page_rank_step.wasm",
+  "wat": {
+    "status": "present",
+    "path": "page_rank_step.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "page_rank_step",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "initial",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "page_rank_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "250"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "after-one",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "page_rank_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "461"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "after-three",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "page_rank_step",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "326"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "8db24c5278f6e1622f1720a7769a7b1d8e63f096b8899750d6c7429e8f5410a6",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Single PageRank relaxation over a fixed directed graph, returning a scaled rank.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "graph",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Single PageRank relaxation over a fixed directed graph, returning a scaled rank. Tests cover initial, after-one, after-three, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

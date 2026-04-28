@@ -1,0 +1,132 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "flood_fill_count",
+  "path": "flood_fill_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "flood_fill_count.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "flood_fill_count",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "left-region",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "flood_fill_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "right-region",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "flood_fill_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate-grid",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "flood_fill_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "2e71dcad099935378845076bf19052491788f60dfa0182973416deea81f9e473",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Stack-based flood fill over selectable grids, counting cells changed from the start region.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "graph",
+    "loop",
+    "memory"
+  ],
+  "notes": "Fixed-dataset fixture: Stack-based flood fill over selectable grids, counting cells changed from the start region. Tests cover left-region, right-region, alternate-grid, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

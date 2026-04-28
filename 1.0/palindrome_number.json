@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "palindrome_number",
+  "path": "palindrome_number.wasm",
+  "wat": {
+    "status": "present",
+    "path": "palindrome_number.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "palindrome_number",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "palindrome",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_number",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12321"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "not-palindrome",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_number",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12345"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_number",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-121"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "e453217587f8ceea94c20a5e264a3173002c312096131b476794480eccbd2e9b",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Digit reversal palindrome check for positive and negative integers.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory",
+    "numeric"
+  ],
+  "notes": "Bounded-general fixture: Digit reversal palindrome check for positive and negative integers. Tests cover palindrome, not-palindrome, negative, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

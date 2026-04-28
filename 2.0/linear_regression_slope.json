@@ -1,0 +1,111 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "linear_regression_slope",
+  "path": "linear_regression_slope.wasm",
+  "wat": {
+    "status": "present",
+    "path": "linear_regression_slope.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "linear_regression_slope",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "positive",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "linear_regression_slope",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "60"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "linear_regression_slope",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-200"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fallback",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "linear_regression_slope",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-200"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "cd056bfda1e129f30b0a841b475acad0381b843f55276eba796810c7b4ff4604",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Least-squares linear regression slope over selected fixed samples, scaled by 100.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "machine-learning",
+    "memory",
+    "sign-extensions"
+  ],
+  "notes": "Fixed-dataset fixture: Least-squares linear regression slope over selected fixed samples, scaled by 100. Tests cover positive, negative, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

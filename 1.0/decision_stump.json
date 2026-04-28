@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "decision_stump",
+  "path": "decision_stump.wasm",
+  "wat": {
+    "status": "present",
+    "path": "decision_stump.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "decision_stump",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "left",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "decision_stump",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "right",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "decision_stump",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "boundary",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "decision_stump",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "efd40ea52ddcf0e1b3200bbb37dccab6dc40c377ee88e6800e0419c5dc3fee6c",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Decision-stump classifier over one feature threshold with branch-specific labels.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "machine-learning",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Decision-stump classifier over one feature threshold with branch-specific labels. Tests cover left, right, boundary, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,193 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "strassen_2x2_trace",
+  "description": "Strassen 2x2 matrix multiplication over caller-provided matrix entries, returning the result trace.",
+  "path": "strassen_2x2_trace.wasm",
+  "wat": {
+    "status": "present",
+    "path": "strassen_2x2_trace.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "loop",
+    "math",
+    "matrix",
+    "memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "strassen_2x2_trace",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "positive-matrices",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "strassen_2x2_trace",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "69"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "signed-entries",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "strassen_2x2_trace",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "-2"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "identity-left",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "strassen_2x2_trace",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "f427e3588497e0f4583baab2a435ec77026a7b18862bbd01a83a76890402d99f",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture: Strassen 2x2 matrix multiplication over caller-provided matrix entries. Tests cover positive matrices, signed entries, and identity-left multiplication so the fixture preserves real arithmetic instead of a folded fixed dataset."
+}

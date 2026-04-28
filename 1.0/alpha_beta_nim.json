@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "alpha_beta_nim",
+  "path": "alpha_beta_nim.wasm",
+  "wat": {
+    "status": "present",
+    "path": "alpha_beta_nim.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "alpha_beta_nim",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "losing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "alpha_beta_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "winning",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "alpha_beta_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "terminal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "alpha_beta_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "07aa6188a00a22e91acecb1deaaa954c33ef0540268bc633263695627d44780d",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Alpha-beta pruned minimax for one-pile Nim with three possible moves.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "game",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Alpha-beta pruned minimax for one-pile Nim with three possible moves. Tests cover losing, winning, terminal, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

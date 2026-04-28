@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "n_queens_count",
+  "path": "n_queens_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "n_queens_count.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "n_queens_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "one",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "n_queens_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "four",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "n_queens_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "eight",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "n_queens_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "92"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "91b98bf4cef010e633fa246f66280eb6b47e2f26c54ffdf0a8059fa9af89a0e8",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Backtracking N-Queens solver for n up to 8, counting all valid boards.",
+  "tags": [
+    "algorithm",
+    "backtracking",
+    "bounded-general",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Backtracking N-Queens solver for n up to 8, counting all valid boards. Tests cover one, four, eight, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "genetic_algorithm_select",
+  "path": "genetic_algorithm_select.wasm",
+  "wat": {
+    "status": "present",
+    "path": "genetic_algorithm_select.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "genetic_algorithm_select",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "early",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "genetic_algorithm_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "late",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "genetic_algorithm_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "skip-zero",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "genetic_algorithm_select",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "7a0647d6f9ca3105dc8d239b1ed591856b0884e8809eefc014e1f89ccfd35247",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Roulette-wheel parent selection over fixed fitness populations.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "optimization"
+  ],
+  "notes": "Fixed-dataset fixture: Roulette-wheel parent selection over fixed fitness populations. Tests cover early, late, skip-zero, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

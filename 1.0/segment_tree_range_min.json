@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "segment_tree_range_min",
+  "path": "segment_tree_range_min.wasm",
+  "wat": {
+    "status": "present",
+    "path": "segment_tree_range_min.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "segment_tree_range_min",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "middle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "segment_tree_range_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "clamped",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "segment_tree_range_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            },
+            {
+              "type": "i32",
+              "value": "-3"
+            },
+            {
+              "type": "i32",
+              "value": "99"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "empty",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "segment_tree_range_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "1b43ff8635321be75adc18e86db517b2021f1d45e107fb551a1adfa313e8b83d",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Iterative segment tree range-minimum query over a bounded generated array.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "data-structure",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Iterative segment tree range-minimum query over a bounded generated array. Tests cover middle, clamped, empty, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

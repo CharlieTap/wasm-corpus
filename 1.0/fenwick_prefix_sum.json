@@ -1,0 +1,132 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "fenwick_prefix_sum",
+  "path": "fenwick_prefix_sum.wasm",
+  "wat": {
+    "status": "present",
+    "path": "fenwick_prefix_sum.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "fenwick_prefix_sum",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "prefix",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fenwick_prefix_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "clamped",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fenwick_prefix_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            },
+            {
+              "type": "i32",
+              "value": "19"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "79"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "fenwick_prefix_sum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "5c91fc14770fbaaf4fa38b441cdbb5a5a96985b4f6d821fae31f5e8d41d7baa5",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Fenwick tree point updates and prefix-sum query over generated bounded arrays.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "data-structure",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Fenwick tree point updates and prefix-sum query over generated bounded arrays. Tests cover prefix, clamped, negative, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

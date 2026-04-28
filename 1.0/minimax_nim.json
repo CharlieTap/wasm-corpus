@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "minimax_nim",
+  "path": "minimax_nim.wasm",
+  "wat": {
+    "status": "present",
+    "path": "minimax_nim.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "minimax_nim",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "losing",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "minimax_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "winning",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "minimax_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "terminal",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "minimax_nim",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "3c319d439ce04907f9a564c4b3de70fa7202cb1594ae2988795bb71c4080a561",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Recursive minimax for one-pile Nim where players may remove one or two stones.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "game",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Recursive minimax for one-pile Nim where players may remove one or two stones. Tests cover losing, winning, terminal, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "floyd_cycle_detection",
+  "path": "floyd_cycle_detection.wasm",
+  "wat": {
+    "status": "present",
+    "path": "floyd_cycle_detection.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "floyd_cycle_detection",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "full-cycle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_cycle_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "fixed-point",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_cycle_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "two-cycle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "floyd_cycle_detection",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "4db9e3d83f73a27b49b11acab9b9a4b4e0b259ba7188f16f5fc47f1f4698b9b1",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Floyd tortoise-and-hare cycle detection over f(x)=(a*x+b) mod m, returning cycle length.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "branching",
+    "graph",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Floyd tortoise-and-hare cycle detection over f(x)=(a*x+b) mod m, returning cycle length. Tests cover full-cycle, fixed-point, two-cycle, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}

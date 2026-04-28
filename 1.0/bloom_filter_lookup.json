@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bloom_filter_lookup",
+  "path": "bloom_filter_lookup.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bloom_filter_lookup.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "bloom_filter_lookup",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "present",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bloom_filter_lookup",
+          "params": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "absent-clear",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bloom_filter_lookup",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "false-positive-or-hit",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bloom_filter_lookup",
+          "params": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "f59b6d9f5c082e1215335217893640274aebe775a0efeabf45a921828d55b18f",
+  "source": {
+    "contributor": "ai",
+    "language": "c",
+    "description": "Freestanding C implementation generated for wasm-corpus, then compiled to wasm32-freestanding and prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Bloom filter insert and lookup with two hashes over selected integer keys.",
+  "tags": [
+    "algorithm",
+    "branching",
+    "fixed-dataset",
+    "loop",
+    "memory",
+    "probabilistic"
+  ],
+  "notes": "Fixed-dataset fixture: Bloom filter insert and lookup with two hashes over selected integer keys. Tests cover present, absent-clear, false-positive-or-hit, giving reviewers multiple branches and edge conditions rather than a single happy path."
+}
