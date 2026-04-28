@@ -771,9 +771,25 @@
           "$ref": "#/$defs/bytesAssertion"
         },
         {
-          "$ref": "#/$defs/valueAssertion"
+          "$ref": "#/$defs/numericValueAssertion"
         }
       ]
+    },
+    "numericValueAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "value"
+        },
+        "value": {
+          "$ref": "#/$defs/numericValueAssertionValue"
+        }
+      }
     },
     "memoryReadCapture": {
       "type": "object",
@@ -868,6 +884,16 @@
         },
         {
           "$ref": "#/$defs/typeOnlyValue"
+        }
+      ]
+    },
+    "numericValueAssertionValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/numericValue"
+        },
+        {
+          "$ref": "#/$defs/numericTypeOnlyValue"
         }
       ]
     },
@@ -981,6 +1007,18 @@
               "$ref": "#/$defs/referenceValueType"
             }
           ]
+        }
+      }
+    },
+    "numericTypeOnlyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/numericValueType"
         }
       }
     },

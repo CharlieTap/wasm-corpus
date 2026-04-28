@@ -393,8 +393,8 @@ function usesWasiPreview1(module) {
   return WebAssembly.Module.imports(module).some((importEntry) => isWasiPreview1Import(importEntry));
 }
 
-function invokesWasiStart(test) {
-  return (test?.steps || []).some((step) => step.type === "function.invoke" && step.function === "_start");
+function usesWasiPreview1Host(test) {
+  return Boolean(test?.host?.wasi_preview_1);
 }
 
 async function instantiate(wasmPath, entry, test) {
@@ -402,10 +402,7 @@ async function instantiate(wasmPath, entry, test) {
   const module = new WebAssembly.Module(bytes);
   const host = test?.host || {};
 
-  if (usesWasiPreview1(module) && invokesWasiStart(test)) {
-    if (!host.wasi_preview_1) {
-      fail(`${wasmPath}: module imports wasi_snapshot_preview1 but test does not declare host.wasi_preview_1`);
-    }
+  if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
     return {
       instance: null,
       host,
@@ -469,6 +466,13 @@ function hostForChild(host) {
       stdin: wasi.stdin ? decodeBytes(wasi.stdin, "host.wasi_preview_1.stdin").toString("base64") : "",
     },
   };
+}
+
+function runtimeCacheKey(test) {
+  if (usesWasiPreview1Host(test)) {
+    return `wasi_preview_1:${JSON.stringify(hostForChild(test.host || {}))}`;
+  }
+  return "direct";
 }
 
 function runWasiPreview1InChild(runtime) {
@@ -814,7 +818,7 @@ async function executeWasm(inputPath) {
   }
 
   let stepCount = 0;
-  let sharedRuntime = null;
+  const sharedRuntimes = new Map();
   for (const [testIndex, test] of tests.entries()) {
     const steps = test.steps || [];
     const testDescription = test.description || `test ${testIndex + 1}`;
@@ -822,9 +826,16 @@ async function executeWasm(inputPath) {
       fail(`${inputPath}:${testDescription}: test must declare at least one step`);
     }
 
-    const runtime = test.shared_instance === true
-      ? (sharedRuntime ||= await instantiate(wasmPath, entry, test))
-      : await instantiate(wasmPath, entry, test);
+    let runtime;
+    if (test.shared_instance === true) {
+      const cacheKey = runtimeCacheKey(test);
+      if (!sharedRuntimes.has(cacheKey)) {
+        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, entry, test));
+      }
+      runtime = sharedRuntimes.get(cacheKey);
+    } else {
+      runtime = await instantiate(wasmPath, entry, test);
+    }
     const context = `${inputPath}:${testDescription}`;
     const vars = new Map();
     for (const step of steps) {
