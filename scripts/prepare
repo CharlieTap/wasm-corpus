@@ -240,11 +240,17 @@ function typeRefIndex(node) {
 function paramsAndResultsFromFuncNode(funcNode) {
   const pieces = [];
   for (const param of childNodes(funcNode, "param")) {
-    const types = param.slice(1).filter((item) => typeof item === "string" && !item.startsWith("$"));
+    const types = param
+      .slice(1)
+      .filter((item) => !(typeof item === "string" && item.startsWith("$")))
+      .map(atomText);
     if (types.length > 0) pieces.push(`(param ${types.join(" ")})`);
   }
   for (const result of childNodes(funcNode, "result")) {
-    const types = result.slice(1).filter((item) => typeof item === "string" && !item.startsWith("$"));
+    const types = result
+      .slice(1)
+      .filter((item) => !(typeof item === "string" && item.startsWith("$")))
+      .map(atomText);
     if (types.length > 0) pieces.push(`(result ${types.join(" ")})`);
   }
   return pieces;
