@@ -1,12 +1,23 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "nesterov_accelerated_gradient",
+  "description": "Lookahead gradient update with Nesterov momentum.",
   "path": "nesterov_accelerated_gradient.wasm",
   "wat": {
     "status": "present",
     "path": "nesterov_accelerated_gradient.wat"
   },
   "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "nesterov",
+    "accelerated",
+    "gradient"
+  ],
   "exports": [
     {
       "name": "memory",
@@ -21,7 +32,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -39,14 +50,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "425"
+              "value": "-21"
             }
           ]
         }
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -64,14 +75,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "519"
+              "value": "-6"
             }
           ]
         }
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -89,14 +100,64 @@
           "results": [
             {
               "type": "i32",
-              "value": "585"
+              "value": "163"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "nesterov_accelerated_gradient",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-52"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "nesterov_accelerated_gradient",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "261"
             }
           ]
         }
       ]
     }
   ],
-  "sha256": "0afe73fd7698cd03d7bfafe7eb8ce22dfefbe1d4f3645f991ddda2ffe28cce4d",
+  "sha256": "91c138dab1ddbaa34d7e086b42e9ae73ab369029ac66a92e66590ef1117811af",
   "source": {
     "contributor": "ai",
     "language": "wat",
@@ -107,16 +168,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "description": "Lookahead gradient update with Nesterov momentum.",
-  "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "nesterov",
-    "accelerated",
-    "gradient"
-  ],
-  "notes": "Bounded-general fixture for Nesterov accelerated gradient. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative momentum behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for Nesterov accelerated gradient. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative momentum behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

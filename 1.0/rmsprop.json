@@ -1,12 +1,21 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "rmsprop",
+  "description": "RMSProp-style exponentially weighted gradient scaling.",
   "path": "rmsprop.wasm",
   "wat": {
     "status": "present",
     "path": "rmsprop.wat"
   },
   "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "rmsprop"
+  ],
   "exports": [
     {
       "name": "memory",
@@ -21,7 +30,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -39,14 +48,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "104"
+              "value": "69"
             }
           ]
         }
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -64,14 +73,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "155"
+              "value": "126"
             }
           ]
         }
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -89,14 +98,64 @@
           "results": [
             {
               "type": "i32",
-              "value": "55"
+              "value": "15"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "rmsprop",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "rmsprop",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "301"
             }
           ]
         }
       ]
     }
   ],
-  "sha256": "8c243a461cc2219ef2dfd174438aaee891d2e23f68e73a3275648debaa726423",
+  "sha256": "614e98c347a137849a088e2b8c492a124de4af7c2c306434e2db921a02a21f21",
   "source": {
     "contributor": "ai",
     "language": "wat",
@@ -107,14 +166,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "description": "RMSProp-style exponentially weighted gradient scaling.",
-  "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "rmsprop"
-  ],
-  "notes": "Bounded-general fixture for RMSProp. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative adaptive behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for RMSProp. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative adaptive behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

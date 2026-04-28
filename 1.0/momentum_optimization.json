@@ -1,12 +1,21 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "momentum_optimization",
+  "description": "Gradient descent with velocity accumulation.",
   "path": "momentum_optimization.wasm",
   "wat": {
     "status": "present",
     "path": "momentum_optimization.wat"
   },
   "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "momentum"
+  ],
   "exports": [
     {
       "name": "memory",
@@ -21,7 +30,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -39,14 +48,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "425"
+              "value": "-54"
             }
           ]
         }
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -64,14 +73,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "519"
+              "value": "9"
             }
           ]
         }
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -89,14 +98,64 @@
           "results": [
             {
               "type": "i32",
-              "value": "585"
+              "value": "112"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "momentum_optimization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-84"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "momentum_optimization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "209"
             }
           ]
         }
       ]
     }
   ],
-  "sha256": "fd238fb0276b7cc8e2f9da338e89d9d54c1f78224eac8a38559fcd4b8140517d",
+  "sha256": "883bb43352751bb3c8ff50cdeefad49f0926c438d7b2655f547a347871485a4c",
   "source": {
     "contributor": "ai",
     "language": "wat",
@@ -107,14 +166,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "description": "Gradient descent with velocity accumulation.",
-  "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "momentum"
-  ],
-  "notes": "Bounded-general fixture for Momentum optimization. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative momentum behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for Momentum optimization. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative momentum behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

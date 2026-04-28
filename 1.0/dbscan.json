@@ -30,7 +30,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -55,7 +55,7 @@
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -80,7 +80,7 @@
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -103,6 +103,56 @@
           ]
         }
       ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dbscan",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6190"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "dbscan",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5401"
+            }
+          ]
+        }
+      ]
     }
   ],
   "sha256": "8be58fdfc9d7355eb43604bf54ac5e653ba9a6b86d87b501c8a3f31b1bc1c91f",
@@ -116,5 +166,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "notes": "Bounded-general fixture for DBSCAN. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative cluster behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for DBSCAN. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative cluster behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

@@ -1,12 +1,23 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "mini_batch_gradient_descent",
+  "description": "Mini-batch gradient updates over fixed two-sample batches.",
   "path": "mini_batch_gradient_descent.wasm",
   "wat": {
     "status": "present",
     "path": "mini_batch_gradient_descent.wat"
   },
   "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "mini",
+    "batch",
+    "gradient"
+  ],
   "exports": [
     {
       "name": "memory",
@@ -21,7 +32,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -39,14 +50,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "305"
+              "value": "57"
             }
           ]
         }
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -64,14 +75,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "387"
+              "value": "124"
             }
           ]
         }
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -89,14 +100,64 @@
           "results": [
             {
               "type": "i32",
-              "value": "398"
+              "value": "-44"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mini_batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "mini_batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "132"
             }
           ]
         }
       ]
     }
   ],
-  "sha256": "28c1d2410ac037fd91e0029e4986445f4cdf7fb6f5d87ba94a3148eaa7f51998",
+  "sha256": "1023560045d7c9b434683579486747770c68d8bbe3ac6145f6add7199612f4e4",
   "source": {
     "contributor": "ai",
     "language": "wat",
@@ -107,16 +168,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "description": "Mini-batch gradient updates over fixed two-sample batches.",
-  "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "mini",
-    "batch",
-    "gradient"
-  ],
-  "notes": "Bounded-general fixture for Mini-batch gradient descent. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative optimizer behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for Mini-batch gradient descent. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative optimizer behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

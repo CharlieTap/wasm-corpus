@@ -1,12 +1,23 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "learning_rate_scheduling",
+  "description": "Step and warmup learning-rate schedule calculation.",
   "path": "learning_rate_scheduling.wasm",
   "wat": {
     "status": "present",
     "path": "learning_rate_scheduling.wat"
   },
   "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "learning",
+    "rate",
+    "scheduling"
+  ],
   "exports": [
     {
       "name": "memory",
@@ -21,7 +32,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -39,14 +50,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "490"
+              "value": "450"
             }
           ]
         }
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -64,14 +75,14 @@
           "results": [
             {
               "type": "i32",
-              "value": "343"
+              "value": "504"
             }
           ]
         }
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -94,9 +105,59 @@
           ]
         }
       ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "learning_rate_scheduling",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "learning_rate_scheduling",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "79"
+            }
+          ]
+        }
+      ]
     }
   ],
-  "sha256": "9763f3af021db1b8152adec5ab4c45e208831442cda909f0e065ea563416da91",
+  "sha256": "80f27278f42cca3a7e78fbb6af8845b7390ae638d21c7d3fe15dc1bb028cd812",
   "source": {
     "contributor": "ai",
     "language": "wat",
@@ -107,16 +168,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "description": "Step and warmup learning-rate schedule calculation.",
-  "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "learning",
-    "rate",
-    "scheduling"
-  ],
-  "notes": "Bounded-general fixture for Learning rate scheduling. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative schedule behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for Learning rate scheduling. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative schedule behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

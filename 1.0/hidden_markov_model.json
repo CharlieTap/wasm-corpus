@@ -21,7 +21,7 @@
   ],
   "tests": [
     {
-      "description": "baseline",
+      "description": "mode-zero-baseline",
       "steps": [
         {
           "type": "function.invoke",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "description": "alternate-mode",
+      "description": "mode-one-alternate",
       "steps": [
         {
           "type": "function.invoke",
@@ -71,7 +71,7 @@
       ]
     },
     {
-      "description": "low-input",
+      "description": "mode-two-low-input",
       "steps": [
         {
           "type": "function.invoke",
@@ -84,6 +84,56 @@
             {
               "type": "i32",
               "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4870"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "hidden_markov_model",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5042"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "hidden_markov_model",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
             }
           ],
           "results": [
@@ -118,5 +168,5 @@
     "markov",
     "model"
   ],
-  "notes": "Bounded-general fixture for Hidden Markov Model. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative hmm behavior; it is intended as runtime corpus coverage rather than a production ML implementation."
+  "notes": "Bounded-general fixture for Hidden Markov Model. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative hmm behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

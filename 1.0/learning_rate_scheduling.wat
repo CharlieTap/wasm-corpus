@@ -4,11 +4,14 @@
   (export "memory" (memory 0))
   (export "learning_rate_scheduling" (func 0))
   (func (;0;) (type 0) (param i32 i32) (result i32)
-    (local i32 i32)
+    (local i32 i32 i32 i32)
     local.get 0
     i32.const 3
     i32.rem_u
-    local.set 0
+    local.tee 0
+    i32.const 4
+    i32.shl
+    local.set 4
     i32.const 1000
     local.set 2
     loop ;; label = @1
@@ -16,6 +19,17 @@
       local.get 3
       i32.gt_u
       if ;; label = @2
+        local.get 4
+        local.get 3
+        i32.const 6
+        i32.rem_u
+        i32.add
+        i32.load8_u
+        i32.const 5
+        i32.rem_u
+        i32.const 5
+        i32.add
+        local.set 5
         local.get 3
         i32.const 1
         i32.add
@@ -26,7 +40,7 @@
         i32.eqz
         if ;; label = @3
           local.get 2
-          i32.const 7
+          local.get 5
           i32.mul
           i32.const 10
           i32.div_u
