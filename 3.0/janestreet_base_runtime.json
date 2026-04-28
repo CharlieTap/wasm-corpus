@@ -1,0 +1,439 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "janestreet_base_runtime",
+  "description": "Jane Street Base runtime support module for OCaml compiled to WasmGC, covering i31 reference values, GC casts, tail calls, data-backed arrays, and mutable globals.",
+  "path": "janestreet_base_runtime.wasm",
+  "wat": {
+    "status": "present",
+    "path": "janestreet_base_runtime.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "tail-call"
+  ],
+  "tags": [
+    "gc",
+    "i31",
+    "janestreet",
+    "mutable-globals",
+    "ocaml",
+    "runtime",
+    "tail-call"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "caml_array_sub",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "caml_copy_int64",
+      "kind": "function",
+      "type": "(func (param i64) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "caml_floatarray_blit",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq) (ref eq) (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "Int64_val",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result i64))"
+    },
+    {
+      "module": "env",
+      "name": "Int32_val",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "caml_create_bytes",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "caml_array_make",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "caml_make_vect",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "Double_val",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "caml_hash_mix_string",
+      "kind": "function",
+      "type": "(func (param i32 (ref 0)) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "caml_hash_mix_final",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "caml_hash_mix_double",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result i32))"
+    },
+    {
+      "module": "Math",
+      "name": "fmod",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "caml_invalid_argument",
+      "kind": "function",
+      "type": "(func (param (ref eq)))"
+    },
+    {
+      "module": "env",
+      "name": "caml_obj_block",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "caml_dummy_obj_is_stack",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "caml_dummy_succ_scannable_prefix_len",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int_popcount",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int_clz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_nativeint_clz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int32_clz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int64_clz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int_ctz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_nativeint_ctz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int32_ctz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int64_ctz",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int_pow_stub",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_int_math_int64_pow_stub",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_clear_caml_backtrace_pos",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_caml_exn_is_most_recent_exn",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_hash_string",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_hash_double",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_am_testing_flag",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "name": "Base_am_testing",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_unsafe_create_local_bytes",
+      "kind": "function",
+      "type": "(func (param (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "caml_array_make_local",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "caml_make_local_vect",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_caml_modf_positive_float_unboxed_exn",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "Base_caml_modf_positive_float_exn",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "caml_float_min",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "caml_float_max",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "base_array_unsafe_float_blit",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq) (ref eq) (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_iarray_to_array_of_immediates",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_string_concat_array",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq)) (result (ref eq)))"
+    },
+    {
+      "name": "Base_obj_new_mixed_block",
+      "kind": "function",
+      "type": "(func (param (ref eq) (ref eq) (ref eq)) (result (ref eq)))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "i31 integer bit operations",
+      "steps": [
+        {
+          "description": "count set bits in an OCaml immediate integer",
+          "type": "function.invoke",
+          "function": "Base_int_math_int_popcount",
+          "params": [
+            {
+              "type": "i32",
+              "value": "45"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "description": "count leading zeroes after OCaml integer tagging",
+          "type": "function.invoke",
+          "function": "Base_int_math_int_clz",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ]
+        },
+        {
+          "description": "count trailing zeroes in an OCaml immediate integer",
+          "type": "function.invoke",
+          "function": "Base_int_math_int_ctz",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "integer exponentiation loop paths",
+      "steps": [
+        {
+          "description": "non-zero exponent exercises the multiply and square loop",
+          "type": "function.invoke",
+          "function": "Base_int_math_int_pow_stub",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "81"
+            }
+          ]
+        },
+        {
+          "description": "zero exponent exercises the loop exit path",
+          "type": "function.invoke",
+          "function": "Base_int_math_int_pow_stub",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mutable global state exposed through an OCaml runtime helper",
+      "steps": [
+        {
+          "type": "global.read",
+          "global": "Base_am_testing_flag",
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "global.write",
+          "global": "Base_am_testing_flag",
+          "value": {
+            "type": "i32",
+            "value": "1"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "Base_am_testing",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "global.read",
+          "global": "Base_am_testing_flag",
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "219ac0cdf73447f96160449e6234ef5ee4f1c7b1a420c6a9975e69ce1d3bde9f",
+  "source": {
+    "contributor": "human",
+    "language": "wat",
+    "path": "src/runtime.wat",
+    "url": "https://github.com/janestreet/base/blob/f8a2e287126c0dc4fad85f41f7ddba7d67668316/src/runtime.wat",
+    "description": "Runtime support module from Jane Street Base, an OCaml standard library."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  }
+}

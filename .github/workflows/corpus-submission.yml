@@ -21,6 +21,8 @@ on:
 jobs:
   validate-and-execute:
     runs-on: ubuntu-latest
+    env:
+      BINARYEN_VERSION: "125"
 
     steps:
       - name: Check out repository
@@ -28,10 +30,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache Binaryen
+        id: cache-binaryen
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/wasm-corpus/binaryen-${{ env.BINARYEN_VERSION }}
+          key: binaryen-${{ runner.os }}-${{ runner.arch }}-${{ env.BINARYEN_VERSION }}
+
       - name: Install Binaryen
+        if: steps.cache-binaryen.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y binaryen
+          mkdir -p ~/.cache/wasm-corpus/binaryen-${BINARYEN_VERSION}
+          curl -L "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/binaryen-version_${BINARYEN_VERSION}-x86_64-linux.tar.gz" -o /tmp/binaryen.tar.gz
+          tar -xzf /tmp/binaryen.tar.gz -C ~/.cache/wasm-corpus/binaryen-${BINARYEN_VERSION} --strip-components=1
+
+      - name: Add Binaryen to PATH
+        run: echo "$HOME/.cache/wasm-corpus/binaryen-${BINARYEN_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Check Binaryen
+        run: wasm-opt --version
 
       - name: Cache wasm-tools
         id: cache-wasm-tools

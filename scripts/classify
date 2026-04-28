@@ -79,14 +79,14 @@ function detectFromText(wat) {
   }
 
   const checks = [
-    ["bulk-memory", /\b(?:memory\.init|data\.drop|memory\.copy|memory\.fill|table\.init|elem\.drop|table\.copy)\b/g],
+    ["bulk-memory", /\b(?:memory\.init|data\.drop|memory\.copy|memory\.fill|table\.init|elem\.drop|table\.copy|array\.(?:new_data|init_data))\b/g],
     ["tail-call", /\b(?:return_call|return_call_indirect)\b/g],
     ["exception-handling", /\(tag\b|\b(?:throw|throw_ref|try_table|catch|catch_all|delegate)\b/g],
     ["saturated-float-to-int", /\b[if](?:32|64)\.trunc_sat_f(?:32|64)_[su]\b/g],
     ["sign-extensions", /\bi(?:32|64)\.extend(?:8|16|32)_s\b/g],
     ["simd", /\b(?:v128|i8x16\.[A-Za-z0-9_]+|i16x8\.[A-Za-z0-9_]+|i32x4\.[A-Za-z0-9_]+|i64x2\.[A-Za-z0-9_]+|f32x4\.[A-Za-z0-9_]+|f64x2\.[A-Za-z0-9_]+|v8x16\.[A-Za-z0-9_]+|v16x8\.[A-Za-z0-9_]+|v32x4\.[A-Za-z0-9_]+|v64x2\.[A-Za-z0-9_]+)\b/g],
     ["relaxed-simd", /\b(?:i8x16|i16x8|i32x4|i64x2|f32x4|f64x2)\.relaxed_[A-Za-z0-9_]+|\brelaxed_[A-Za-z0-9_]+\b/g],
-    ["reference-types", /\b(?:externref|funcref|ref\.null|ref\.is_null|ref\.func|table\.get|table\.set|table\.grow|table\.size|table\.fill)\b/g],
+    ["reference-types", /\b(?:externref|funcref|ref\.null|ref\.is_null|ref\.func|table\.get|table\.set|table\.grow|table\.size|table\.fill)\b|\(ref\s+(?:null\s+)?(?:eq|any|i31|extern|func|none|nofunc|noextern|\$[A-Za-z0-9_.$|/-]+|[0-9]+)\b/g],
     ["typed-function-references", /\b(?:call_ref|return_call_ref|ref\.as_non_null|br_on_null|br_on_non_null)\b/g],
     ["gc", /\b(?:i31ref|eqref|anyref|none|nofunc|noextern|ref\.eq|ref\.test(?:_nullable|_non_null)?|ref\.cast(?:_nullable|_non_null)?|br_on_cast(?:_fail)?|any\.convert_extern|extern\.convert_any|ref\.i31(?:_shared)?|i31\.get_[su]|struct\.(?:new(?:_default)?|get(?:_[su])?|set|atomic_[A-Za-z0-9_]+)|array\.(?:new(?:_default|_fixed|_data|_elem)?|get(?:_[su])?|set|len|fill|copy|init_data|init_elem|atomic_[A-Za-z0-9_]+))\b|\(type\b[^)]*\b(?:struct|array)\b/g],
     ["more-array-constructors", /\barray\.(?:new_fixed|new_data|new_elem|init_data|init_elem)\b/g],
