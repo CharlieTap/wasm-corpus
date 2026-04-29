@@ -1,10 +1,12 @@
-# Agent Submission Workflow
+# Agent Fixture Guidance
 
-Use this document as context when autonomously finding and adding new WebAssembly fixtures to the corpus. Each fixture submission should be small, reviewable, licensed for redistribution, executable by Node, and submitted as its own pull request.
+Use this document as context when autonomously finding and preparing new WebAssembly fixtures for the corpus. Each fixture should be small, reviewable, licensed for redistribution, executable by Node, and useful as runtime coverage.
+
+This guide intentionally focuses on fixture quality and the local preparation workflow. Contribution mechanics are omitted because this is a public repository and contributors may work from their own fork or copy of the corpus.
 
 ## Ground Rules
 
-- Add one fixture, or one tightly related fixture set, per branch and pull request.
+- Add one fixture, or one tightly related fixture set, at a time.
 - Prefer small modules with clear provenance, readable source or WAT, deterministic exports, and simple imports.
 - Avoid single-operation or hello-world-style modules. Aim for at least factorial-level behavior: control flow, memory/table/import interaction, or a recognizable algorithm.
 - Compact known algorithms such as GCD are acceptable even when the prepared WAT is short, but reject fixtures that are just one arithmetic expression or a constant-returning stub.
@@ -12,81 +14,25 @@ Use this document as context when autonomously finding and adding new WebAssembl
 - Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, WASI APIs beyond Preview 1, or complex host APIs that cannot be represented by the fixture metadata import stubs.
 - Do not add programs from `WebAssembly/testsuite` or equivalent conformance suites. This corpus should complement conformance suites rather than duplicate them.
 - Every submitted binary must follow [SUBMISSION.md](SUBMISSION.md) and be executable by Node through `./scripts/execute`.
-- Never commit or validate fixture metadata with placeholder provenance or missing tests.
+- Never finalize or validate fixture metadata with placeholder provenance or missing tests.
 
 ## Required Local Tools
 
-Use the required tools listed in [SUBMISSION.md](SUBMISSION.md). For agent work, `git` and `gh` are also required for branch, PR, and CI workflows.
-
-## Branch And PR Flow
-
-Start every submission from an up-to-date `main` branch. Never start a new submission from a previous submission branch.
-
-```sh
-git switch main
-git pull --ff-only
-git status --short
-```
-
-If `git status --short` prints anything, stop and decide whether those changes belong in the submission branch. Do not hide unrelated local work inside an autonomous corpus addition.
-
-Use a unique branch per submission, for example:
-
-```sh
-git switch -c codex/add-wabt-callback-fixture
-```
-
-After adding the fixture and passing local checks:
-
-```sh
-git add <version>/<fixture>.wasm <version>/<fixture>.json
-# Also add <version>/<fixture>.wat when prepare generated one.
-git commit -m "Add <fixture> <version> fixture"
-git push -u origin codex/add-<fixture-name>
-gh pr create --base main --head codex/add-<fixture-name> --title "Add <fixture> <version> fixture" --body "Adds a prepared WebAssembly fixture with matching WAT and fixture metadata."
-gh pr checks --watch
-```
-
-The pull request is not done until the GitHub Action passes. If it fails, inspect the failing job, fix the branch, push again, and re-run `gh pr checks --watch`.
-
-```sh
-gh run view <run-id> --log
-```
-
-After the pull request is open and checks pass, return the local checkout to `main` before starting any other work:
-
-```sh
-git switch main
-git pull --ff-only
-git status --short
-```
-
-Do not create the next submission branch until the checkout is back on clean, up-to-date `main`.
+Use the required tools listed in [SUBMISSION.md](SUBMISSION.md).
 
 ## Candidate Discovery
 
 Work from high-signal sources first. Keep notes on source URL, license, module purpose, expected behavior, and any imports/features discovered.
 
-### GitHub Code Search
+### Source Search
 
 Search for WAT first because it is reviewable and can be staged directly:
 
-```sh
-gh search code wasm --extension wat --owner WebAssembly --limit 20 --json path,url,repository
-gh search code wasm --extension wat --repo WebAssembly/wabt --limit 20 --json path,url,repository
-gh search code wasm --extension wat --repo WebAssembly/binaryen --limit 20 --json path,url,repository
-gh search code wasm --extension wat --repo bytecodealliance/wasm-tools --limit 20 --json path,url,repository
-```
+- Look for `.wat` files in WebAssembly tooling repositories, examples, benchmarks, and package fixtures.
+- Look for checked-in `.wasm` binaries in `examples`, `test`, and `fixtures` directories.
+- Prefer upstream repositories or package archives with clear licensing and provenance.
 
-Search for checked-in WASM binaries in examples, tests, and fixtures:
-
-```sh
-gh search code wasm --extension wasm --match path --limit 20 --json path,url,repository
-gh search code examples --extension wasm --match path --limit 20 --json path,url,repository
-gh search code fixtures --extension wasm --match path --limit 20 --json path,url,repository
-```
-
-GitHub path search can return files whose names end in `.wasm` but are not WebAssembly binaries. After downloading a candidate, verify it with Binaryen, wasm-tools, or by checking the file type before triage:
+Path searches can return files whose names end in `.wasm` but are not WebAssembly binaries. After downloading a candidate, verify it with Binaryen, wasm-tools, or by checking the file type before triage:
 
 ```sh
 file /tmp/candidate.wasm
@@ -94,7 +40,7 @@ wasm-opt /tmp/candidate.wasm -o /tmp/candidate.checked.wasm
 wasm-tools parse /tmp/candidate.wat -o /tmp/candidate.checked.wasm
 ```
 
-Use [grep.app](https://grep.app/) as another GitHub-scale discovery tool when GitHub Code Search is sparse or rate-limited. It is especially useful for finding `.wat` source files. It can also find textual references to `.wasm` paths, though binary `.wasm` files themselves are not usually searchable by content. Treat matches as leads only, then inspect the upstream repository, license, and actual file contents before staging anything.
+Use [grep.app](https://grep.app/) as a repository-scale discovery tool when code search is sparse or rate-limited. It is especially useful for finding `.wat` source files. It can also find textual references to `.wasm` paths, though binary `.wasm` files themselves are not usually searchable by content. Treat matches as leads only, then inspect the upstream repository, license, and actual file contents before staging anything.
 
 Known-good browser/API-style searches:
 
@@ -105,13 +51,7 @@ https://grep.app/search?q=%22.wasm%22&f.path.pattern=examples
 https://grep.app/search?q=%22.wasm%22&f.path.pattern=fixtures
 ```
 
-When a repo looks promising, clone it into a temporary directory and inspect licenses and files locally:
-
-```sh
-tmp=$(mktemp -d /tmp/wasm-corpus-source.XXXXXX)
-gh repo clone WebAssembly/wabt "$tmp/wabt" -- --depth 1
-find "$tmp/wabt" -type f \( -name '*.wasm' -o -name '*.wat' -o -name 'LICENSE*' -o -name 'COPYING*' \)
-```
+When a repository or package looks promising, inspect its license files and source layout before staging anything. Keep the exact source URL, package URL, or release URL for fixture metadata.
 
 ### npm Packages
 
@@ -161,7 +101,7 @@ Before staging anything for the corpus, answer these questions:
 - Should `source.contributor` be `human` or `ai`? Use `ai` for fixtures authored or generated by an AI agent, and `human` for fixtures authored by a person or imported from a human-authored upstream source.
 - Is the module valid core Wasm rather than a component or JS glue-only package?
 - Is the module independent of conformance suites such as `WebAssembly/testsuite`?
-- Is the exact binary, fixture basename, or same claimed program already present in the corpus or an open pull request?
+- Is the exact binary, fixture basename, or same claimed program already present in the corpus?
 - What version and features does `./scripts/classify /tmp/candidate.wasm` report?
 - Can `prepare` place the fixture into a supported `1.0/`, `2.0/`, or `3.0/` directory?
 - Which schema-supported `features` are required?
@@ -236,33 +176,8 @@ Follow [SUBMISSION.md](SUBMISSION.md) for staging, running `prepare`, completing
 
 ## Final Review Checklist
 
-Before creating the PR:
-
 - The final checklist in [SUBMISSION.md](SUBMISSION.md) is complete.
-- `git status --short --untracked-files=all` shows only the intended fixture, WAT, metadata JSON, and any necessary docs.
-- `git diff` and `git diff --staged` show only expected text changes.
-- The PR body says where the fixture came from and lists local checks run.
-
-After opening the PR:
-
-```sh
-gh pr checks --watch
-```
-
-If checks fail:
-
-```sh
-gh pr checks
-gh run list --branch "$(git branch --show-current)" --limit 5
-gh run view <run-id> --log
-```
-
-Fix the issue on the same branch, push, and watch checks again.
-
-When the PR checks pass, switch back to `main`:
-
-```sh
-git switch main
-git pull --ff-only
-git status --short
-```
+- The prepared `.wasm`, `.json`, and generated `.wat` file, when present, all share the same basename.
+- The fixture metadata has no placeholders and includes clear source provenance.
+- Tests exercise representative behavior rather than only trivial exports or version helpers.
+- Local `validate` and `execute` commands pass for the prepared fixture.
