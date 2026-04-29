@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bert_pretraining",
+  "path": "bert_pretraining.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bert_pretraining.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "bert_pretraining",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mode-zero-baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bert_pretraining",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4770"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-one-alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bert_pretraining",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5080"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-two-low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bert_pretraining",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4995"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bert_pretraining",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4770"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bert_pretraining",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4995"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "064d75e6ed07af66142a68e84edcbf15529633d2ca71b3ddbe89ab60376216a6",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of BERT pretraining for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "BERT-style combined masked-token and sentence-pair loss proxy.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "nlp",
+    "bert",
+    "pretraining"
+  ],
+  "notes": "Bounded-general fixture for BERT pretraining. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative nlp behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "batch_gradient_descent",
+  "description": "Full-batch gradient descent over a fixed regression dataset.",
+  "path": "batch_gradient_descent.wasm",
+  "wat": {
+    "status": "present",
+    "path": "batch_gradient_descent.wat"
+  },
+  "features": [],
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "optimization",
+    "batch",
+    "gradient",
+    "descent"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "batch_gradient_descent",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mode-zero-baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "47"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-one-alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-two-low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "58"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "batch_gradient_descent",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "234"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "15df429dd6f8041788b61241043fd7820efe61185a818c4e0c264e9ed553fe9f",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Batch gradient descent for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Bounded-general fixture for Batch gradient descent. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative optimizer behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
+}

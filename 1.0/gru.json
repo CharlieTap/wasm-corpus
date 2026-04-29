@@ -1,0 +1,169 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gru",
+  "path": "gru.wasm",
+  "wat": {
+    "status": "present",
+    "path": "gru.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "gru",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mode-zero-baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gru",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6990"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-one-alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gru",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5382"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-two-low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gru",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3486"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gru",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2699"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "gru",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2594"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "df29f71e797bd6dc246806510abfa135035d89a645db0c31d0f93d295b52dfb7",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of GRU for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "GRU-style update/reset gated hidden-state pass.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network"
+  ],
+  "notes": "Bounded-general fixture for GRU. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative recurrent behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
+}

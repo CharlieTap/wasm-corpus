@@ -1,0 +1,172 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "deep_belief_network",
+  "path": "deep_belief_network.wasm",
+  "wat": {
+    "status": "present",
+    "path": "deep_belief_network.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "deep_belief_network",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mode-zero-baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deep_belief_network",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2382"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-one-alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deep_belief_network",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2123"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-two-low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deep_belief_network",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1766"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deep_belief_network",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "588"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "deep_belief_network",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2855"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "be1b1a4c26f1c61cb7448f1b1d4ce47c4ab15c7287f79e7fb35a3539e5699932",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Deep Belief Network for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Stacked RBM-style layer activation checksum.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "deep",
+    "belief",
+    "network"
+  ],
+  "notes": "Bounded-general fixture for Deep Belief Network. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative neural behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
+}

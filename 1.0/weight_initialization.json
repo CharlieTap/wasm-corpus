@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "weight_initialization",
+  "path": "weight_initialization.wasm",
+  "wat": {
+    "status": "present",
+    "path": "weight_initialization.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "weight_initialization",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mode-zero-baseline",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weight_initialization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1954"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-one-alternate",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weight_initialization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3426"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mode-two-low-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weight_initialization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2550"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "negative-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weight_initialization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "-5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "983"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "wide-input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "weight_initialization",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9424"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "a4582026e9caa602655aa87754de9b0e4a929b995a7a54ab49e7ba16434258f9",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "AI-authored WAT implementation of Weight initialization for wasm-corpus fixed-dataset coverage."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Deterministic Xavier/He-style initialization checksum.",
+  "tags": [
+    "algorithm",
+    "bounded-general",
+    "machine-learning",
+    "wat",
+    "neural-network",
+    "weight",
+    "initialization"
+  ],
+  "notes": "Bounded-general fixture for Weight initialization. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative initialization behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
+}
