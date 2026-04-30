@@ -1,0 +1,480 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "brotli_wasm",
+  "description": "Brotli compressor/decompressor from the brotli-wasm npm package, built from the Rust brotli crate via wasm-bindgen.",
+  "path": "brotli_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "brotli_wasm.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "brotli",
+    "compression",
+    "decompression",
+    "large",
+    "npm",
+    "real-world",
+    "rust",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_is_undefined",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1"
+          }
+        ],
+        "notes": "The tests call compress with no options object, so wasm-bindgen should observe an undefined value."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_is_object",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "No JavaScript options object is supplied in these tests."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_string_new",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only reached on error paths; successful compression/decompression should not allocate host strings."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_error_new",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only reached on error paths; successful compression/decompression should not allocate host errors."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_json_serialize",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "notes": "No JavaScript options object is supplied in these tests."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg_new_693216e109162396",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only reached while constructing JavaScript Error objects on failure paths."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg_stack_0ddaca5d1abfb52f",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "notes": "Only reached while formatting JavaScript Error objects on failure paths."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg_error_09919627ac0992f5",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "notes": "Only reached while reporting JavaScript Error objects on failure paths."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_object_drop_ref",
+      "kind": "function",
+      "type": "(func (param i32))",
+      "stub": {
+        "notes": "No host heap objects are created on the successful no-options path."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_throw",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected wasm-bindgen throw",
+        "notes": "If this import is called, the fixture has left the expected successful Brotli path."
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 28)"
+    },
+    {
+      "name": "compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbg_brotlistreamresult_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__wbg_get_brotlistreamresult_code",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbg_set_brotlistreamresult_code",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "__wbg_get_brotlistreamresult_buf",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "__wbg_set_brotlistreamresult_buf",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbg_get_brotlistreamresult_input_offset",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbg_set_brotlistreamresult_input_offset",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "__wbg_compressstream_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "compressstream_new",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "compressstream_compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "compressstream_total_out",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbg_decompressstream_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "decompressstream_new",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "decompressstream_decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "decompressstream_total_out",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated UTF-8 payload",
+      "notes": "Calls the raw wasm-bindgen exports directly: allocate input bytes, invoke Brotli compression, read the returned pointer/length struct from Wasm memory, assert the deterministic compressed payload, invoke decompression, then assert the original bytes are restored.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input buffer",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "77"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write uncompressed payload",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress payload with default options",
+          "function": "compress",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "77"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "compression error flag stays clear",
+          "memory": "memory",
+          "offset": 1048572,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture compressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture compressed buffer length",
+          "memory": "memory",
+          "offset": 1048564,
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_len"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert compressed buffer length",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "61"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic Brotli output",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "1b4c00002c8ec7f9d7e2ad58bac32a2ab42433636b1097b9bc7986a757616fb001070e593aec0bf1e0212bf13b45141f87d8c5353d3a96ab7d8a00110c"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress compressed buffer",
+          "function": "decompress",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048544"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_ptr"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "decompression error flag stays clear",
+          "memory": "memory",
+          "offset": 1048556,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture decompressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048544,
+          "capture": {
+            "type": "i32",
+            "capture": "decompressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture decompressed buffer length",
+          "memory": "memory",
+          "offset": 1048548,
+          "capture": {
+            "type": "i32",
+            "capture": "decompressed_len"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed buffer length",
+          "memory": "memory",
+          "offset": 1048548,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "77"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload matches input",
+          "memory": "memory",
+          "offset": {
+            "var": "decompressed_ptr"
+          },
+          "length": {
+            "var": "decompressed_len"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again."
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "fcc424f980875edcbcb47d6f7e6e9bd7b56a23211362b38d989d8079eafb66f5",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "pkg.node/brotli_wasm_bg.wasm",
+    "url": "https://www.npmjs.com/package/brotli-wasm/v/3.0.1",
+    "description": "The Node-targeted wasm-bindgen binary from brotli-wasm 3.0.1, a package wrapping the Rust brotli crate for compression and decompression."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the package's raw Node WebAssembly binary rather than its JavaScript wrapper. The wasm-bindgen imports are stubbed only for the successful no-options path; if an error path tries to throw through the JavaScript glue import, the fixture traps. Tests call the exported batch compression and decompression functions directly and inspect the returned pointer/length structs in linear memory."
+}
