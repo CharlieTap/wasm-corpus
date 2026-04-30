@@ -357,7 +357,7 @@ function isWasiPreview1Import(importEntry) {
   return importEntry.module === "wasi_snapshot_preview1";
 }
 
-function buildImports(entry) {
+function buildImports(entry, wasiImport = null) {
   const imports = {};
   const memories = new Map();
 
@@ -366,7 +366,15 @@ function buildImports(entry) {
 
     switch (importEntry.kind) {
       case "function":
-        imports[importEntry.module][importEntry.name] = buildFunctionStub(importEntry);
+        if (wasiImport && isWasiPreview1Import(importEntry)) {
+          const hostFunction = wasiImport[importEntry.name];
+          if (typeof hostFunction !== "function") {
+            fail(`WASI Preview 1 import ${importEntry.name} is not provided by the host`);
+          }
+          imports[importEntry.module][importEntry.name] = hostFunction;
+        } else {
+          imports[importEntry.module][importEntry.name] = buildFunctionStub(importEntry);
+        }
         break;
       case "global":
         imports[importEntry.module][importEntry.name] = buildGlobalStub(importEntry);
@@ -397,12 +405,33 @@ function usesWasiPreview1Host(test) {
   return Boolean(test?.host?.wasi_preview_1);
 }
 
+function isWasiPreview1CommandTest(test) {
+  return usesWasiPreview1Host(test) && (test.steps || []).some((step) => step.type === "function.invoke" && step.function === "_start");
+}
+
+function wasiInitializationInstance(instance, memories) {
+  if (instance.exports.memory instanceof WebAssembly.Memory) {
+    return instance;
+  }
+
+  for (const memory of memories.values()) {
+    return {
+      exports: {
+        ...instance.exports,
+        memory,
+      },
+    };
+  }
+
+  return instance;
+}
+
 async function instantiate(wasmPath, entry, test) {
   const bytes = fs.readFileSync(wasmPath);
   const module = new WebAssembly.Module(bytes);
   const host = test?.host || {};
 
-  if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
+  if (usesWasiPreview1(module) && isWasiPreview1CommandTest(test)) {
     return {
       instance: null,
       host,
@@ -411,13 +440,29 @@ async function instantiate(wasmPath, entry, test) {
     };
   }
 
-  const { imports, memories } = buildImports(entry);
+  let wasi = null;
+  if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
+    const wasiInput = host.wasi_preview_1 || {};
+    wasi = new (require("node:wasi").WASI)({
+      version: "preview1",
+      args: wasiInput.command_args || [],
+      env: wasiInput.system_env || {},
+      preopens: wasiInput.preopened_directories || {},
+      returnOnExit: true,
+    });
+  }
+
+  const { imports, memories } = buildImports(entry, wasi?.wasiImport);
   const instance = await WebAssembly.instantiate(module, imports);
+  if (wasi) {
+    wasi.initialize(wasiInitializationInstance(instance, memories));
+  }
   return {
     instance,
-    host: {},
+    host,
     wasmPath,
     memories,
+    wasi,
   };
 }
 

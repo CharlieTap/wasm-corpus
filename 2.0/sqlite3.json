@@ -1582,6 +1582,17 @@
   "tests": [
     {
       "description": "inspect SQLite library metadata",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
       "steps": [
         {
           "type": "function.invoke",
@@ -1635,6 +1646,17 @@
     },
     {
       "description": "parse complete and incomplete SQL statements",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
       "steps": [
         {
           "type": "function.invoke",
@@ -1756,6 +1778,17 @@
     },
     {
       "description": "classify SQLite keywords and non-keywords",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
       "steps": [
         {
           "type": "function.invoke",
@@ -1885,6 +1918,17 @@
     },
     {
       "description": "exercise SQLite LIKE and GLOB pattern helpers",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
       "steps": [
         {
           "type": "function.invoke",
@@ -2126,6 +2170,17 @@
     {
       "description": "open an in-memory database and step a scalar SELECT statement",
       "notes": "Uses SQLite C API pointer-out parameters with typed memory reads/writes, then executes SELECT 40 + 2 against a real :memory: database.",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
       "steps": [
         {
           "type": "function.invoke",
