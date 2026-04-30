@@ -1,0 +1,357 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lz4_wasm",
+  "description": "LZ4 block compressor/decompressor from the lz4-wasm npm package, built from Rust via wasm-bindgen.",
+  "path": "lz4_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lz4_wasm.wat"
+  },
+  "features": [],
+  "tags": [
+    "compression",
+    "decompression",
+    "lz4",
+    "npm",
+    "real-world",
+    "rust",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "./lz4_wasm_bg.js",
+      "name": "__wbindgen_string_new",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "777"
+          }
+        ],
+        "notes": "The successful roundtrip path should not need to allocate a host string. The invalid block test intentionally reaches this wasm-bindgen error path and receives a deterministic object handle."
+      },
+      "description": "wasm-bindgen helper used to construct a JavaScript string for decompression errors."
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated UTF-8 payload",
+      "notes": "Calls the raw wasm-bindgen exports directly: allocate input bytes, invoke LZ4 compression, read the returned pointer/length struct from Wasm memory, assert the deterministic compressed block, invoke decompression, then assert the original bytes are restored.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input buffer",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "121"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write uncompressed payload",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again. LZ4 likes repeated repeated repeated words."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress payload",
+          "function": "compress",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "121"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "capture compressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture compressed buffer length",
+          "memory": "memory",
+          "offset": 1048564,
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_len"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert compressed buffer length",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "91"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic LZ4 output",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_ptr"
+          },
+          "length": {
+            "var": "compressed_len"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "79000000ff1e54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f672e202d0007ff0a616761696e2e204c5a34206c696b657320726570656174656409000060776f7264732e"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress compressed buffer",
+          "function": "decompress",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048544"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_ptr"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "decompression error flag stays clear",
+          "memory": "memory",
+          "offset": 1048556,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture decompressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048544,
+          "capture": {
+            "type": "i32",
+            "capture": "decompressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "capture decompressed buffer length",
+          "memory": "memory",
+          "offset": 1048548,
+          "capture": {
+            "type": "i32",
+            "capture": "decompressed_len"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed buffer length",
+          "memory": "memory",
+          "offset": 1048548,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "121"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload matches input",
+          "memory": "memory",
+          "offset": {
+            "var": "decompressed_ptr"
+          },
+          "length": {
+            "var": "decompressed_len"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again. LZ4 likes repeated repeated repeated words."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reject malformed LZ4 data",
+      "notes": "Writes a block with a claimed decompressed length but not enough encoded data. The module should return an error flag and route the error string through the wasm-bindgen import stub.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate malformed block buffer",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "bad_input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write malformed block",
+          "memory": "memory",
+          "offset": {
+            "var": "bad_input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "0a0000000102030405"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "attempt decompression",
+          "function": "decompress",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "bad_input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "error flag is set",
+          "memory": "memory",
+          "offset": 1048572,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "error object comes from the wasm-bindgen string stub",
+          "memory": "memory",
+          "offset": 1048568,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "777"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "6621b9c5cb7c597c4371e95a37fbf6d067d6c6ac60aff51ad1313ce96acd607e",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "lz4_wasm_bg.wasm",
+    "url": "https://www.npmjs.com/package/lz4-wasm/v/0.9.2",
+    "description": "The wasm-bindgen binary from lz4-wasm 0.9.2, a Rust implementation exposing LZ4 block compression and decompression for browsers and Node.js."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the package's raw WebAssembly binary rather than its JavaScript wrapper. Tests call the exported compression and decompression functions directly and inspect the returned structs in linear memory. The compressed payload begins with the original length in little-endian form, matching the package README."
+}
