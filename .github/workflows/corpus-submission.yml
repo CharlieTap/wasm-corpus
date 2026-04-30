@@ -10,6 +10,8 @@ on:
       - "schema/*.json"
       - "scripts/**"
   push:
+    branches:
+      - main
     paths:
       - "**/*.wasm"
       - "1.0/*.json"
