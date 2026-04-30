@@ -42,12 +42,13 @@ The repository smoke runner uses Node.js 24 or newer so `3.0` fixtures that requ
 
 The `stage/` directory is the authoring drop zone. Put candidate `.wasm` or `.wat` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
 
-Use `./corpus` to print fixture metadata as one JSON array. With no filters it returns every fixture in version order, and filters can narrow by version, features, or tags:
+Use `./corpus` to print fixture metadata as one JSON array. With no filters it returns every fixture in version order, and filters can narrow by version, include or exclude features, or tags:
 
 ```sh
 ./corpus
 ./corpus --version 2.0
 ./corpus --feature simd --tag npm
+./corpus --version 2.0 --exclude-feature bulk-memory
 ```
 
 ## Submitting Fixtures

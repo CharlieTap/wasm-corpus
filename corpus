@@ -18,6 +18,13 @@ Filters:
                             May be repeated or comma-separated.
   --feature <feature>       Require a feature. May be repeated or comma-separated.
   --features <feature>      Alias for --feature.
+  --exclude-feature <feature>
+                            Exclude fixtures containing this feature.
+                            May be repeated or comma-separated.
+  --exclude-features <feature>
+                            Alias for --exclude-feature.
+  --without-feature <feature>
+                            Alias for --exclude-feature.
   --tag <tag>               Require a tag. May be repeated or comma-separated.
   --tags <tag>              Alias for --tag.
   --compact                 Print compact JSON instead of pretty JSON.
@@ -27,6 +34,7 @@ Examples:
   ./corpus
   ./corpus --version 2.0
   ./corpus --feature simd --tag npm
+  ./corpus --version 2.0 --exclude-feature bulk-memory
   ./corpus --version 1.0,2.0 --features bulk-memory,simd --compact
 `);
 }
@@ -52,6 +60,7 @@ function parseArgs(argv) {
   const filters = {
     versions: [],
     features: [],
+    excludedFeatures: [],
     tags: [],
     compact: false,
   };
@@ -77,6 +86,8 @@ function parseArgs(argv) {
       appendValues(filters.versions, inlineValue ?? argv[++index], flag);
     } else if (flag === "--feature" || flag === "--features") {
       appendValues(filters.features, inlineValue ?? argv[++index], flag);
+    } else if (flag === "--exclude-feature" || flag === "--exclude-features" || flag === "--without-feature") {
+      appendValues(filters.excludedFeatures, inlineValue ?? argv[++index], flag);
     } else if (flag === "--tag" || flag === "--tags") {
       appendValues(filters.tags, inlineValue ?? argv[++index], flag);
     } else {
@@ -125,12 +136,21 @@ function hasAll(actualValues, requiredValues) {
   return requiredValues.every((value) => actual.has(value));
 }
 
+function hasAny(actualValues, excludedValues) {
+  const actual = new Set(actualValues || []);
+  return excludedValues.some((value) => actual.has(value));
+}
+
 function matchesFilters(fixture, filters) {
   if (filters.versions.length > 0 && !filters.versions.includes(fixture.version)) {
     return false;
   }
 
   if (!hasAll(fixture.value.features, filters.features)) {
+    return false;
+  }
+
+  if (hasAny(fixture.value.features, filters.excludedFeatures)) {
     return false;
   }
 
