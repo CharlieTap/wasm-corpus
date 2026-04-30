@@ -1,0 +1,3286 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "quickjs_wasi",
+  "description": "QuickJS-NG JavaScript runtime compiled to WebAssembly by the quickjs-wasi npm package, exposing the QuickJS C API with WASI Preview 1 host imports.",
+  "path": "quickjs_wasi.wasm",
+  "wat": {
+    "status": "present",
+    "path": "quickjs_wasi.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "c-api",
+    "compiler",
+    "interpreter",
+    "javascript",
+    "large",
+    "npm",
+    "parser",
+    "quickjs",
+    "real-world",
+    "runtime",
+    "wasi-p1"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "host_get_timezone_offset",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Deterministic UTC offset for tests that do not depend on local timezone behavior."
+      }
+    },
+    {
+      "module": "env",
+      "name": "host_interrupt",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Do not interrupt deterministic fixture evaluation snippets."
+      }
+    },
+    {
+      "module": "env",
+      "name": "host_promise_rejection",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))",
+      "stub": {
+        "notes": "Promise rejection notifications are not reached by these synchronous tests."
+      }
+    },
+    {
+      "module": "env",
+      "name": "host_module_normalize",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Module loading is not used by these global-script evaluation tests."
+      }
+    },
+    {
+      "module": "env",
+      "name": "host_module_load",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Module loading is not used by these global-script evaluation tests."
+      }
+    },
+    {
+      "module": "env",
+      "name": "host_call",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Host callback bridging is not used by these pure JavaScript evaluation tests."
+      }
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 18)"
+    },
+    {
+      "name": "__stack_pointer",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "__indirect_function_table",
+      "kind": "table",
+      "type": "(table 486 funcref)"
+    },
+    {
+      "name": "JS_GetVersion",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "JS_NewNumber",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result i64))"
+    },
+    {
+      "name": "JS_DupValue",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_DupValueRT",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "js_calloc_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "js_malloc_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_free_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "abort",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "js_realloc_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "js_malloc_usable_size_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_mallocz_rt",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_calloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_ThrowOutOfMemory",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "js_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_mallocz",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "js_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "js_realloc2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "js_malloc_usable_size",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_strndup",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "js_strdup",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strlen",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_NewRuntime2",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_UpdateStackTop",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_FreeRuntime",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_GetRuntimeOpaque",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_SetRuntimeOpaque",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_AddRuntimeFinalizer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewRuntime",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "JS_SetMemoryLimit",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_SetDumpFlags",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_GetDumpFlags",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_GetGCThreshold",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_SetGCThreshold",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_SetInterruptHandler",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "JS_SetCanBlock",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_SetSharedArrayBufferFunctions",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_EnqueueJob",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_IsJobPending",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_ExecutePendingJob",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_FreeValue",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_SetRuntimeInfo",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_FreeValueRT",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_RunGC",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_FreeAtomRT",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_NewContextRaw",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_FreeContext",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_NewContext",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicBaseObjects",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicDate",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicEval",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicRegExp",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicJSON",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicProxy",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicMapSet",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicTypedArrays",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicPromise",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicWeakRef",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicDOMException",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_AddPerformance",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_GetContextOpaque",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_SetContextOpaque",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_SetClassProto",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64))"
+    },
+    {
+      "name": "JS_GetClassProto",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetFunctionProto",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_DupContext",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_ComputeMemoryUsage",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_DumpMemoryUsage",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "JS_GetRuntime",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_SetMaxStackSize",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_DupAtomRT",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_DupAtom",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewAtomLen",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewStringLen",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewAtom",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewAtomUInt32",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewSymbol",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_AtomToValue",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_AtomToString",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_FreeAtom",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_AtomToCStringLen",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewClassID",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetClassID",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsRegisteredClass",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetClassName",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_NewClass",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_ThrowRangeError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewStringUTF16",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewAtomString",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ToCStringLen2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_ToCStringLenUTF16",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_FreeCString",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_FreeCStringRT",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_FreeCStringUTF16",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_FreeCStringRT_UTF16",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_NewObjectProtoClass",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewObjectClass",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewObjectProto",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_NewObjectFrom",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewObject",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_NewObjectFromStr",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewArray",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_NewArrayFrom",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCFunction3",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i64 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCFunction2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCFunctionData2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCFunctionData",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCClosure",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_MarkValue",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32))"
+    },
+    {
+      "name": "JS_IsLiveObject",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetGlobalObject",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_Throw",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_GetException",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_HasException",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_NewError",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    },
+    {
+      "name": "JS_NewInternalError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ThrowInternalError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewPlainError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ThrowPlainError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewRangeError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewReferenceError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ThrowReferenceError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewSyntaxError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ThrowSyntaxError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewTypeError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ThrowTypeError",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_SetPrototype",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetPrototype",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_GetLength",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_SetLength",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_IsInstanceOf",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetProperty",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i64))"
+    },
+    {
+      "name": "JS_IsFunction",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetOwnPropertyNames",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetOwnProperty",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_FreePropertyEnum",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "JS_IsExtensible",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_PreventExtensions",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_HasProperty",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_ValueToAtom",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetPropertyUint32",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetPropertyInt64",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i64))"
+    },
+    {
+      "name": "JS_GetPropertyStr",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i64))"
+    },
+    {
+      "name": "JS_SetProperty",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_SetPropertyUint32",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_SetPropertyInt64",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_SetPropertyStr",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_DefineProperty",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64 i64 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_DefinePropertyValue",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_DefinePropertyValueUint32",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_DefinePropertyValueStr",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_DefinePropertyGetSet",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i64 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_DeleteProperty",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_ToObject",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_IsConstructor",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_SetConstructorBit",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_IsRegExp",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsMap",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsSet",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsWeakRef",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsWeakSet",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsWeakMap",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsDataView",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsError",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsUncatchableError",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_SetUncatchableError",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_ClearUncatchableError",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_ResetUncatchableError",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_SetOpaque",
+      "kind": "function",
+      "type": "(func (param i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetOpaque",
+      "kind": "function",
+      "type": "(func (param i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetOpaque2",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetAnyOpaque",
+      "kind": "function",
+      "type": "(func (param i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_SetIsHTMLDDA",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_ToBool",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToFloat64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToNumber",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_ToInt64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToInt64Ext",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToBigInt64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToInt32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToIndex",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToString",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_ToPropertyKey",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_IsArray",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_NewBigInt64",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_NewBigUint64",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_ToBigUint64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_Call",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_CallConstructor2",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_CallConstructor",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_Invoke",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewCModule",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_AddModuleExport",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_SetModuleExport",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_SetModuleLoaderFunc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "JS_SetModuleLoaderFunc2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "JS_SetModuleNormalizeFunc2",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "JS_SetModulePrivateValue",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_GetModulePrivateValue",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetModuleNamespace",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetScriptOrModuleName",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetModuleName",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetImportMeta",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_LoadModule",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewPromiseCapability",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_EvalFunction",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_EvalThis",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_EvalThis2",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_Eval",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_Eval2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ResolveModule",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_WriteObject2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_WriteObject",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_ReadObject2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_ReadObject",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_SetPropertyFunctionList",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_AddModuleExportList",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_SetModuleExportList",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_SetConstructor",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_ToObjectString",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_SealObject",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_FreezeObject",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "js_string_codePointRange",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_AddIntrinsicRegExpCompiler",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "JS_ParseJSON",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_JSONStringify",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64 i64) (result i64))"
+    },
+    {
+      "name": "JS_NewProxy",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i64))"
+    },
+    {
+      "name": "JS_IsProxy",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_GetProxyTarget",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_GetProxyHandler",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_PromiseState",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_PromiseResult",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_IsPromise",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_NewSettledPromise",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i64))"
+    },
+    {
+      "name": "JS_SetPromiseHook",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "JS_SetHostPromiseRejectionTracker",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "JS_NewDate",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result i64))"
+    },
+    {
+      "name": "JS_IsDate",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_AddIntrinsicBigInt",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "JS_NewArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_IsArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_NewArrayBufferCopy",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_DetachArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "JS_IsImmutableArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_SetImmutableArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i64 i32) (result i32))"
+    },
+    {
+      "name": "JS_GetArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_NewTypedArray",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetTypedArrayBuffer",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetUint8Array",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i32))"
+    },
+    {
+      "name": "JS_NewUint8Array",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_NewUint8ArrayCopy",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "JS_GetTypedArrayType",
+      "kind": "function",
+      "type": "(func (param i64) (result i32))"
+    },
+    {
+      "name": "JS_IsEqual",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_IsStrictEqual",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_IsSameValue",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_IsSameValueZero",
+      "kind": "function",
+      "type": "(func (param i32 i64 i64) (result i32))"
+    },
+    {
+      "name": "JS_ThrowDOMException",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i64))"
+    },
+    {
+      "name": "vsnprintf",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "JS_DetectModule",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strstr",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "js_std_cmd",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "calloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memcmp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "snprintf",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "frexp",
+      "kind": "function",
+      "type": "(func (param f64 i32) (result f64))"
+    },
+    {
+      "name": "strrchr",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strcmp",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strchr",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strtod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result f64))"
+    },
+    {
+      "name": "memchr",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "acosh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "asinh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "atanh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "cbrt",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "strncmp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_quickjs_version",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_init",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_init2",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_set_interrupt_handler",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_set_promise_rejection_handler",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_set_module_loader",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_set_memory_limit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_set_max_stack_size",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_run_gc",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "qjs_set_gc_threshold",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_get_gc_threshold",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_compute_memory_usage",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_destroy",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "qjs_eval",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_compile",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_eval_bytecode",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_string",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_number",
+      "kind": "function",
+      "type": "(func (param f64) (result i32))"
+    },
+    {
+      "name": "qjs_new_object",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_new_array",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_undefined",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_null",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_true",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_false",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_new_symbol",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_symbol_description",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_float64",
+      "kind": "function",
+      "type": "(func (param i32) (result f64))"
+    },
+    {
+      "name": "qjs_get_string",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_free_cstring",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_typeof",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_exception",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_undefined",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_null",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_bool",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_number",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_string",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_object",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_function",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_error",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_promise",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_symbol",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_big_int",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_bool",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_dup_value",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_free_value",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "qjs_get_global",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_prop_string",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_set_prop_string",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_define_prop_string",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_define_prop_value",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_prop_value",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_set_prop_value",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_prop_uint32",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_set_prop_uint32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_call",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_host_function",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_promise",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_promise_state",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_promise_result",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_job_pending",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_execute_pending_job",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_exception",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_throw",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_error",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_new_big_int64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_big_int64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_value_ptr",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_own_property_names",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_own_property_names_all",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_has_own_property",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_property_is_enumerable",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_prototype_of",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_array_buffer",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_array_buffer",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_is_array_buffer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qjs_new_uint8_array",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_typed_array_buffer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qjs_get_runtime_ptr",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_get_context_ptr",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "qjs_set_runtime_and_context",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "wasm_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "wasm_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "fmin",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "fmax",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "fabs",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "sqrt",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "copysign",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "ceil",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "floor",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "trunc",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "strerror",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isalnum",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isalpha",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isdigit",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "islower",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isprint",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isspace",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isupper",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isxdigit",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "tolower",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "toupper",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "acos",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "asin",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "atan",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "atan2",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "cos",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "cosh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "exp",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "exp2",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "fmod",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "ldexp",
+      "kind": "function",
+      "type": "(func (param f64 i32) (result f64))"
+    },
+    {
+      "name": "log",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "log10",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "log2",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "modf",
+      "kind": "function",
+      "type": "(func (param f64 i32) (result f64))"
+    },
+    {
+      "name": "pow",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "remainder",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "round",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "sin",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "sinh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "tan",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "tanh",
+      "kind": "function",
+      "type": "(func (param f64) (result f64))"
+    },
+    {
+      "name": "sprintf",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sscanf",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "atof",
+      "kind": "function",
+      "type": "(func (param i32) (result f64))"
+    },
+    {
+      "name": "atoi",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bsearch",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "qsort",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "strtoul",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "strtol",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "stpcpy",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strcat",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strcpy",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "strdup",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "strncat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "strncpy",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "memcpy",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "memmove",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "memset",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "evaluate JavaScript language features through the QuickJS C API",
+      "notes": "Creates a QuickJS runtime and context, allocates source strings in Wasm memory, evaluates several global scripts, converts the JSValue results back through JS_ToInt32, and frees the allocated runtime resources.",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "create QuickJS runtime",
+          "function": "JS_NewRuntime",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "runtime"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "create QuickJS context",
+          "function": "JS_NewContext",
+          "params": [
+            {
+              "type": "i32",
+              "var": "runtime"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "context"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate eval filename",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "filename"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write eval filename",
+          "memory": "memory",
+          "offset": {
+            "var": "filename"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<eval>\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate arithmetic script",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "arithmetic_source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write arithmetic script",
+          "memory": "memory",
+          "offset": {
+            "var": "arithmetic_source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "1 + 2 * 20\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate arithmetic expression",
+          "function": "JS_Eval",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "arithmetic_source"
+            },
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "capture": "arithmetic_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate arithmetic result slot",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "arithmetic_out"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "clear arithmetic result slot",
+          "memory": "memory",
+          "offset": {
+            "var": "arithmetic_out"
+          },
+          "value": {
+            "type": "i32",
+            "value": "0"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "convert arithmetic result to i32",
+          "function": "JS_ToInt32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "arithmetic_out"
+            },
+            {
+              "type": "i64",
+              "var": "arithmetic_value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert arithmetic result",
+          "memory": "memory",
+          "offset": {
+            "var": "arithmetic_out"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "41"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free arithmetic JSValue",
+          "function": "JS_FreeValue",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i64",
+              "var": "arithmetic_value"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate JSON script",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "45"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "json_source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write JSON script",
+          "memory": "memory",
+          "offset": {
+            "var": "json_source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "JSON.parse('{\"a\":41,\"b\":[1,2,3]}').b[2] + 39\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate JSON parse and array access",
+          "function": "JS_Eval",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "json_source"
+            },
+            {
+              "type": "i32",
+              "value": "44"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "capture": "json_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate JSON result slot",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "json_out"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "convert JSON result to i32",
+          "function": "JS_ToInt32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "json_out"
+            },
+            {
+              "type": "i64",
+              "var": "json_value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert JSON result",
+          "memory": "memory",
+          "offset": {
+            "var": "json_out"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "42"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free JSON JSValue",
+          "function": "JS_FreeValue",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i64",
+              "var": "json_value"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate RegExp script",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "37"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "regex_source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write RegExp script",
+          "memory": "memory",
+          "offset": {
+            "var": "regex_source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "/^[a-z]+\\d+$/.test(\"abc123\") ? 7 : 0\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate RegExp test",
+          "function": "JS_Eval",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "regex_source"
+            },
+            {
+              "type": "i32",
+              "value": "36"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "capture": "regex_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate RegExp result slot",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "regex_out"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "convert RegExp result to i32",
+          "function": "JS_ToInt32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "regex_out"
+            },
+            {
+              "type": "i64",
+              "var": "regex_value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert RegExp result",
+          "memory": "memory",
+          "offset": {
+            "var": "regex_out"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "7"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free RegExp JSValue",
+          "function": "JS_FreeValue",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i64",
+              "var": "regex_value"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate typed array script",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "54"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "typed_array_source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write typed array script",
+          "memory": "memory",
+          "offset": {
+            "var": "typed_array_source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "let a=new Uint8Array([3,4,5]); a.reduce((x,y)=>x+y,0)\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate typed array reduce",
+          "function": "JS_Eval",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "typed_array_source"
+            },
+            {
+              "type": "i32",
+              "value": "53"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "capture": "typed_array_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate typed array result slot",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "typed_array_out"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "convert typed array result to i32",
+          "function": "JS_ToInt32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "typed_array_out"
+            },
+            {
+              "type": "i64",
+              "var": "typed_array_value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert typed array result",
+          "memory": "memory",
+          "offset": {
+            "var": "typed_array_out"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "12"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free typed array JSValue",
+          "function": "JS_FreeValue",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i64",
+              "var": "typed_array_value"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate Map script",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "63"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "map_source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write Map script",
+          "memory": "memory",
+          "offset": {
+            "var": "map_source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "let m = new Map([[\"a\", 2], [\"b\", 5]]); m.get(\"a\") + m.get(\"b\")\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate Map lookup",
+          "function": "JS_Eval",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "map_source"
+            },
+            {
+              "type": "i32",
+              "value": "62"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "capture": "map_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate Map result slot",
+          "function": "js_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "map_out"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "convert Map result to i32",
+          "function": "JS_ToInt32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "map_out"
+            },
+            {
+              "type": "i64",
+              "var": "map_value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert Map result",
+          "memory": "memory",
+          "offset": {
+            "var": "map_out"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "7"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free Map JSValue",
+          "function": "JS_FreeValue",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i64",
+              "var": "map_value"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free arithmetic buffers",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "arithmetic_source"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free arithmetic result slot",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "arithmetic_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free JSON buffers",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "json_source"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free JSON result slot",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "json_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free RegExp buffers",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "regex_source"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free RegExp result slot",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "regex_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free typed array buffers",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "typed_array_source"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free typed array result slot",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "typed_array_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free Map buffers",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "map_source"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free Map result slot",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "map_out"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free filename buffer",
+          "function": "js_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            },
+            {
+              "type": "i32",
+              "var": "filename"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free QuickJS context",
+          "function": "JS_FreeContext",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "free QuickJS runtime",
+          "function": "JS_FreeRuntime",
+          "params": [
+            {
+              "type": "i32",
+              "var": "runtime"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "be2e9bb10a330d08a19cab075e53763539847313ac35ef5d747a49220635a4a3",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "quickjs.wasm",
+    "url": "https://www.npmjs.com/package/quickjs-wasi/v/2.2.0",
+    "description": "The quickjs.wasm binary from quickjs-wasi 2.2.0, a Vercel Labs package that compiles QuickJS-NG to WebAssembly with WASI imports and exposes the QuickJS C API."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The npm package does not expose a _start command entrypoint. Instead, the fixture drives the runtime through exported QuickJS C API functions: JS_NewRuntime, JS_NewContext, js_malloc, JS_Eval, JS_ToInt32, JS_FreeValue, JS_FreeContext, and JS_FreeRuntime. The tests intentionally evaluate several JavaScript language/library shapes so consumers exercise parser, bytecode execution, JSON, RegExp, typed array, Map, allocator, i64 JSValue, memory write/read, and WASI import plumbing paths without relying on the package's JavaScript wrapper."
+}
