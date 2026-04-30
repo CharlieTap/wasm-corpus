@@ -1,0 +1,1101 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "blake3_wasm",
+  "description": "BLAKE3 hashing implementation from the blake3-wasm npm package, built with Emscripten and SIMD-enabled WebAssembly.",
+  "path": "blake3_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "blake3_wasm.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "simd"
+  ],
+  "tags": [
+    "blake3",
+    "cryptography",
+    "emscripten",
+    "hashing",
+    "npm",
+    "real-world",
+    "simd"
+  ],
+  "imports": [
+    {
+      "module": "a",
+      "name": "a",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Emscripten resize-heap callback. The fixture uses the module's fixed 16 MiB memory and should not request growth."
+      },
+      "description": "Minified Emscripten import for heap growth."
+    },
+    {
+      "module": "a",
+      "name": "b",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))",
+      "stub": {
+        "notes": "Emscripten memcpy_big callback. The fixture inputs are sized so normal in-module memory operations are used."
+      },
+      "description": "Minified Emscripten import for large memory copies."
+    },
+    {
+      "module": "a",
+      "name": "c",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))",
+      "stub": {
+        "trap": "unexpected BLAKE3 assertion failure"
+      },
+      "description": "Minified Emscripten assert-fail import."
+    }
+  ],
+  "exports": [
+    {
+      "name": "d",
+      "kind": "memory",
+      "type": "(memory 256 256)"
+    },
+    {
+      "name": "e",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "f",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "g",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "h",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "i",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "j",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "k",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "l",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "m",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "n",
+      "kind": "table",
+      "type": "(table 1 1 funcref)"
+    },
+    {
+      "name": "o",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "p",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "q",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "r",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "hash a longer message with one-shot output",
+      "notes": "Uses the raw minified export `f`, which maps to Emscripten `_hash_oneshot(input_ptr, input_len, out_ptr, out_len)`. The 64-byte read exercises BLAKE3's extensible-output finalization path.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run static constructors",
+          "function": "e",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input buffer",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "81"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write message bytes",
+          "memory": "d",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "BLAKE3 WebAssembly fixture with enough data to drive chunk mixing and SIMD lanes."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate output buffer",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "compute 64-byte BLAKE3 output",
+          "function": "f",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "81"
+            },
+            {
+              "type": "i32",
+              "var": "output_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic 64-byte digest",
+          "memory": "d",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "3a11d3188e4a14f77616430df2d51722def2e47a45b276bc47a05039dfcc380a1a30594ff525a3879cdf702d41d4bbd10c1f861c30caf2cc86e0f877ec5ffc8d"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "stream updates in chunks and read the same digest as one-shot",
+      "notes": "Uses `i` for hasher initialization, `l` for incremental update, and `m` for final output. Splitting the message over three updates exercises stateful buffering rather than only the one-shot wrapper.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate first chunk",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "chunk_1"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "chunk_1"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate second chunk",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "chunk_2"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "chunk_2"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fox jumps over "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate third chunk",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "chunk_3"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "chunk_3"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "the lazy dog"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "create default hasher",
+          "function": "i",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "hasher"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "update with first chunk",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "hasher"
+            },
+            {
+              "type": "i32",
+              "var": "chunk_1"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "update with second chunk",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "hasher"
+            },
+            {
+              "type": "i32",
+              "var": "chunk_2"
+            },
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "update with third chunk",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "hasher"
+            },
+            {
+              "type": "i32",
+              "var": "chunk_3"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate digest buffer",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "read digest from offset zero",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "hasher"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "digest"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert incremental digest",
+          "memory": "d",
+          "offset": {
+            "var": "digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "2f1514181aadccd913abd94cfa592701a5686ab23f8df1dff1b74710febc6d4a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "compute keyed hash and derive-key outputs",
+      "notes": "Exercises the BLAKE3 keyed hasher (`j`) and key-derivation initializer (`k`) in addition to ordinary hashing.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate keyed-hash key",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "key_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write 32-byte key",
+          "memory": "d",
+          "offset": {
+            "var": "key_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "create keyed hasher",
+          "function": "j",
+          "params": [
+            {
+              "type": "i32",
+              "var": "key_ptr"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "keyed_hasher"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate keyed message",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "28"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "keyed_message"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "keyed_message"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "BLAKE3 keyed hashing fixture"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update keyed hasher",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "keyed_hasher"
+            },
+            {
+              "type": "i32",
+              "var": "keyed_message"
+            },
+            {
+              "type": "i32",
+              "value": "28"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate keyed digest buffer",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "keyed_digest"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "read keyed digest",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "keyed_hasher"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "keyed_digest"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert keyed digest",
+          "memory": "d",
+          "offset": {
+            "var": "keyed_digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "4a2239fd0ab0bde8c418ac5a1663115c6a82c256d7c6b58e53bddc0c6acb653c"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate derive-key context",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "27"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "context_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "context_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "wasm-corpus fixture context"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "create derive-key hasher",
+          "function": "k",
+          "params": [
+            {
+              "type": "i32",
+              "var": "context_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "27"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "derive_hasher"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate key material",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "20"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "material_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "material_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fixture key material"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update derive-key hasher",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "derive_hasher"
+            },
+            {
+              "type": "i32",
+              "var": "material_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate derived output",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "derive_digest"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "read derived output",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "derive_hasher"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "derive_digest"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert derived key output",
+          "memory": "d",
+          "offset": {
+            "var": "derive_digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "6befe1f782579906d2dd267872442f30b90e1e48669c1b09476543b59986e77e"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "clone a partially updated hasher and diverge suffixes",
+      "notes": "Exercises `g`, the raw clone_hasher export, by sharing a prefix and then producing two distinct digests from different suffixes.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate shared prefix",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "prefix"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "prefix"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "shared-prefix-"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "create base hasher",
+          "function": "i",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "base_hasher"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "apply shared prefix",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "base_hasher"
+            },
+            {
+              "type": "i32",
+              "var": "prefix"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "clone the prefixed hasher",
+          "function": "g",
+          "params": [
+            {
+              "type": "i32",
+              "var": "base_hasher"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "clone_hasher"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate alpha suffix",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "alpha"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "alpha"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "alpha"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate beta suffix",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "beta"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "d",
+          "offset": {
+            "var": "beta"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "beta"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update original with alpha",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "base_hasher"
+            },
+            {
+              "type": "i32",
+              "var": "alpha"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "update clone with beta",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "clone_hasher"
+            },
+            {
+              "type": "i32",
+              "var": "beta"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate alpha digest",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "alpha_digest"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate beta digest",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "beta_digest"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "read alpha digest",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "base_hasher"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "alpha_digest"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "read beta digest",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "clone_hasher"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "beta_digest"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert alpha digest",
+          "memory": "d",
+          "offset": {
+            "var": "alpha_digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ca15828be143df5a4b938db1b855a23e1a9691c5054df1378bcd3baed9ce3ad5"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert beta digest",
+          "memory": "d",
+          "offset": {
+            "var": "beta_digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "946c1d3bf380f21e0189d67a1acf304107c1f43224f06ec8b3117fa9ad0e977d"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "3e26ae6b38ae273f4039506f6353783469e236e962ce57d0229ed1f5b6490808",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "dist/wasm/blake3.wasm",
+    "url": "https://www.npmjs.com/package/blake3-wasm/v/3.0.0",
+    "description": "The Emscripten-built WebAssembly binary from blake3-wasm 3.0.0, a JavaScript package exposing the BLAKE3 hash implementation through a Wasm module."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The published Emscripten binary minifies its import and export names. In the JavaScript glue, export `d` is memory, `e` is `__wasm_call_ctors`, `f` is `_hash_oneshot`, `g` is `_clone_hasher`, `h` is `_malloc`, `i` is `_hasher_init`, `j` is `_hasher_init_keyed`, `k` is `_hasher_init_derive`, `l` is `_hasher_update`, `m` is `_hasher_read`, and `o` is `_free`. The tests intentionally use these raw exports directly so the fixture remains usable by runtimes that only implement the standard WebAssembly embedding model."
+}
