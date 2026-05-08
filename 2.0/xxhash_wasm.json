@@ -1,0 +1,496 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "xxhash_wasm",
+  "description": "xxHash non-cryptographic hashing module from the xxhash-wasm npm package.",
+  "path": "xxhash_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "xxhash_wasm.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "tags": [
+    "bulk-memory",
+    "hashing",
+    "npm",
+    "real-world",
+    "streaming",
+    "xxhash"
+  ],
+  "exports": [
+    {
+      "name": "mem",
+      "kind": "memory",
+      "type": "(memory 1)"
+    },
+    {
+      "name": "xxh32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "init32",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "update32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "digest32",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "xxh64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i64))"
+    },
+    {
+      "name": "init64",
+      "kind": "function",
+      "type": "(func (param i32 i64))"
+    },
+    {
+      "name": "update64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "digest64",
+      "kind": "function",
+      "type": "(func (param i32) (result i64))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compute one-shot xxHash32 and xxHash64 digests",
+      "notes": "Writes bytes directly into exported memory and calls the raw one-shot `xxh32` and `xxh64` exports with zero and non-zero seeds.",
+      "steps": [
+        {
+          "type": "memory.write",
+          "description": "write input message",
+          "memory": "mem",
+          "offset": 1024,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash with xxHash32 and seed 0",
+          "function": "xxh32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "43"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-396450594"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash with xxHash32 and a non-zero seed",
+          "function": "xxh32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "43"
+            },
+            {
+              "type": "i32",
+              "value": "305419896"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2056082719"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash with xxHash64 and seed 0",
+          "function": "xxh64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "43"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "802816344064684476"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash with xxHash64 and a non-zero seed",
+          "function": "xxh64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "43"
+            },
+            {
+              "type": "i64",
+              "value": "1311768467463790320"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "1044474676851192592"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "empty xxHash32 uses the canonical seed-zero value",
+          "function": "xxh32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4096"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "46947589"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "empty xxHash64 uses the canonical seed-zero value",
+          "function": "xxh64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4096"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "-1205034819632174695"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "stream chunks through xxHash32 and xxHash64 state",
+      "notes": "Exercises the stateful init/update/digest APIs. `update32` and `update64` use `memory.copy`, so this test covers the module's bulk-memory path.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "initialize xxHash32 state at offset 256",
+          "function": "init32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 512,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash32 with first chunk",
+          "function": "update32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "512"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 512,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fox jumps over "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash32 with second chunk",
+          "function": "update32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "512"
+            },
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 512,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "the lazy dog"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash32 with third chunk",
+          "function": "update32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "512"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "digest streaming xxHash32",
+          "function": "digest32",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-396450594"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "initialize xxHash64 state at offset 1024",
+          "function": "init64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 2048,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash64 with first chunk",
+          "function": "update64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "2048"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 2048,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fox jumps over "
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash64 with second chunk",
+          "function": "update64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "2048"
+            },
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.write",
+          "memory": "mem",
+          "offset": 2048,
+          "bytes": {
+            "encoding": "utf8",
+            "value": "the lazy dog"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "update xxHash64 with third chunk",
+          "function": "update64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            },
+            {
+              "type": "i32",
+              "value": "2048"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "digest streaming xxHash64",
+          "function": "digest64",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "802816344064684476"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "dbefcd22817098a01268a6d261458ddd7274515ff6909efdfadbb55a9b0dcc3b",
+  "source": {
+    "contributor": "human",
+    "language": "wat",
+    "path": "workerd/xxhash.wasm",
+    "url": "https://www.npmjs.com/package/xxhash-wasm/v/1.1.0",
+    "description": "The WebAssembly binary from xxhash-wasm 1.1.0, a package exposing one-shot and streaming xxHash32/xxHash64 APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the raw Workerd-targeted WebAssembly binary rather than the JavaScript wrapper. Tests cover one-shot and streaming 32-bit and 64-bit hash APIs. The streaming update functions use `memory.copy`, which is why the classifier reports the bulk-memory feature."
+}

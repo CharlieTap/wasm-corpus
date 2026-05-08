@@ -1,0 +1,735 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "zstd_wasm",
+  "description": "Zstandard compression/decompression module from the @bokuweb/zstd-wasm npm package.",
+  "path": "zstd_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "zstd_wasm.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "compression",
+    "decompression",
+    "emscripten",
+    "npm",
+    "real-world",
+    "zstandard",
+    "zstd"
+  ],
+  "imports": [
+    {
+      "module": "a",
+      "name": "a",
+      "kind": "function",
+      "type": "(func (param i32))",
+      "stub": {
+        "trap": "unexpected Zstd abort"
+      },
+      "description": "Minified Emscripten abort import."
+    },
+    {
+      "module": "a",
+      "name": "b",
+      "kind": "function",
+      "type": "(func)",
+      "stub": {
+        "notes": "Emscripten runtime keepalive callback; no observable behavior is needed for these direct calls."
+      },
+      "description": "Minified Emscripten runtime keepalive-clear import."
+    },
+    {
+      "module": "a",
+      "name": "c",
+      "kind": "function",
+      "type": "(func)",
+      "stub": {
+        "trap": "unexpected Zstd proc_exit"
+      },
+      "description": "Minified Emscripten proc_exit import."
+    },
+    {
+      "module": "a",
+      "name": "d",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Emscripten setitimer callback. The fixture does not rely on timers."
+      },
+      "description": "Minified Emscripten setitimer import."
+    },
+    {
+      "module": "a",
+      "name": "e",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Emscripten resize-heap callback. The module starts with enough memory for the fixture inputs."
+      },
+      "description": "Minified Emscripten heap-growth import."
+    }
+  ],
+  "exports": [
+    {
+      "name": "f",
+      "kind": "memory",
+      "type": "(memory 258 32768)"
+    },
+    {
+      "name": "g",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "h",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "i",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "j",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "k",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "l",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "m",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "n",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "o",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "p",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "q",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "r",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "s",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "t",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "u",
+      "kind": "table",
+      "type": "(table 62 62 funcref)"
+    },
+    {
+      "name": "v",
+      "kind": "function",
+      "type": "(func (param i32 f64))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated payload",
+      "notes": "Uses the raw minified exports from the package's Emscripten glue: `g` is constructors, `i` is `ZSTD_compressBound`, `m` is `ZSTD_compress`, `p` is `ZSTD_getFrameContentSize`, `r` is `ZSTD_decompress`, `s` is `malloc`, and `h` is `ZSTD_isError`.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run static constructors",
+          "function": "g",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input payload",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "f",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Zstandard wasm fixture: repeated repeated repeated text with enough words to compress usefully."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "calculate compression bound",
+          "function": "i",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "bound"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate compression output",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "var": "bound"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress at level 3",
+          "function": "m",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "bound"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "95"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_len"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "compressed result is not an error",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic Zstd frame",
+          "memory": "f",
+          "offset": {
+            "var": "compressed"
+          },
+          "length": {
+            "var": "compressed_len"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "28b52ffd205f350200c2840f14a0a56d48446eb5507aa34fc90facea37aeefbfd78042292b9eebcc233237f0a9d3f0920761efdc4349b20e57bbd6d1d181e3ea40844d56b261d9294d41010060529e"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "read declared frame content size",
+          "function": "p",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate decompression output",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress the frame",
+          "function": "r",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "95"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload",
+          "memory": "f",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "Zstandard wasm fixture: repeated repeated repeated text with enough words to compress usefully."
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate too-small output buffer",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "small_output"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompression into too-small buffer fails",
+          "function": "r",
+          "params": [
+            {
+              "type": "i32",
+              "var": "small_output"
+            },
+            {
+              "type": "i32",
+              "value": "10"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "small_error"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "small-buffer result is an error",
+          "function": "h",
+          "params": [
+            {
+              "type": "i32",
+              "var": "small_error"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "compress and decompress with an explicit dictionary",
+      "notes": "Exercises context allocation and dictionary APIs: `j`/`k` are CCtx create/free, `l` is `ZSTD_compress_usingDict`, `n`/`o` are DCtx create/free, and `q` is `ZSTD_decompress_usingDict`.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input payload",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "f",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Zstandard wasm fixture: repeated repeated repeated text with enough words to compress usefully."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate dictionary",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "36"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "dict"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "f",
+          "offset": {
+            "var": "dict"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "repeated text wasm fixture Zstandard"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "calculate compression bound",
+          "function": "i",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "bound"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate dictionary-compressed output",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "var": "bound"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "create compression context",
+          "function": "j",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "cctx"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress using dictionary at level 5",
+          "function": "l",
+          "params": [
+            {
+              "type": "i32",
+              "var": "cctx"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "bound"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "95"
+            },
+            {
+              "type": "i32",
+              "var": "dict"
+            },
+            {
+              "type": "i32",
+              "value": "36"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_len"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic dictionary-compressed frame",
+          "memory": "f",
+          "offset": {
+            "var": "compressed"
+          },
+          "length": {
+            "var": "compressed_len"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "28b52ffd205f05020014035a7374616e646172643a2069746820656e6f75676820776f72647320746f20636f6d70726573732075736566756c6c792e0400511880c583af0a3c0e7504"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "create decompression context",
+          "function": "n",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "dctx"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate decompression output",
+          "function": "s",
+          "params": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress with dictionary",
+          "function": "q",
+          "params": [
+            {
+              "type": "i32",
+              "var": "dctx"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "95"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            },
+            {
+              "type": "i32",
+              "var": "dict"
+            },
+            {
+              "type": "i32",
+              "value": "36"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "95"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert dictionary-decompressed payload",
+          "memory": "f",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "Zstandard wasm fixture: repeated repeated repeated text with enough words to compress usefully."
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "346a82797b02cf92031a7426ed3054d5d853292b4a6c520241189b926d26b177",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "dist/common/zstd.wasm",
+    "url": "https://www.npmjs.com/package/@bokuweb/zstd-wasm/v/0.0.27",
+    "description": "The Emscripten-built WebAssembly binary from @bokuweb/zstd-wasm 0.0.27, exposing Zstandard compression and decompression APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The published Emscripten binary minifies its exports. In the JavaScript glue, `f` is memory, `g` is `__wasm_call_ctors`, `h` is `ZSTD_isError`, `i` is `ZSTD_compressBound`, `j`/`k` create/free compression contexts, `l` is `ZSTD_compress_usingDict`, `m` is `ZSTD_compress`, `n`/`o` create/free decompression contexts, `p` is `ZSTD_getFrameContentSize`, `q` is `ZSTD_decompress_usingDict`, `r` is `ZSTD_decompress`, and `s`/`t` are malloc/free. Tests drive raw exports directly, including normal compression, dictionary compression, decompression, and an error-classification path."
+}
