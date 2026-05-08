@@ -1,0 +1,272 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jsquash_hqx",
+  "description": "HQX pixel-art scaling module from the @jsquash/resize npm package.",
+  "path": "jsquash_hqx.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jsquash_hqx.wat"
+  },
+  "features": [],
+  "tags": [
+    "hqx",
+    "image",
+    "npm",
+    "real-world",
+    "resize",
+    "scaling"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "resize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "scale a 2x2 RGBA image by 2 with HQX",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate four input pixels",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run 2x HQX scaling",
+          "function": "resize",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "capture output pointer",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "output_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert output pixel count",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "16"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert 4x4 scaled pixels",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ff0000ffff0000ff00ff00ff00ff00ffff0000ffff0000ff00ff00ff00ff00ff0000ffff0000ffffffffffffffffffff0000ffff0000ffffffffffffffffffff"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "scale a 2x2 RGBA image by 3 with HQX",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "resize",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "output_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "36"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert 6x6 scaled pixels",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ff0000ffff0000ffff0000ff00ff00ff00ff00ff00ff00ffff0000ffff0000ffff0000ff00ff00ff00ff00ff00ff00ffff0000ffff0000ffff0000ff00ff00ff00ff00ff00ff00ff0000ffff0000ffff0000ffffffffffffffffffffffffffff0000ffff0000ffff0000ffffffffffffffffffffffffffff0000ffff0000ffff0000ffffffffffffffffffffffffffff"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "a07017805d6bee763015ebdfe2ae16f7b9846bc14551d01e0a558deedbefe9ce",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "lib/hqx/pkg/squooshhqx_bg.wasm",
+    "url": "https://www.npmjs.com/package/@jsquash/resize/v/2.1.1",
+    "description": "The HQX scaler WebAssembly binary distributed in @jsquash/resize 2.1.1."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The raw wasm-bindgen export accepts a Uint32 pixel buffer, image dimensions, and an integer HQX scale factor, then writes a pointer/length pair at the supplied return pointer."
+}

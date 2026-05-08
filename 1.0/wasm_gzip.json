@@ -1,0 +1,355 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wasm_gzip",
+  "description": "Gzip compression and decompression module from the wasm-gzip npm package.",
+  "path": "wasm_gzip.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wasm_gzip.wat"
+  },
+  "features": [],
+  "tags": [
+    "compression",
+    "decompression",
+    "gzip",
+    "npm",
+    "real-world"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "buffer",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "error_message",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "error_message_len",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "malloc_u8",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free_u8",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "deallocate_buffer",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "gzip_compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "gzip_decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__data_end",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "__heap_base",
+      "kind": "global",
+      "type": "(global i32)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated UTF-8 payload",
+      "notes": "`gzip_compress` and `gzip_decompress` return the output length and expose the output pointer through the `buffer` export.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input bytes",
+          "function": "malloc_u8",
+          "params": [
+            {
+              "type": "i32",
+              "value": "77"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "gzip-compress the payload",
+          "function": "gzip_compress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "77"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "76"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "capture compressed output pointer",
+          "function": "buffer",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic gzip bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "1f8b080000000000000375ca590180201005c02a2f01692cb02a221e2cf7951e0af03db3dd122ee9e3c5eeb9185c5cf1a4df0670961e71f247bde16425b0cea4481b3100782090f24d000000"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate compressed bytes for decompression",
+          "function": "malloc_u8",
+          "params": [
+            {
+              "type": "i32",
+              "value": "76"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_copy"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "copy compressed gzip bytes into a normal input allocation",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_copy"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "1f8b080000000000000375ca590180201005c02a2f01692cb02a221e2cf7951e0af03db3dd122ee9e3c5eeb9185c5cf1a4df0670961e71f247bde16425b0cea4481b3100782090f24d000000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "gzip-decompress the copied compressed buffer",
+          "function": "gzip_decompress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed_copy"
+            },
+            {
+              "type": "i32",
+              "value": "76"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "77"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "capture decompressed output pointer",
+          "function": "buffer",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decompressed_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload",
+          "memory": "memory",
+          "offset": {
+            "var": "decompressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps again."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reject a non-gzip header",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate invalid input bytes",
+          "function": "malloc_u8",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "bad_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "bad_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "01020304"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "invalid input returns -1",
+          "function": "gzip_decompress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "bad_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "capture error message pointer",
+          "function": "error_message",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "error_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "assert error message length",
+          "function": "error_message_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert error message text",
+          "memory": "memory",
+          "offset": {
+            "var": "error_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "invalid header"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "926de3d241d9e47511bb995cc9e11c27b88437eb97411ef240287b80c57326a2",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "wasm_gzip.wasm",
+    "url": "https://www.npmjs.com/package/wasm-gzip/v/2.1.0",
+    "description": "The WebAssembly gzip codec binary distributed in wasm-gzip 2.1.0."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture calls the package's raw allocation, compression, decompression, and error-message exports directly without JavaScript glue."
+}
