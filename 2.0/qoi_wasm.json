@@ -1,0 +1,215 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "qoi_wasm",
+  "description": "Quite OK Image (QOI) decoder from the qoi-wasm npm package, authored directly in WebAssembly Text Format.",
+  "path": "qoi_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "qoi_wasm.wat"
+  },
+  "features": [
+    "multi-value",
+    "mutable-globals"
+  ],
+  "tags": [
+    "decoder",
+    "image",
+    "imported-memory",
+    "multi-value",
+    "npm",
+    "qoi",
+    "real-world",
+    "wat"
+  ],
+  "imports": [
+    {
+      "module": "m",
+      "name": "m",
+      "kind": "memory",
+      "type": "(memory 1)",
+      "description": "Imported memory containing the QOI input at offset 0 and receiving decoded pixels after the decoder grows memory."
+    }
+  ],
+  "exports": [
+    {
+      "name": "d",
+      "kind": "function",
+      "type": "(func (result i32 i32 i32 i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "decode a 2x2 RGB image with explicit RGB chunks",
+      "notes": "Writes a complete QOI stream into the imported memory, invokes the decoder, and asserts the multi-value header result plus the decoded RGB pixels.",
+      "steps": [
+        {
+          "type": "memory.write",
+          "description": "write QOI image bytes",
+          "memory": "m.m",
+          "offset": 0,
+          "bytes": {
+            "encoding": "hex",
+            "value": "716f696600000002000000020300feff0000fe00ff00fe0000fffeffffff0000000000000001"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode QOI stream",
+          "function": "d",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "capture": "pixels"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decoded RGB pixels",
+          "memory": "m.m",
+          "offset": {
+            "var": "pixels"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ff000000ff000000ffffffff"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "decode a run-length encoded QOI image",
+      "notes": "Exercises the QOI_OP_RUN branch by encoding one red pixel followed by two repeated pixels.",
+      "steps": [
+        {
+          "type": "memory.write",
+          "memory": "m.m",
+          "offset": 0,
+          "bytes": {
+            "encoding": "hex",
+            "value": "716f696600000003000000010300feff0000c10000000000000001"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode run-length encoded stream",
+          "function": "d",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "capture": "pixels"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert repeated RGB pixels",
+          "memory": "m.m",
+          "offset": {
+            "var": "pixels"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ff0000ff0000ff0000"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reject an invalid QOI magic header",
+      "steps": [
+        {
+          "type": "memory.write",
+          "memory": "m.m",
+          "offset": 0,
+          "bytes": {
+            "encoding": "hex",
+            "value": "62616421000000010000000103000000000000000001"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "invalid magic returns an empty result tuple",
+          "function": "d",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "4f4218920555423817e0e2f1f678397cda42a634d1f679be9ec6be4c37b5c7ea",
+  "source": {
+    "contributor": "human",
+    "language": "wat",
+    "path": "dist/qoi.wasm",
+    "url": "https://www.npmjs.com/package/qoi-wasm/v/2.0.0",
+    "description": "The QOI decoder WebAssembly binary from qoi-wasm 2.0.0, a hand-written WAT implementation that decodes QOI image data from imported memory."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The module imports memory as `m.m`, expects a complete QOI stream at offset 0, grows memory for decoded pixels, and returns width, height, channels, colorspace, and decoded-pixel offset as a multi-value result from export `d`."
+}
