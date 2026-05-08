@@ -1,0 +1,307 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jsquash_oxipng",
+  "description": "PNG optimization module from the @jsquash/oxipng npm package.",
+  "path": "jsquash_oxipng.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jsquash_oxipng.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "compression",
+    "image",
+    "npm",
+    "oxipng",
+    "png",
+    "real-world",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "wbg",
+      "name": "__wbindgen_throw",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected OxiPNG wasm-bindgen throw"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "optimise",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "optimise_raw",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "encode raw RGBA pixels as optimized PNG at level 2",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate raw RGBA pixels",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run OxiPNG raw optimizer",
+          "function": "optimise_raw",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "png_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "79"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert optimized PNG bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "png_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "89504e470d0a1a0a0000000d4948445200000002000000020802000000fdd49a73000000164944415478da63fccfc0c0f89f819181e1ffffff0c001f0e04ffc0b5994d0000000049454e44ae426082"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "encode raw RGBA pixels with a higher optimization level and alpha optimization",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "optimise_raw",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "png_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "76"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert higher-level optimized PNG bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "png_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "89504e470d0a1a0a0000000d4948445200000002000000020802000000fdd49a73000000134944415478da63f8cfc0c000c440e2ffffff001fee05fb3b8be3ca0000000049454e44ae426082"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "069eb158e30a29c783064da8212ddaed6441bae38724819d2986348d1585a510",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "codec/pkg/squoosh_oxipng_bg.wasm",
+    "url": "https://www.npmjs.com/package/@jsquash/oxipng/v/2.3.0",
+    "description": "The single-threaded OxiPNG WebAssembly binary distributed in @jsquash/oxipng 2.3.0."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses `optimise_raw`, which accepts RGBA pixels directly and returns an encoded PNG pointer/length pair."
+}

@@ -1,0 +1,282 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jsquash_png",
+  "description": "PNG encoder module from the @jsquash/png npm package.",
+  "path": "jsquash_png.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jsquash_png.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "encoder",
+    "image",
+    "npm",
+    "png",
+    "real-world",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "wbg",
+      "name": "__wbindgen_memory",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only the raw PNG encoder path is exercised; JavaScript ImageData helpers are not expected."
+      }
+    },
+    {
+      "module": "wbg",
+      "name": "__wbg_buffer_a448f833075b71ba",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only needed by decode/ImageData helpers, which these tests do not call."
+      }
+    },
+    {
+      "module": "wbg",
+      "name": "__wbg_newwithbyteoffsetandlength_099217381c451830",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only needed by decode/ImageData helpers, which these tests do not call."
+      }
+    },
+    {
+      "module": "wbg",
+      "name": "__wbindgen_object_drop_ref",
+      "kind": "function",
+      "type": "(func (param i32))",
+      "stub": {
+        "notes": "No-op object-drop hook for unused JavaScript heap objects."
+      }
+    },
+    {
+      "module": "wbg",
+      "name": "__wbg_newwithownedu8clampedarrayandsh_91db5987993a08fb",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Only needed by decode/ImageData helpers, which these tests do not call."
+      }
+    },
+    {
+      "module": "wbg",
+      "name": "__wbindgen_throw",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected PNG wasm-bindgen throw"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "__wbg_imagedatargba16_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "imagedatargba16_width",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "imagedatargba16_height",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "imagedatargba16_data",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "encode",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "decode",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "decode_rgba16",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "encode a 2x2 RGBA image as PNG",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate RGBA input",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode RGBA8 pixels",
+          "function": "encode",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "png_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert PNG byte length",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "86"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic PNG output",
+          "memory": "memory",
+          "offset": {
+            "var": "png_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "89504e470d0a1a0a0000000d494844520000000200000002080600000072b60d240000001d494441547801011200edff00ff0000ff00ff00ff000000ffffffffffff49c809f7adab561b0000000049454e44ae426082"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "b54735d257e6c203863a26a6e20d46f4e90acc58ac2233f770cedf1a7063b3f3",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "codec/pkg/squoosh_png_bg.wasm",
+    "url": "https://www.npmjs.com/package/@jsquash/png/v/3.1.1",
+    "description": "The PNG codec WebAssembly binary distributed in @jsquash/png 3.1.1."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture calls the raw PNG encode export. Decode-oriented JavaScript ImageData imports are stubbed because they are not needed for this encoder path."
+}

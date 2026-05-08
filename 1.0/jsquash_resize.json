@@ -1,0 +1,302 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jsquash_resize",
+  "description": "General-purpose RGBA image resampling module from the @jsquash/resize npm package.",
+  "path": "jsquash_resize.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jsquash_resize.wat"
+  },
+  "features": [],
+  "tags": [
+    "image",
+    "npm",
+    "real-world",
+    "resampling",
+    "resize"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "resize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "downsample a 2x2 RGBA image to 1x1 with triangle filtering",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input RGBA bytes",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "resize with method index 0, triangle",
+          "function": "resize",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "output_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "4"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert averaged output pixel",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "bbbbbbff"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "resize a 2x2 RGBA image to a 3x1 strip with Lanczos3 filtering",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "ff0000ff00ff00ff0000ffffffffffff"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "resize with method index 3, Lanczos3",
+          "function": "resize",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "output_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "12"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert resampled strip",
+          "memory": "memory",
+          "offset": {
+            "var": "output_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "bb00bbffbbbbbbffbbffbbff"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "e079b343f64b20a12d90e94290f0c351db7a4ef9ec002d9d37390bff7a177cd9",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "lib/resize/pkg/squoosh_resize_bg.wasm",
+    "url": "https://www.npmjs.com/package/@jsquash/resize/v/2.1.1",
+    "description": "The core image-resize WebAssembly binary distributed in @jsquash/resize 2.1.1."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture drives the raw wasm-bindgen resize export directly. Method indexes match the package wrapper: 0 is triangle and 3 is Lanczos3."
+}
