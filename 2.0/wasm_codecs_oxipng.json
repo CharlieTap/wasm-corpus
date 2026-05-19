@@ -1,0 +1,179 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wasm_codecs_oxipng",
+  "description": "PNG optimizer from the @wasm-codecs/oxipng npm package.",
+  "path": "wasm_codecs_oxipng.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wasm_codecs_oxipng.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "compression",
+    "image",
+    "npm",
+    "oxipng",
+    "png",
+    "real-world",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_throw",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected OxiPNG wasm-bindgen throw"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "encode",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "optimize an uncompressed 8x8 RGBA PNG",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate the input PNG buffer",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "332"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "description": "write a valid but deliberately uncompressed PNG",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "89504e470d0a1a0a0000000d4948445200000008000000080806000000c40fbe8b00000113494441547801010801f7fe00000000ff200010ff400020ff600030ff800040ffa00050ffc00060ffe00070ff00002010ff202000ff402030ff602020ff802050ffa02040ffc02070ffe02060ff00004020ff204030ff404000ff604010ff804060ffa04070ffc04040ffe04050ff00006030ff206020ff406010ff606000ff806070ffa06060ffc06050ffe06040ff00008040ff208050ff408060ff608070ff808000ffa08010ffc08020ffe08030ff0000a050ff20a040ff40a070ff60a060ff80a010ffa0a000ffc0a030ffe0a020ff0000c060ff20c070ff40c040ff60c050ff80c020ffa0c030ffc0c000ffe0c010ff0000e070ff20e060ff40e050ff60e040ff80e030ffa0e020ffc0e010ffe0e000ffbb0a85c10053018a0000000049454e44ae426082"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run OxiPNG at optimization level 2",
+          "function": "encode",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "332"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "capture the returned output pointer",
+          "memory": "memory",
+          "offset": 8,
+          "capture": {
+            "type": "i32",
+            "capture": "png_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the optimized output length",
+          "memory": "memory",
+          "offset": 12,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "114"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the optimized PNG bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "png_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "89504e470d0a1a0a0000000d49484452000000080000000808020000004b6d29dc000000394944415478da63646060506010c0442c0c0a020c0c1f181814d04890049875818141808101ce46e84023113a04c0680294816187000576000096e817ee8f219ff60000000049454e44ae426082"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "648d992b2cd78979f42b14a65bea9dacc3c3166f660eabde60075e4b3380691b",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "lib/oxipng_bg.wasm",
+    "url": "https://www.npmjs.com/package/@wasm-codecs/oxipng/v/1.0.1",
+    "description": "The OxiPNG WebAssembly binary distributed in @wasm-codecs/oxipng 1.0.1."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture calls the raw wasm-bindgen ABI directly: allocate input bytes, invoke encode with a stack return pointer, then assert the returned PNG pointer/length pair."
+}
