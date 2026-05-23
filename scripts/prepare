@@ -429,11 +429,16 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     runRequired("wasm-as", [candidateWat, ...binaryenArgs, "-o", roundtrip]);
     runRequired("wasm-opt", [roundtrip, ...binaryenArgs, "-O1", "-o", checked]);
 
-    if (fs.readFileSync(candidate).equals(fs.readFileSync(checked))) {
-      runRequired("wasm-tools", ["print", candidate, "-o", readableWat]);
+    let prepared = candidate;
+    if (fs.readFileSync(checked).equals(fs.readFileSync(current))) {
+      prepared = current;
+    }
+
+    if (prepared === current || fs.readFileSync(candidate).equals(fs.readFileSync(checked))) {
+      runRequired("wasm-tools", ["print", prepared, "-o", readableWat]);
       const watSize = fs.statSync(readableWat).size;
       if (watSize > maxWatDisassemblyBytes) {
-        fs.copyFileSync(candidate, output);
+        fs.copyFileSync(prepared, output);
         fs.rmSync(outputWat, { force: true });
         return {
           status: "too_large_for_corpus",
@@ -442,7 +447,7 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
           tool: "wasm-tools print",
         };
       }
-      fs.copyFileSync(candidate, output);
+      fs.copyFileSync(prepared, output);
       fs.copyFileSync(readableWat, outputWat);
       return {
         status: "present",

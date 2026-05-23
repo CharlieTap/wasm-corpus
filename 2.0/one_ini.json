@@ -1,0 +1,316 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "one_ini",
+  "description": "EditorConfig/INI parser from the @one-ini/wasm npm package.",
+  "path": "one_ini.wasm",
+  "wat": {
+    "status": "present",
+    "path": "one_ini.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "editorconfig",
+    "ini",
+    "npm",
+    "parser",
+    "real-world",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_set_7bf9e2df46e7632c",
+      "kind": "function",
+      "type": "(func (param externref i32 externref))",
+      "stub": {
+        "notes": "Only needed by the JSON-object helper path; token-array parsing does not require JS object mutation."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_set_6be42768c690e380",
+      "kind": "function",
+      "type": "(func (param externref externref externref))",
+      "stub": {
+        "notes": "Only needed by the JSON-object helper path; token-array parsing does not require JS object mutation."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_new_66075f8c2ea6575e",
+      "kind": "function",
+      "type": "(func (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only needed by parse_to_json; the tests exercise parse_to_uint32array."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_new_62f131e968c83d75",
+      "kind": "function",
+      "type": "(func (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only needed by parse_to_json; the tests exercise parse_to_uint32array."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_fromCodePoint_e00c387b1e85dfa6",
+      "kind": "function",
+      "type": "(func (param i32) (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only used when constructing JS strings on error paths."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg___wbindgen_throw_df03e93053e0f4bc",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected one-ini wasm-bindgen throw"
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg_Error_ecbf49c1b9d07c30",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only used when constructing JS Error objects."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbg___wbindgen_debug_string_43c7ccb034739216",
+      "kind": "function",
+      "type": "(func (param i32 externref))",
+      "stub": {
+        "notes": "Only used for debug-string conversion on error paths."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbindgen_init_externref_table",
+      "kind": "function",
+      "type": "(func)",
+      "stub": {
+        "notes": "No JS externrefs are needed for the successful token-array parser path."
+      }
+    },
+    {
+      "module": "./one_ini_bg.js",
+      "name": "__wbindgen_cast_0000000000000001",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only used when converting error strings to JS externrefs."
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "parse_to_json",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result externref))"
+    },
+    {
+      "name": "parse_to_uint32array",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "version",
+      "kind": "function",
+      "type": "(func (result i32 i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_exn_store",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__externref_table_alloc",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "__wbindgen_externrefs",
+      "kind": "table",
+      "type": "(table 1024 externref)"
+    },
+    {
+      "name": "__externref_table_dealloc",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "tokenize keys, values, section headers, and comments",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_start",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate INI source",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "61"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "726f6f74203d207965730a5b73656374696f6e5d0a6b6579203d2076616c75650a3b20636f6d6d656e740a6c6973745b5d3d610a6c6973745b5d3d620a"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse to token span array",
+          "function": "parse_to_uint32array",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "61"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "tokens_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "33"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert token triples as little-endian u32 values",
+          "memory": "memory",
+          "offset": {
+            "var": "tokens_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00000000000000000400000001000000070000000a000000020000000c00000013000000000000001500000018000000010000001b0000002000000003000000210000002200000004000000220000002a000000000000002b0000003100000001000000320000003300000000000000340000003a000000010000003b0000003c000000"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "2f85419871e36c524bd5429d054fae2b7c0602b6129e568291f21c4cd27f7009",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "one_ini_bg.wasm",
+    "url": "https://www.npmjs.com/package/@one-ini/wasm/v/0.2.1",
+    "description": "The WebAssembly parser binary distributed in @one-ini/wasm 0.2.1."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the numeric token-array export rather than the JS object-building helper so it remains runtime agnostic while still exercising the parser."
+}

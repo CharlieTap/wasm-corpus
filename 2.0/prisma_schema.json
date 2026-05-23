@@ -1,0 +1,378 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "prisma_schema",
+  "description": "Prisma schema formatter and language-service helpers from the @prisma/prisma-schema-wasm npm package.",
+  "path": "prisma_schema.wasm",
+  "wat": {
+    "status": "present",
+    "path": "prisma_schema.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "formatter",
+    "language-service",
+    "npm",
+    "parser",
+    "prisma",
+    "real-world",
+    "schema",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg_set_message_f22ac4a6869ee695",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "notes": "Panic-message side channel. Successful formatter/metadata calls do not use it."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg_Error_e83987f665cf5504",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only used to construct JS Error objects on error paths."
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbg___wbindgen_throw_b855445ff6a94295",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "trap": "unexpected Prisma schema wasm-bindgen throw"
+      }
+    },
+    {
+      "module": "__wbindgen_placeholder__",
+      "name": "__wbindgen_init_externref_table",
+      "kind": "function",
+      "type": "(func)",
+      "stub": {
+        "notes": "No JS externrefs are needed for the successful formatter/metadata paths."
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 26)"
+    },
+    {
+      "name": "__wbg_dmmfbuffer_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "code_actions",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "debug_panic",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "dmmfbuffer_is_empty",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "dmmfbuffer_len",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "dmmfbuffer_read_chunk",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "format",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "get_config",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "get_datamodel",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "get_dmmf",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "get_dmmf_buffered",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32 i32))"
+    },
+    {
+      "name": "hover",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "lint",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "merge_schemas",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "native_types",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "preview_features",
+      "kind": "function",
+      "type": "(func (result i32 i32))"
+    },
+    {
+      "name": "references",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "referential_actions",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "text_document_completion",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "validate",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32 i32))"
+    },
+    {
+      "name": "__wbindgen_externrefs",
+      "kind": "table",
+      "type": "(table 128 externref)"
+    },
+    {
+      "name": "__externref_table_dealloc",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "format a SQLite Prisma schema and list supported preview features",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_start",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate Prisma schema input",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "209"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "schema_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "schema_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "64617461736f75726365206462207b0a202070726f7669646572203d202273716c697465220a202075726c203d202266696c653a6465762e6462220a7d0a0a67656e657261746f7220636c69656e74207b0a202070726f7669646572203d2022707269736d612d636c69656e742d6a73220a7d0a0a6d6f64656c2055736572207b0a2020696420496e7420406964204064656661756c74286175746f696e6372656d656e742829290a2020656d61696c20537472696e672040756e697175650a20206e616d6520537472696e673f0a7d0a"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate formatter params",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "params_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "params_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "7b7d"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run the Prisma formatter",
+          "function": "format",
+          "params": [
+            {
+              "type": "i32",
+              "var": "schema_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "209"
+            },
+            {
+              "type": "i32",
+              "var": "params_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "formatted_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "209"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert formatted schema bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "formatted_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "64617461736f75726365206462207b0a202070726f7669646572203d202273716c697465220a202075726c203d202266696c653a6465762e6462220a7d0a0a67656e657261746f7220636c69656e74207b0a202070726f7669646572203d2022707269736d612d636c69656e742d6a73220a7d0a0a6d6f64656c2055736572207b0a2020696420496e7420406964204064656661756c74286175746f696e6372656d656e742829290a2020656d61696c20537472696e672040756e697175650a20206e616d6520537472696e673f0a7d0a"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "query the compiled preview-feature registry",
+          "function": "preview_features",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "features_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "147"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert preview-feature list",
+          "memory": "memory",
+          "offset": {
+            "var": "features_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "5b226e617469766544697374696e6374222c227061727469616c496e6465786573222c22706f737467726573716c457874656e73696f6e73222c2272656c6174696f6e4a6f696e73222c22736368656d61456e67696e654472697665724164617074657273222c2273686172644b657973222c22737472696374556e646566696e6564436865636b73222c227669657773225d"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "1e5d1ce1ef351904522198f22af57c6ec1d4adcc03e9fd51dd2d340e1d7152ac",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "src/prisma_schema_build_bg.wasm",
+    "url": "https://www.npmjs.com/package/@prisma/prisma-schema-wasm/v/7.8.0-6.3c6e192761c0362d496ed980de936e2f3cebcd3a",
+    "description": "The WebAssembly binary distributed in @prisma/prisma-schema-wasm 7.8.0 prerelease build 6.3c6e192761c0362d496ed980de936e2f3cebcd3a."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture calls raw wasm-bindgen exports for schema formatting and preview-feature metadata. Error-producing APIs are intentionally avoided because their JS Error externrefs are outside the runtime-agnostic fixture surface."
+}

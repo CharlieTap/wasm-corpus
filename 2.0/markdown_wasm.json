@@ -1,0 +1,208 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "markdown_wasm",
+  "description": "Markdown parser and HTML renderer from the markdown-wasm npm package.",
+  "path": "markdown_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "markdown_wasm.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "html",
+    "markdown",
+    "npm",
+    "parser",
+    "real-world"
+  ],
+  "imports": [
+    {
+      "module": "a",
+      "name": "a",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Heap-growth callback. The fixture input fits in the module's initial memory."
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "b",
+      "kind": "memory",
+      "type": "(memory 256 32768)"
+    },
+    {
+      "name": "c",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "d",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "e",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "f",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "g",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "h",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "i",
+      "kind": "table",
+      "type": "(table 8 funcref)"
+    },
+    {
+      "name": "j",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "render headings, task-list items, code spans, and strong text to HTML",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "initialize the parser runtime",
+          "function": "c",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate UTF-8 markdown input",
+          "function": "d",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "49"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "b",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "23205469746c650a0a2d205b785d207461736b0a2d20706c61696e0a0a60636f64656020616e64202a2a626f6c642a2a0a"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse and render markdown with GitHub-flavoured options",
+          "function": "j",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "49"
+            },
+            {
+              "type": "i32",
+              "value": "2823"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "225"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "capture rendered HTML pointer",
+          "memory": "b",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "html_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert rendered HTML bytes",
+          "memory": "b",
+          "offset": {
+            "var": "html_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "3c68313e3c612069643d227469746c652220636c6173733d22616e63686f722220617269612d68696464656e3d22747275652220687265663d22237469746c65223e3c2f613e5469746c653c2f68313e0a3c756c3e0a3c6c6920636c6173733d227461736b2d6c6973742d6974656d223e3c696e70757420747970653d22636865636b626f78222064697361626c656420636865636b65643e7461736b3c2f6c693e0a3c6c693e706c61696e3c2f6c693e0a3c2f756c3e0a3c703e3c636f64653e636f64653c2f636f64653e20616e64203c623e626f6c643c2f623e3c2f703e0a"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "10ac7384536f764ffdd92810988e159e0a3a60212e6f8d177d73a8a1e6d588cf",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "dist/markdown.wasm",
+    "url": "https://www.npmjs.com/package/markdown-wasm/v/1.2.0",
+    "description": "The WebAssembly binary distributed in markdown-wasm 1.2.0."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture drives the raw markdown-wasm ABI directly: allocate UTF-8 input, call the parser/render export, and assert the generated HTML bytes."
+}

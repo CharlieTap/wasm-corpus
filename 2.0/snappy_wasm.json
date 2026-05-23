@@ -1,0 +1,272 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "snappy_wasm",
+  "description": "Snappy compression and decompression module from the snappy-wasm npm package.",
+  "path": "snappy_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "snappy_wasm.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "compression",
+    "decompression",
+    "npm",
+    "real-world",
+    "snappy",
+    "wasm-bindgen"
+  ],
+  "imports": [
+    {
+      "module": "wbg",
+      "name": "__wbindgen_error_new",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "trap": "unexpected Snappy wasm-bindgen error"
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "compress_raw",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "decompress_raw",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_add_to_stack_pointer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated literal-heavy payload",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate uncompressed input",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "83"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "736e6170707920736e6170707920736e6170707920646174612077697468206c69746572616c7320616e6420726570656174656420726570656174656420626c6f636b7320626c6f636b7320626c6f636b7321"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress raw bytes",
+          "function": "compress_raw",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048560"
+            },
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "83"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "capture compressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048560,
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert compressed length",
+          "memory": "memory",
+          "offset": 1048564,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "67"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "compression error flag stays clear",
+          "memory": "memory",
+          "offset": 1048572,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic Snappy payload",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "5318736e617070792036070074646174612077697468206c69746572616c7320616e6420726570656174651d0950626c6f636b7320626c6f636b7320626c6f636b7321"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress the raw Snappy payload",
+          "function": "decompress_raw",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1048544"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "67"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "capture decompressed buffer pointer",
+          "memory": "memory",
+          "offset": 1048544,
+          "capture": {
+            "type": "i32",
+            "capture": "decompressed_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed length",
+          "memory": "memory",
+          "offset": 1048548,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "83"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "decompression error flag stays clear",
+          "memory": "memory",
+          "offset": 1048556,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "0"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload matches the input",
+          "memory": "memory",
+          "offset": {
+            "var": "decompressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "736e6170707920736e6170707920736e6170707920646174612077697468206c69746572616c7320616e6420726570656174656420726570656174656420626c6f636b7320626c6f636b7320626c6f636b7321"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "a4053ed5fe05486c776a5aba7b1b32115bc5d66bee5e66cfe9d9fa75922b0c51",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "es/snappy_bg.wasm",
+    "url": "https://www.npmjs.com/package/snappy-wasm/v/0.3.0",
+    "description": "The WebAssembly binary distributed in snappy-wasm 0.3.0."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the raw Snappy exports with explicit return slots, exercising both compression and decompression paths."
+}
