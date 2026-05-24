@@ -113,6 +113,7 @@ Before staging anything for the corpus, answer these questions:
 - Are there easy alternate inputs that exercise different code paths, such as base cases, loop bodies, false branches, trap paths, import stubs, negative/out-of-domain handling, or distinct traversal paths?
 - For pointer-and-length APIs, can tests use exported allocators with `capture` variables, write real bytes into exported memory, and read the result back instead of passing all-zero pointers?
 - If an upstream host wrapper grows exported memory before writing inputs or reading fixed output buffers, can the test model that setup with `memory.grow` rather than avoiding the interesting path?
+- If the module exposes diagnostic or trace output through a simple imported callback, can a bounded import capture assert the emitted prefix instead of checking a superficial marker value?
 - Can textual inputs and outputs be represented with readable `utf8` bytes instead of hex? Use hex or base64 only when the payload is genuinely binary or not reviewable as text.
 - Is the module small enough to review, or is there a strong reason to add a larger real-world binary?
 

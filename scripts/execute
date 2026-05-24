@@ -295,10 +295,21 @@ function normalizeResults(result, expectedCount) {
   return result;
 }
 
-function buildFunctionStub(importEntry) {
+function buildFunctionStub(importEntry, importCaptures) {
   const stub = importEntry.stub || {};
   const expectedArgs = stub.params || stub.args || [];
   const returnValues = stub.returns || [];
+  const capture = stub.capture || null;
+
+  if (capture) {
+    importCaptures.set(capture.name, {
+      text: "",
+      calls: 0,
+      param: capture.param || 0,
+      maxCalls: capture.max_calls || Infinity,
+      importName: `${importEntry.module}.${importEntry.name}`,
+    });
+  }
 
   return (...actualArgs) => {
     if (expectedArgs.length > 0) {
@@ -311,6 +322,18 @@ function buildFunctionStub(importEntry) {
       expectedArgs.forEach((expected, index) => {
         assertActualMatchesValue(actualArgs[index], expected, `import ${importEntry.module}.${importEntry.name} arg ${index}`);
       });
+    }
+
+    if (capture) {
+      const target = importCaptures.get(capture.name);
+      if (target.calls < target.maxCalls) {
+        const value = actualArgs[target.param];
+        if (value == null) {
+          fail(`import ${target.importName}: capture param ${target.param} is missing`);
+        }
+        target.text += String.fromCharCode(Number(value) & 0xffff);
+      }
+      target.calls += 1;
     }
 
     if (stub.trap) {
@@ -360,6 +383,7 @@ function isWasiPreview1Import(importEntry) {
 function buildImports(entry, wasiImport = null) {
   const imports = {};
   const memories = new Map();
+  const importCaptures = new Map();
 
   for (const importEntry of entry.imports || []) {
     imports[importEntry.module] ||= {};
@@ -373,7 +397,7 @@ function buildImports(entry, wasiImport = null) {
           }
           imports[importEntry.module][importEntry.name] = hostFunction;
         } else {
-          imports[importEntry.module][importEntry.name] = buildFunctionStub(importEntry);
+          imports[importEntry.module][importEntry.name] = buildFunctionStub(importEntry, importCaptures);
         }
         break;
       case "global":
@@ -394,7 +418,7 @@ function buildImports(entry, wasiImport = null) {
     }
   }
 
-  return { imports, memories };
+  return { imports, memories, importCaptures };
 }
 
 function usesWasiPreview1(module) {
@@ -452,7 +476,7 @@ async function instantiate(wasmPath, entry, test) {
     });
   }
 
-  const { imports, memories } = buildImports(entry, wasi?.wasiImport);
+  const { imports, memories, importCaptures } = buildImports(entry, wasi?.wasiImport);
   const instance = await WebAssembly.instantiate(module, imports);
   if (wasi) {
     wasi.initialize(wasiInitializationInstance(instance, memories));
@@ -462,6 +486,7 @@ async function instantiate(wasmPath, entry, test) {
     host,
     wasmPath,
     memories,
+    importCaptures,
     wasi,
   };
 }
@@ -492,13 +517,29 @@ function assertCapturedBytes(actual, assertion, context) {
   }
 }
 
-function assertHostEffects(result, assertion, context) {
+function assertImportCaptures(importCaptures, assertions, context) {
+  if (!assertions) return;
+  if (!importCaptures) {
+    fail(`${context}: import captures are only available for direct host import stubs`);
+  }
+
+  for (const assertion of assertions) {
+    const capture = importCaptures.get(assertion.name);
+    if (!capture) {
+      fail(`${context}: missing import capture ${assertion.name}`);
+    }
+    assertCapturedBytes(Buffer.from(capture.text, "utf8"), assertion.bytes, `${context}:import capture ${assertion.name}`);
+  }
+}
+
+function assertHostEffects(result, assertion, context, runtime = null) {
   if (!assertion) return;
   if (Object.hasOwn(assertion, "exit_code") && result.exitCode !== assertion.exit_code) {
     fail(`${context}: expected host exit code ${assertion.exit_code}, got ${result.exitCode}`);
   }
   assertCapturedBytes(result.stdout, assertion.stdout, `${context}:stdout`);
   assertCapturedBytes(result.stderr, assertion.stderr, `${context}:stderr`);
+  assertImportCaptures(runtime?.importCaptures, assertion.import_captures, context);
 }
 
 function hostForChild(host) {
@@ -667,6 +708,7 @@ function executeInvoke(runtime, step, vars, context) {
     const expectedCount = expectedResults.length;
     const actualResults = normalizeResults(result, expectedCount);
     assertResultValues(actualResults, expectedResults, label);
+    assertHostEffects({ exitCode: null, stdout: Buffer.alloc(0), stderr: Buffer.alloc(0) }, step.host_effects, label, runtime);
 
     if (captures.length > 0) {
       expectedResults.forEach((expected, index) => {

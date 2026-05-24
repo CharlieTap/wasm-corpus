@@ -6,7 +6,7 @@
     "status": "present",
     "path": "moonbit_nes.wat"
   },
-  "description": "MoonBit NES emulator fixture loading the upstream nestest ROM, running emulation, handling controller input, and checking framebuffer output.",
+  "description": "MoonBit NES emulator fixture loading the upstream nestest ROM and asserting the emitted ROM parser and CPU trace prefix.",
   "features": [
     "bulk-memory",
     "gc",
@@ -21,7 +21,7 @@
       "module": "nes",
       "name": "write_audio_sample",
       "kind": "function",
-      "type": "(func (param (ref 21)) (result i32))",
+      "type": "(func (param f64))",
       "description": "No-op audio sample sink used while running the emulator.",
       "stub": {}
     },
@@ -29,9 +29,16 @@
       "module": "spectest",
       "name": "print_char",
       "kind": "function",
-      "type": "(func)",
-      "description": "No-op character printer used for diagnostic trace output.",
-      "stub": {}
+      "type": "(func (param i32))",
+      "description": "Character printer used by the nestest diagnostic entrypoint; captured by the test runner to assert trace output.",
+      "stub": {
+        "capture": {
+          "name": "nes_trace_prefix",
+          "param": 0,
+          "encoding": "utf16_code_unit",
+          "max_calls": 600
+        }
+      }
     }
   ],
   "exports": [
@@ -43,12 +50,12 @@
     {
       "name": "buttonUp",
       "kind": "function",
-      "type": "(func (param f64))"
+      "type": "(func (param i32 i32))"
     },
     {
       "name": "buttonDown",
       "kind": "function",
-      "type": "(func (param f64))"
+      "type": "(func (param i32 i32))"
     },
     {
       "name": "run_with_logging",
@@ -58,7 +65,7 @@
     {
       "name": "run",
       "kind": "function",
-      "type": "(func (param (ref 21)) (result i32))"
+      "type": "(func (param f64))"
     },
     {
       "name": "load_rom",
@@ -73,7 +80,7 @@
   ],
   "tests": [
     {
-      "description": "load the nestest ROM and run visible emulator state changes",
+      "description": "run the upstream nestest diagnostic entrypoint and assert its parser and CPU trace prefix",
       "steps": [
         {
           "type": "memory.grow",
@@ -100,97 +107,28 @@
         },
         {
           "type": "function.invoke",
-          "description": "load the NES ROM from exported memory",
-          "function": "load_rom",
+          "description": "run the nestest diagnostic path, which parses the ROM, configures the mapper, and emits CPU instruction trace output",
+          "function": "nestest",
           "params": [
             {
               "type": "i32",
               "value": "24592"
             }
           ],
-          "results": []
-        },
-        {
-          "type": "memory.grow",
-          "description": "grow framebuffer space expected by the browser wrapper",
-          "memory": "moonbit.memory",
-          "pages": 2,
-          "assert": {
-            "type": "value",
-            "value": {
-              "type": "i32",
-              "value": "2"
-            }
-          }
-        },
-        {
-          "type": "function.invoke",
-          "description": "run a short emulation slice",
-          "function": "run",
-          "params": [
-            {
-              "type": "f64",
-              "value": "4562254508917369340"
-            }
-          ],
-          "results": []
-        },
-        {
-          "type": "function.invoke",
-          "description": "press controller button A for player one",
-          "function": "buttonDown",
-          "params": [
-            {
-              "type": "i32",
-              "value": "1"
-            },
-            {
-              "type": "i32",
-              "value": "0"
-            }
-          ],
-          "results": []
-        },
-        {
-          "type": "function.invoke",
-          "description": "run with controller state applied",
-          "function": "run",
-          "params": [
-            {
-              "type": "f64",
-              "value": "4566758108544739836"
-            }
-          ],
-          "results": []
-        },
-        {
-          "type": "function.invoke",
-          "description": "release controller button A for player one",
-          "function": "buttonUp",
-          "params": [
-            {
-              "type": "i32",
-              "value": "1"
-            },
-            {
-              "type": "i32",
-              "value": "0"
-            }
-          ],
-          "results": []
-        },
-        {
-          "type": "memory.read",
-          "description": "check the first framebuffer pixel is opaque black",
-          "memory": "moonbit.memory",
-          "offset": 0,
-          "length": 4,
-          "assert": {
-            "type": "bytes",
-            "bytes": {
-              "encoding": "hex",
-              "value": "000000ff"
-            }
+          "results": [],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "nes_trace_prefix",
+                "bytes": {
+                  "type": "bytes",
+                  "bytes": {
+                    "encoding": "utf8",
+                    "value": "nestest\nmagic: 441664846)\nnumPRG: b'\\x01')\nnumCHR: b'\\x01')\ncontrol1: b'\\x00')\ncontrol2: b'\\x00')\nnumRAM: b'\\x00')\niNESMagic matched!!!\nmapper: b'\\x00')\nread 16384 bytes of prg-rom\nread 8192 bytes of chr-rom\ncreating mapper\nMapper2::new: 16384 1\nmapper: 16384 1 0 0\nInitial instruction after reset: C004  78        SEI                             A:00 X:00 Y:00 P:24 SP:FD PPU:240,340 CYC:0\nC000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7\nC5F5  A2 00     LDX #$00                        A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 30 CYC:10\nC5F7  86 00     STX $00 "
+                  }
+                }
+              }
+            ]
           }
         }
       ]
@@ -217,5 +155,5 @@
     "wasm3",
     "gc"
   ],
-  "notes": "The test mirrors the upstream browser wrapper: grow memory, copy the ROM, load it, grow space for framebuffer data, run the emulator, and read back rendered pixels."
+  "notes": "The test copies the upstream nestest ROM into exported memory, invokes the diagnostic entrypoint, and captures the spectest.print_char callback to assert the ROM parser, mapper setup, and first CPU trace lines rather than checking a single framebuffer pixel."
 }

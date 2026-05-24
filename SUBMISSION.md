@@ -305,6 +305,48 @@ Function imports can include static stubs when the fixture can be instantiated w
 
 Use `stub.trap` instead of `stub.returns` when the host stub should trap. Imported memory values are created by the runner from their inferred `type` and can be targeted in `memory.write` and `memory.read` steps as `module.name`. Imported table and tag values should be described with `type` and `description`; metadata does not try to encode full host behavior for them.
 
+Function import stubs can also capture simple character-style callback output when that is the best observable proof that a module exercised an interesting path. This is useful for emulator traces or diagnostic printers exposed as imports. Keep the capture bounded with `max_calls`, then assert it from an invoke step with `host_effects.import_captures`:
+
+```json
+{
+  "module": "spectest",
+  "name": "print_char",
+  "kind": "function",
+  "type": "(func (param i32))",
+  "stub": {
+    "capture": {
+      "name": "trace_prefix",
+      "param": 0,
+      "encoding": "utf16_code_unit",
+      "max_calls": 64
+    }
+  }
+}
+```
+
+```json
+{
+  "type": "function.invoke",
+  "function": "run_diagnostic",
+  "params": [],
+  "results": [],
+  "host_effects": {
+    "import_captures": [
+      {
+        "name": "trace_prefix",
+        "bytes": {
+          "type": "bytes",
+          "bytes": {
+            "encoding": "utf8",
+            "value": "diagnostic started\n"
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Values
 
 Value entries are constrained to types the Node smoke-test runner can represent:

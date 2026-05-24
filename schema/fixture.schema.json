@@ -316,6 +316,9 @@
         "trap": {
           "type": "string"
         },
+        "capture": {
+          "$ref": "#/$defs/functionImportCapture"
+        },
         "notes": {
           "type": "string"
         }
@@ -325,6 +328,33 @@
           "returns",
           "trap"
         ]
+      }
+    },
+    "functionImportCapture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/variableName"
+        },
+        "param": {
+          "$ref": "#/$defs/nonNegativeInteger",
+          "default": 0
+        },
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "utf16_code_unit"
+          ],
+          "default": "utf16_code_unit"
+        },
+        "max_calls": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "globalImportStub": {
@@ -764,6 +794,29 @@
           "$ref": "#/$defs/bytesAssertion"
         },
         "stderr": {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        "import_captures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hostImportCaptureAssertion"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "hostImportCaptureAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "bytes"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/variableName"
+        },
+        "bytes": {
           "$ref": "#/$defs/bytesAssertion"
         }
       }
