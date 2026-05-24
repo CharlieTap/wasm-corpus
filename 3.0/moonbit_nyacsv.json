@@ -1,0 +1,133 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_nyacsv",
+  "description": "MoonBit CSV parser fixture exercising headers, quoted JSON fields, generated headers, and multiline quoted fields.",
+  "path": "moonbit_nyacsv.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_nyacsv.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "csv",
+    "parser",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "large_csv_suite_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "multiline_field_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "generated_header_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "quoted_field_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "basic_shape_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse CSV shape, quoting, generated headers, and multiline fields",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "parse a three-column cat shelter CSV",
+          "function": "basic_shape_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "233"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a quoted JSON object field",
+          "function": "quoted_field_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "construct CSV data with generated headers",
+          "function": "generated_header_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse custom-delimited multiline quoted fields",
+          "function": "multiline_field_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a larger CSV covering escaped quotes, multiline fields, empty fields, JSON text, and re-rendering",
+          "function": "large_csv_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "603"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "8366a4ea15848389a9e10c4686e06442bf79808b4d8d39fbf705527343e2bde6",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/NyaCSV",
+    "path": "fixture/fixture.mbt",
+    "description": "moonbit-community/NyaCSV compiled with a local export harness around CSV parse and construction APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The harness runs parser scenarios from the upstream README/tests and exports numeric scores for runtime-neutral assertions. Includes a suite export that exercises parsing and formatting across a multi-row CSV document."
+}

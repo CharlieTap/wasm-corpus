@@ -1,0 +1,135 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_pixelmatch",
+  "description": "MoonBit pixel-diff fixture comparing images, generating diff reports, and writing diff pixels.",
+  "path": "moonbit_pixelmatch.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_pixelmatch.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "image",
+    "pixelmatch",
+    "diff",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "large_pattern_suite_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "diff_output_pixel_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "rectangle_report_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "single_pixel_diff_count",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "identical_diff_count",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compare generated images and inspect diff output",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "identical images have no diff pixels",
+          "function": "identical_diff_count",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "one changed pixel is detected",
+          "function": "single_pixel_diff_count",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "rectangle diff report records nine pixels and one region",
+          "function": "rectangle_report_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "91"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "diff output marks the changed pixel red",
+          "function": "diff_output_pixel_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "255"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "compare 64x64 patterned images with rectangular and scattered differences, prefiltering, diff output, report generation, and match ratio",
+          "function": "large_pattern_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1850"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "2dcbb86eb02eb423465cf27443b68f7186f3f93ea7e674591e3253d33837519e",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/mizchi/pixelmatch",
+    "path": "src/fixture/fixture.mbt",
+    "description": "mizchi/pixelmatch compiled with a local export harness around image comparison APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The harness creates small images inside Wasm and checks identical, single-pixel, rectangle-region, and diff-output paths. Includes a suite export that performs a larger image comparison and runs several pixelmatch APIs over the same generated images."
+}

@@ -316,6 +316,9 @@
         "trap": {
           "type": "string"
         },
+        "capture": {
+          "$ref": "#/$defs/functionImportCapture"
+        },
         "notes": {
           "type": "string"
         }
@@ -325,6 +328,33 @@
           "returns",
           "trap"
         ]
+      }
+    },
+    "functionImportCapture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/variableName"
+        },
+        "param": {
+          "$ref": "#/$defs/nonNegativeInteger",
+          "default": 0
+        },
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "utf16_code_unit"
+          ],
+          "default": "utf16_code_unit"
+        },
+        "max_calls": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "globalImportStub": {
@@ -410,6 +440,9 @@
         },
         {
           "$ref": "#/$defs/memoryWriteStep"
+        },
+        {
+          "$ref": "#/$defs/memoryGrowStep"
         },
         {
           "$ref": "#/$defs/memoryReadStep"
@@ -557,6 +590,38 @@
           ]
         }
       ]
+    },
+    "memoryGrowStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "pages"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "memory.grow"
+        },
+        "memory": {
+          "type": "string",
+          "default": "memory"
+        },
+        "pages": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "assert": {
+          "$ref": "#/$defs/numericValueAssertion"
+        },
+        "capture": {
+          "$ref": "#/$defs/variableName"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     },
     "memoryReadStep": {
       "type": "object",
@@ -729,6 +794,29 @@
           "$ref": "#/$defs/bytesAssertion"
         },
         "stderr": {
+          "$ref": "#/$defs/bytesAssertion"
+        },
+        "import_captures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hostImportCaptureAssertion"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "hostImportCaptureAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "bytes"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/variableName"
+        },
+        "bytes": {
           "$ref": "#/$defs/bytesAssertion"
         }
       }

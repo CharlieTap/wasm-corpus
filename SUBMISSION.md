@@ -136,6 +136,7 @@ Supported steps:
 
 - `function.invoke`: call an exported function by `function` name with typed `params`; use `results` to assert or capture result values, or `trap` to assert a trap message. `params` and `results` are required on every invoke step; use empty arrays when there are no parameters or results. When a host-profile command module exports `_start`, invoke `_start` with empty Wasm params/results and use `host_effects` for effects such as `proc_exit`, stdout, and stderr.
 - `memory.write`: write `hex`, `base64`, `utf8`, or a little-endian numeric `value` into an exported memory or an imported memory addressed as `module.name`, such as `env.memory`.
+- `memory.grow`: grow an exported memory or an imported memory addressed as `module.name` by `pages` WebAssembly pages. Use this when the module's host contract expects the embedder to pre-size memory before writing inputs or reading fixed output buffers. The optional `assert` checks the previous page count as an `i32` value, and `capture` stores the previous page count for later numeric fields.
 - `memory.read`: read bytes or a little-endian numeric value from an exported memory or an imported memory addressed as `module.name`; use `assert` to check the read value or `capture` to store it for later steps. `length` can be omitted for byte assertions when it should equal the asserted byte length, and for numeric values because their type implies the byte width.
 - `global.read`: read an exported global; a `value` assertion is required.
 - `global.write`: write an exported mutable global.
@@ -204,6 +205,15 @@ Captured variables can be used in numeric fields and typed numeric params:
 Numeric memory values are read and written little-endian, matching WebAssembly memory conventions:
 
 ```json
+{
+  "type": "memory.grow",
+  "memory": "memory",
+  "pages": 1,
+  "assert": {
+    "type": "value",
+    "value": { "type": "i32", "value": "1" }
+  }
+}
 {
   "type": "memory.write",
   "memory": "env.memory",
@@ -294,6 +304,48 @@ Function imports can include static stubs when the fixture can be instantiated w
 ```
 
 Use `stub.trap` instead of `stub.returns` when the host stub should trap. Imported memory values are created by the runner from their inferred `type` and can be targeted in `memory.write` and `memory.read` steps as `module.name`. Imported table and tag values should be described with `type` and `description`; metadata does not try to encode full host behavior for them.
+
+Function import stubs can also capture simple character-style callback output when that is the best observable proof that a module exercised an interesting path. This is useful for emulator traces or diagnostic printers exposed as imports. Keep the capture bounded with `max_calls`, then assert it from an invoke step with `host_effects.import_captures`:
+
+```json
+{
+  "module": "spectest",
+  "name": "print_char",
+  "kind": "function",
+  "type": "(func (param i32))",
+  "stub": {
+    "capture": {
+      "name": "trace_prefix",
+      "param": 0,
+      "encoding": "utf16_code_unit",
+      "max_calls": 64
+    }
+  }
+}
+```
+
+```json
+{
+  "type": "function.invoke",
+  "function": "run_diagnostic",
+  "params": [],
+  "results": [],
+  "host_effects": {
+    "import_captures": [
+      {
+        "name": "trace_prefix",
+        "bytes": {
+          "type": "bytes",
+          "bytes": {
+            "encoding": "utf8",
+            "value": "diagnostic started\n"
+          }
+        }
+      }
+    ]
+  }
+}
+```
 
 ## Values
 

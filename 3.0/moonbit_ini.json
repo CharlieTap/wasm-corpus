@@ -1,0 +1,134 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_ini",
+  "description": "MoonBit INI parser fixture covering sections, typed access, case sensitivity, chunked parsing, and parse errors.",
+  "path": "moonbit_ini.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_ini.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "ini",
+    "parser",
+    "config",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "large_config_suite_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "invalid_quote_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "chunked_parse_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "case_sensitive_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "basic_server_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse configuration values and error cases",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "parse a server/database configuration and typed bool",
+          "function": "basic_server_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse case-sensitive duplicate section names",
+          "function": "case_sensitive_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse one INI document through multiple chunks",
+          "function": "chunked_parse_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject an unterminated quoted value",
+          "function": "invalid_quote_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a larger configuration with globals, sections, booleans, escaped values, and nested section names",
+          "function": "large_config_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "127"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "3621c0e48e7a696716bbeaf3d12cfc4ded85383ac9c0ec81c4cfd958ff099dbb",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/ini",
+    "path": "fixture/fixture.mbt",
+    "description": "moonbit-community/ini compiled with a local export harness around parser and IniParseState APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The harness returns integer scores after checking parsed values and error handling inside the MoonBit module. Includes a suite export that parses a denser config file in addition to focused branch/error cases."
+}

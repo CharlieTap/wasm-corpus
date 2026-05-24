@@ -1,0 +1,135 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_cmark",
+  "description": "MoonBit CommonMark renderer fixture exercising block parsing, inline formatting, fenced code, links, and safe HTML filtering.",
+  "path": "moonbit_cmark.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_cmark.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "markdown",
+    "commonmark",
+    "parser",
+    "renderer",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "full_document_score",
+      "kind": "function",
+      "type": "(func (param (ref 80) (ref 96) (ref 8)) (result i32))"
+    },
+    {
+      "name": "unsafe_html_filtered_matches",
+      "kind": "function",
+      "type": "(func (param (ref 80) (ref 96) (ref 8)) (result i32))"
+    },
+    {
+      "name": "list_code_matches",
+      "kind": "function",
+      "type": "(func (param (ref 80) (ref 96) (ref 8)) (result i32))"
+    },
+    {
+      "name": "emphasis_link_matches",
+      "kind": "function",
+      "type": "(func (param (ref 80) (ref 96) (ref 8)) (result i32))"
+    },
+    {
+      "name": "heading_paragraph_matches",
+      "kind": "function",
+      "type": "(func (param (ref 80) (ref 96) (ref 8)) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "render representative CommonMark constructs",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "render a heading and paragraph",
+          "function": "heading_paragraph_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "render emphasis, strong text, and a link",
+          "function": "emphasis_link_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "render a list plus fenced code block",
+          "function": "list_code_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "filter unsafe raw HTML in safe mode",
+          "function": "unsafe_html_filtered_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "render a mixed document with blockquotes, lists, links, escapes, image syntax, code fences, thematic break, and hard line breaks",
+          "function": "full_document_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "127"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "3f7d7514c7eefdb561576abbf292617c88e2c6b0dd37880e2bdf415af6edc18b",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/cmark.mbt",
+    "path": "src/fixture/fixture.mbt",
+    "description": "moonbit-community/cmark.mbt compiled with a local numeric harness around cmark_html.render."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The harness compares rendered HTML internally and exports integer pass/fail markers to keep the fixture runtime-agnostic. Includes a suite export that renders a larger mixed CommonMark document so the test traverses more parser and renderer branches than the small focused examples."
+}
