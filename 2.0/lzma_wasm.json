@@ -1,0 +1,281 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lzma_wasm",
+  "description": "LZMA/XZ compression and decompression module from the lzma-wasm npm package.",
+  "path": "lzma_wasm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lzma_wasm.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "compression",
+    "decompression",
+    "lzma",
+    "npm",
+    "real-world",
+    "wasm-bindgen",
+    "xz"
+  ],
+  "imports": [
+    {
+      "module": "./lzma_wasm_bg.js",
+      "name": "__wbg___wbindgen_copy_to_typed_array_126bf2bedf877cd8",
+      "kind": "function",
+      "type": "(func (param i32 i32 externref))",
+      "stub": {
+        "notes": "Only used by the JS typed-array helper path; direct raw compression/decompression does not need it."
+      }
+    },
+    {
+      "module": "./lzma_wasm_bg.js",
+      "name": "__wbindgen_init_externref_table",
+      "kind": "function",
+      "type": "(func)",
+      "stub": {
+        "notes": "Externref table initialization is only needed for JS-facing error objects in this fixture."
+      }
+    },
+    {
+      "module": "./lzma_wasm_bg.js",
+      "name": "__wbindgen_cast_0000000000000001",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result externref))",
+      "stub": {
+        "returns": [
+          {
+            "type": "externref",
+            "value": null
+          }
+        ],
+        "notes": "Only used when converting error strings to JS externrefs."
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "compress_lzip",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "compress_lzma",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "compress_xz",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "decompress_dynamic",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32 i32 i32 i32))"
+    },
+    {
+      "name": "decompress_to_buffer",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 externref i32) (result i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_externrefs",
+      "kind": "table",
+      "type": "(table 1024 externref)"
+    },
+    {
+      "name": "__wbindgen_malloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "__externref_table_dealloc",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "__wbindgen_free",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "__wbindgen_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress a repeated payload to XZ and decompress it back",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "__wbindgen_start",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate raw input bytes",
+          "function": "__wbindgen_malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "80"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_ptr"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "4c5a4d41206c696b6573207265706561746564207265706561746564207265706561746564207068726173657320616e6420736f6d6520756e697175652062797465733a20303132333435363738392e"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress using XZ container at preset 6",
+          "function": "compress_xz",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "80"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert deterministic XZ bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "fd377a585a000004e6d6b4460200210116000000742fe5a3e0004f00425d00261685bc45f109a398d87d5342f57bedd57425f9a6b94f1401fc87d4e37718624cdc2a5389c94cb6b35e2a7372de5975c43c3706f4d489bcc3f6f8ea1156a2b1d7000000003f30c6c802b3c36300015e500594d56f1fb6f37d010000000004595a"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress the XZ buffer",
+          "function": "decompress_dynamic",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            },
+            {
+              "type": "i32",
+              "value": "1000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decompressed_ptr"
+            },
+            {
+              "type": "i32",
+              "value": "80"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert decompressed payload matches the input",
+          "memory": "memory",
+          "offset": {
+            "var": "decompressed_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "4c5a4d41206c696b6573207265706561746564207265706561746564207265706561746564207068726173657320616e6420736f6d6520756e697175652062797465733a20303132333435363738392e"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "bb17f3fde95053c76cdc7f2a1abc03e97db327b90549d4b9f4cf48abfcfc590d",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "dist/cjs/index.cjs embedded lzma_wasm_bg.wasm",
+    "url": "https://www.npmjs.com/package/lzma-wasm/v/1.0.7",
+    "description": "The WebAssembly binary embedded in lzma-wasm 1.0.7."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture calls the raw wasm-bindgen compression exports, asserting both the deterministic XZ container and the decompressed payload."
+}

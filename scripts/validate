@@ -219,24 +219,32 @@ function validateClassifiedFeatures(wasmPath, fixture, classification) {
 }
 
 function optimizeWithBinaryen({ wasmPath, workDir, binaryen, binaryenFlags }) {
+  const stripped = path.join(workDir, "stripped.wasm");
   const optimized = path.join(workDir, "optimized.wasm");
-  runRequired("wasm-opt", [wasmPath, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  stripWasmCustomSections(wasmPath, stripped, `wasm-tools could not strip custom sections from ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-opt", [stripped, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
   return optimized;
 }
 
 function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags, optimized }) {
   const disassembled = path.join(workDir, "module.wat");
   const watWasm = path.join(workDir, "wat.wasm");
+  const watStripped = path.join(workDir, "wat-stripped.wasm");
   const watOptimized = path.join(workDir, "wat-optimized.wasm");
 
   runRequired("wasm-dis", [optimized, ...binaryenFlags, "-o", disassembled], `Binaryen could not disassemble optimized output for ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
   runRequired("wasm-tools", ["parse", watPath, "-o", watWasm], `wasm-tools could not assemble sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
-  runRequired("wasm-opt", [watWasm, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+  stripWasmCustomSections(watWasm, watStripped, `wasm-tools could not strip custom sections from sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+  runRequired("wasm-opt", [watStripped, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
 
   if (!fs.readFileSync(optimized).equals(fs.readFileSync(watOptimized))) {
     throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
   }
 
+}
+
+function stripWasmCustomSections(input, output, message) {
+  runRequired("wasm-tools", ["strip", "--all", input, "-o", output], message);
 }
 
 function validateShrinkage(wasmPath, optimizedPath, binaryen) {
