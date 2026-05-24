@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bitmask_tsp_min",
+  "path": "bitmask_tsp_min.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bitmask_tsp_min.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "bitmask_tsp_min",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "three-node tour (3, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bitmask_tsp_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "24"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "four-node tour (4, 7)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bitmask_tsp_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "24"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "five-node tour (5, 11)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bitmask_tsp_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "11"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternate generated weights (5, 19)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bitmask_tsp_min",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "19"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "52"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "7809f9705a861248957d390dd99ec22d92c998bd0af5d601d8d4b7c26d52c881",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Held-Karp bitmask travelling-salesperson solver over generated complete graphs.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Held-Karp bitmask travelling-salesperson solver over generated complete graphs. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

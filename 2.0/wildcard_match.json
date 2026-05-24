@@ -1,0 +1,179 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wildcard_match",
+  "path": "wildcard_match.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wildcard_match.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "wildcard_match",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "star absorbs middle run (68, 28, 4, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "wildcard_match",
+          "params": [
+            {
+              "type": "i32",
+              "value": "68"
+            },
+            {
+              "type": "i32",
+              "value": "28"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "question mark literal blend (20, 24, 3, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "wildcard_match",
+          "params": [
+            {
+              "type": "i32",
+              "value": "20"
+            },
+            {
+              "type": "i32",
+              "value": "24"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "literal mismatch through star (5, 12, 3, 2)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "wildcard_match",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "leading star with suffix check (4, 11, 3, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "wildcard_match",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "11"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "16dea4d0dce43f67fa729b8cc19701710ad3b038ebe5d4e3e799ad342e683951",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Glob-style wildcard matcher with literal, question-mark, and star states.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "string",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Glob-style wildcard matcher with literal, question-mark, and star states. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

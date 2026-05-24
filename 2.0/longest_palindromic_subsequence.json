@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "longest_palindromic_subsequence",
+  "path": "longest_palindromic_subsequence.wasm",
+  "wat": {
+    "status": "present",
+    "path": "longest_palindromic_subsequence.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "longest_palindromic_subsequence",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "odd palindrome subsequence (132, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "longest_palindromic_subsequence",
+          "params": [
+            {
+              "type": "i32",
+              "value": "132"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "all distinct symbols (228, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "longest_palindromic_subsequence",
+          "params": [
+            {
+              "type": "i32",
+              "value": "228"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "full repeated-symbol subsequence (42, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "longest_palindromic_subsequence",
+          "params": [
+            {
+              "type": "i32",
+              "value": "42"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "nested palindrome subsequence (3172, 6)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "longest_palindromic_subsequence",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3172"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "ba3ef4cda9b6c25838b1163a965f91ea4db03a0a5f290d075700eb8d7eda10da",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Longest palindromic subsequence dynamic program over packed symbols.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "string",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Longest palindromic subsequence dynamic program over packed symbols. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

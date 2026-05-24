@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "eulerian_path_kind",
+  "path": "eulerian_path_kind.wasm",
+  "wat": {
+    "status": "present",
+    "path": "eulerian_path_kind.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "eulerian_path_kind",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "open Eulerian trail (41, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "eulerian_path_kind",
+          "params": [
+            {
+              "type": "i32",
+              "value": "41"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Eulerian circuit (45, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "eulerian_path_kind",
+          "params": [
+            {
+              "type": "i32",
+              "value": "45"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "disconnected non-Eulerian graph (33, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "eulerian_path_kind",
+          "params": [
+            {
+              "type": "i32",
+              "value": "33"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "triangle circuit (7, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "eulerian_path_kind",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "cb6bb97f1126405ec4bfa29164db544b611da0bfff626b1334e8180e9d1b9984",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Eulerian trail/circuit classifier using degree parity and disjoint-set connectivity.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "data-structure",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Eulerian trail/circuit classifier using degree parity and disjoint-set connectivity. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

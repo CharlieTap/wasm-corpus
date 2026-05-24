@@ -1,0 +1,146 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bipartite_coloring",
+  "path": "bipartite_coloring.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bipartite_coloring.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "bipartite_coloring",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "simple path graph (41, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_coloring",
+          "params": [
+            {
+              "type": "i32",
+              "value": "41"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "odd cycle rejection (7, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_coloring",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "disconnected bipartite graph (129, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_coloring",
+          "params": [
+            {
+              "type": "i32",
+              "value": "129"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "even cycle graph (45, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_coloring",
+          "params": [
+            {
+              "type": "i32",
+              "value": "45"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "efee292fff309f7b92eced282987a5f3a19e6f0423f12a237430893c1d9c4a51",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "BFS bipartite coloring over packed undirected edge masks.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: BFS bipartite coloring over packed undirected edge masks. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

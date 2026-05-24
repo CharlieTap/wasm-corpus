@@ -1,0 +1,148 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "open_addressing_probe",
+  "path": "open_addressing_probe.wasm",
+  "wat": {
+    "status": "present",
+    "path": "open_addressing_probe.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "open_addressing_probe",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "short insertion run (3, 8)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "open_addressing_probe",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4016"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "medium probe run (7, 12)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "open_addressing_probe",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6035"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "half-table probe run (11, 16)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "open_addressing_probe",
+          "params": [
+            {
+              "type": "i32",
+              "value": "11"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "8036"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "collision-heavy probe run (19, 20)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "open_addressing_probe",
+          "params": [
+            {
+              "type": "i32",
+              "value": "19"
+            },
+            {
+              "type": "i32",
+              "value": "20"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "10078"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "2c20ea676a6de9aef38d2ef50c4440e7ce5c651bb053a7aaff7d559b2d82bf1a",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Linear-probing hash table insertion and mixed lookup probe counter.",
+  "tags": [
+    "algorithm",
+    "data-structure",
+    "hash-table",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Linear-probing hash table insertion and mixed lookup probe counter. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

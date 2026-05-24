@@ -1,0 +1,146 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "catalan_mod",
+  "path": "catalan_mod.wasm",
+  "wat": {
+    "status": "present",
+    "path": "catalan_mod.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "catalan_mod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "zero index base case (0, 97)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catalan_mod",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "97"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "small modulus wrap (5, 1000)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catalan_mod",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            },
+            {
+              "type": "i32",
+              "value": "1000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "42"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "prime modulus case (9, 10007)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catalan_mod",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9"
+            },
+            {
+              "type": "i32",
+              "value": "10007"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4862"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "larger bounded index (12, 65521)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "catalan_mod",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            },
+            {
+              "type": "i32",
+              "value": "65521"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "11449"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "3f20e2a8466aa5fe6928e91dcf276cf71b70a16d05fb36d18712231feb5b2464",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Catalan number dynamic programming under a caller-provided modulus.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Catalan number dynamic programming under a caller-provided modulus. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}
