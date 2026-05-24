@@ -65,7 +65,48 @@ function percentReduction(original, optimized) {
 }
 
 function sha256(filePath) {
-  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+  const hash = crypto.createHash("sha256");
+  const fd = fs.openSync(filePath, "r");
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+
+  try {
+    let bytesRead = 0;
+    while ((bytesRead = fs.readSync(fd, buffer, 0, buffer.length, null)) > 0) {
+      hash.update(bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead));
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+
+  return hash.digest("hex");
+}
+
+function filesEqual(left, right) {
+  if (left === right) return true;
+
+  const leftStat = fs.statSync(left);
+  const rightStat = fs.statSync(right);
+  if (leftStat.size !== rightStat.size) return false;
+  if (leftStat.dev === rightStat.dev && leftStat.ino === rightStat.ino) return true;
+
+  const leftBuffer = fs.readFileSync(left);
+  const fd = fs.openSync(right, "r");
+  const rightBuffer = Buffer.allocUnsafe(1024 * 1024);
+  let offset = 0;
+
+  try {
+    let bytesRead = 0;
+    while ((bytesRead = fs.readSync(fd, rightBuffer, 0, rightBuffer.length, null)) > 0) {
+      const leftChunk = leftBuffer.subarray(offset, offset + bytesRead);
+      const rightChunk = rightBuffer.subarray(0, bytesRead);
+      if (!leftChunk.equals(rightChunk)) return false;
+      offset += bytesRead;
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+
+  return offset === leftBuffer.length;
 }
 
 function binaryenVersion() {
@@ -237,7 +278,7 @@ function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binar
   stripWasmCustomSections(watWasm, watStripped, `wasm-tools could not strip custom sections from sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
   runRequired("wasm-opt", [watStripped, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
 
-  if (!fs.readFileSync(optimized).equals(fs.readFileSync(watOptimized))) {
+  if (!filesEqual(optimized, watOptimized)) {
     throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
   }
 

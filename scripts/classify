@@ -56,10 +56,10 @@ function inferVersion() {
     if (validateWith(features).ok) return version;
   }
 
-  if (validateWith("all").ok) return null;
+  const all = validateWith("all");
+  if (all.ok) return null;
 
   console.error("error: wasm-tools could not validate module with --features all");
-  const all = validateWith("all");
   if (all.output) console.error(all.output);
   process.exit(1);
 }

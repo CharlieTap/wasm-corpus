@@ -10,6 +10,7 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
+let cachedBinaryenVersion = null;
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/prepare
@@ -66,12 +67,55 @@ function relativeFromRepo(filePath) {
 }
 
 function sha256(filePath) {
-  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+  const hash = crypto.createHash("sha256");
+  const fd = fs.openSync(filePath, "r");
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+
+  try {
+    let bytesRead = 0;
+    while ((bytesRead = fs.readSync(fd, buffer, 0, buffer.length, null)) > 0) {
+      hash.update(bytesRead === buffer.length ? buffer : buffer.subarray(0, bytesRead));
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+
+  return hash.digest("hex");
 }
 
 function binaryenVersion() {
+  if (cachedBinaryenVersion != null) return cachedBinaryenVersion;
   const result = run("wasm-opt", ["--version"]);
-  return `${result.stdout || ""}${result.stderr || ""}`.trim();
+  cachedBinaryenVersion = `${result.stdout || ""}${result.stderr || ""}`.trim();
+  return cachedBinaryenVersion;
+}
+
+function filesEqual(left, right) {
+  if (left === right) return true;
+
+  const leftStat = fs.statSync(left);
+  const rightStat = fs.statSync(right);
+  if (leftStat.size !== rightStat.size) return false;
+  if (leftStat.dev === rightStat.dev && leftStat.ino === rightStat.ino) return true;
+
+  const leftBuffer = fs.readFileSync(left);
+  const fd = fs.openSync(right, "r");
+  const rightBuffer = Buffer.allocUnsafe(1024 * 1024);
+  let offset = 0;
+
+  try {
+    let bytesRead = 0;
+    while ((bytesRead = fs.readSync(fd, rightBuffer, 0, rightBuffer.length, null)) > 0) {
+      const leftChunk = leftBuffer.subarray(offset, offset + bytesRead);
+      const rightChunk = rightBuffer.subarray(0, bytesRead);
+      if (!leftChunk.equals(rightChunk)) return false;
+      offset += bytesRead;
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+
+  return offset === leftBuffer.length;
 }
 
 function stripWatComments(wat) {
@@ -434,11 +478,11 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     runRequired("wasm-opt", [strippedRoundtrip, ...binaryenArgs, "-O1", "-o", checked]);
 
     let prepared = candidate;
-    if (fs.readFileSync(checked).equals(fs.readFileSync(current))) {
+    if (filesEqual(checked, current)) {
       prepared = current;
     }
 
-    if (prepared === current || fs.readFileSync(candidate).equals(fs.readFileSync(checked))) {
+    if (prepared === current || filesEqual(candidate, checked)) {
       runRequired("wasm-tools", ["print", prepared, "-o", readableWat]);
       const watSize = fs.statSync(readableWat).size;
       if (watSize > maxWatDisassemblyBytes) {
