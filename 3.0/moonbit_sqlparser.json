@@ -1,12 +1,12 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "moonbit_sqlparser",
+  "description": "MoonBit SQL parser fixture exercising tokenization, SELECT/JOIN parsing, transaction statement parsing, and syntax-error handling.",
   "path": "moonbit_sqlparser.wasm",
   "wat": {
     "status": "present",
     "path": "moonbit_sqlparser.wat"
   },
-  "description": "MoonBit SQL parser fixture exercising tokenization, SELECT/JOIN parsing, transaction statement parsing, and syntax-error handling.",
   "features": [
     "bulk-memory",
     "gc",
@@ -15,7 +15,20 @@
     "reference-types",
     "typed-function-references"
   ],
+  "tags": [
+    "moonbit",
+    "sql",
+    "parser",
+    "lexer",
+    "wasm3",
+    "gc"
+  ],
   "exports": [
+    {
+      "name": "statement_suite_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
     {
       "name": "invalid_sql_score",
       "kind": "function",
@@ -88,11 +101,23 @@
               "value": "1"
             }
           ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse and tokenize a suite of CREATE, INSERT, UPDATE, DELETE, GRANT, and nested SELECT statements",
+          "function": "statement_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "98"
+            }
+          ]
         }
       ]
     }
   ],
-  "sha256": "c605566df1b6b8a87787886a5e26920d24555d020ac9332e904890ad797eee36",
+  "sha256": "11ba7fcb2df23557b136c92d3d79c7359d121c6a9d2854c21e755c9c540bca07",
   "source": {
     "contributor": "human",
     "language": "MoonBit",
@@ -105,13 +130,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "tags": [
-    "moonbit",
-    "sql",
-    "parser",
-    "lexer",
-    "wasm3",
-    "gc"
-  ],
-  "notes": "The harness uses fixed SQL snippets so tests can assert primitive counts while exercising lexer, parser, AST, and error paths."
+  "notes": "The harness uses fixed SQL snippets so tests can assert primitive counts while exercising lexer, parser, AST, and error paths. Includes a suite export that drives several SQL statement categories and tokenization paths, not just a single SELECT."
 }

@@ -1,12 +1,12 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "moonbit_nyacsv",
+  "description": "MoonBit CSV parser fixture exercising headers, quoted JSON fields, generated headers, and multiline quoted fields.",
   "path": "moonbit_nyacsv.wasm",
   "wat": {
     "status": "present",
     "path": "moonbit_nyacsv.wat"
   },
-  "description": "MoonBit CSV parser fixture exercising headers, quoted JSON fields, generated headers, and multiline quoted fields.",
   "features": [
     "bulk-memory",
     "gc",
@@ -15,26 +15,38 @@
     "reference-types",
     "typed-function-references"
   ],
+  "tags": [
+    "moonbit",
+    "csv",
+    "parser",
+    "wasm3",
+    "gc"
+  ],
   "exports": [
+    {
+      "name": "large_csv_suite_score",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
     {
       "name": "multiline_field_score",
       "kind": "function",
-      "type": "(func (param (ref 1) (ref 1)) (result (ref 1)))"
+      "type": "(func (param i32) (result i32))"
     },
     {
       "name": "generated_header_score",
       "kind": "function",
-      "type": "(func (param (ref 1) (ref 1)) (result (ref 1)))"
+      "type": "(func (param i32) (result i32))"
     },
     {
       "name": "quoted_field_score",
       "kind": "function",
-      "type": "(func (param (ref 1) (ref 1)) (result (ref 1)))"
+      "type": "(func (param i32) (result i32))"
     },
     {
       "name": "basic_shape_score",
       "kind": "function",
-      "type": "(func (param (ref 1) (ref 1)) (result (ref 1)))"
+      "type": "(func (param i32) (result i32))"
     }
   ],
   "tests": [
@@ -88,11 +100,23 @@
               "value": "1"
             }
           ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a larger CSV covering escaped quotes, multiline fields, empty fields, JSON text, and re-rendering",
+          "function": "large_csv_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "603"
+            }
+          ]
         }
       ]
     }
   ],
-  "sha256": "c8b2c94de3c4bbb96cd42bad22a4c268801fbf71d2a4b7cd26b6a5a68852e2b8",
+  "sha256": "8366a4ea15848389a9e10c4686e06442bf79808b4d8d39fbf705527343e2bde6",
   "source": {
     "contributor": "human",
     "language": "MoonBit",
@@ -105,12 +129,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "tags": [
-    "moonbit",
-    "csv",
-    "parser",
-    "wasm3",
-    "gc"
-  ],
-  "notes": "The harness runs parser scenarios from the upstream README/tests and exports numeric scores for runtime-neutral assertions."
+  "notes": "The harness runs parser scenarios from the upstream README/tests and exports numeric scores for runtime-neutral assertions. Includes a suite export that exercises parsing and formatting across a multi-row CSV document."
 }

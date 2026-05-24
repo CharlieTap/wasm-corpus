@@ -1,20 +1,35 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "moonbit_nyasearch",
+  "description": "MoonBit string search fixture exercising automatic search selection plus KMP, Rabin-Karp, and Boyer-Moore paths.",
   "path": "moonbit_nyasearch.wasm",
   "wat": {
     "status": "present",
     "path": "moonbit_nyasearch.wat"
   },
-  "description": "MoonBit string search fixture exercising automatic search selection plus KMP, Rabin-Karp, and Boyer-Moore paths.",
   "features": [
     "bulk-memory",
     "gc",
     "multi-value",
+    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
+  "tags": [
+    "moonbit",
+    "string-search",
+    "kmp",
+    "rabin-karp",
+    "boyer-moore",
+    "wasm3",
+    "gc"
+  ],
   "exports": [
+    {
+      "name": "long_text_suite_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
     {
       "name": "missing_search",
       "kind": "function",
@@ -121,11 +136,23 @@
               "value": "-1"
             }
           ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "search a longer log-like text with Boyer-Moore, Rabin-Karp, KMP, auto selection, ranges, and a miss",
+          "function": "long_text_suite_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1099"
+            }
+          ]
         }
       ]
     }
   ],
-  "sha256": "41f99d8f265a87376fc9ef09a7d5f4acd2a2a79fa70abecb1c2ea351b6acce9f",
+  "sha256": "71e74c27838d44cd23658b9c3541d73af39bc447220d53fcfcfb6fd4fcf552c7",
   "source": {
     "contributor": "human",
     "language": "MoonBit",
@@ -138,14 +165,5 @@
     "version": "wasm-opt version 125",
     "command": "./scripts/prepare"
   },
-  "tags": [
-    "moonbit",
-    "string-search",
-    "kmp",
-    "rabin-karp",
-    "boyer-moore",
-    "wasm3",
-    "gc"
-  ],
-  "notes": "Each export searches fixed strings internally and returns the found index or -1 for a miss."
+  "notes": "Each export searches fixed strings internally and returns the found index or -1 for a miss. Includes a suite export over a longer log-like text to exercise algorithm selection and larger scan loops."
 }
