@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_sqlparser",
+  "path": "moonbit_sqlparser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_sqlparser.wat"
+  },
+  "description": "MoonBit SQL parser fixture exercising tokenization, SELECT/JOIN parsing, transaction statement parsing, and syntax-error handling.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "invalid_sql_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "transaction_statement_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "join_statement_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "select_token_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "tokenize and parse representative SQL statements",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "tokenize SELECT with WHERE and ORDER BY",
+          "function": "select_token_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse SELECT with JOIN, GROUP BY, ORDER BY, and LIMIT",
+          "function": "join_statement_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse BEGIN, INSERT, and COMMIT statements",
+          "function": "transaction_statement_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject an invalid SELECT statement",
+          "function": "invalid_sql_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "c605566df1b6b8a87787886a5e26920d24555d020ac9332e904890ad797eee36",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/sqlparser",
+    "path": "src/fixture/fixture.mbt",
+    "description": "moonbit-community/sqlparser compiled with a local export harness around tokenize and parse_sql."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "sql",
+    "parser",
+    "lexer",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "The harness uses fixed SQL snippets so tests can assert primitive counts while exercising lexer, parser, AST, and error paths."
+}

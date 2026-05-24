@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_clap",
+  "path": "moonbit_clap.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_clap.wat"
+  },
+  "description": "MoonBit command-line argument parser fixture exercising named arguments, flags, subcommands, and generated help output.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "help_length",
+      "kind": "function",
+      "type": "(func (result (ref 0) (ref 21)))"
+    },
+    {
+      "name": "parse_subcommand_score",
+      "kind": "function",
+      "type": "(func (result (ref 0) (ref 21)))"
+    },
+    {
+      "name": "parse_flag_score",
+      "kind": "function",
+      "type": "(func (result (ref 0) (ref 21)))"
+    },
+    {
+      "name": "parse_named_arg_score",
+      "kind": "function",
+      "type": "(func (result (ref 0) (ref 21)))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse named options, flags, subcommands, and help text",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "parse a named --level argument and positional bookkeeping",
+          "function": "parse_named_arg_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "142"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a short verbose flag",
+          "function": "parse_flag_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse a subcommand with a nested flag",
+          "function": "parse_subcommand_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "render parser help for a positional argument",
+          "function": "help_length",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "91"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "c04f21032ae19d2edd43c2dd854b62ada273ddd5ef3821a64aca71dae64fc735",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/TheWaWaR/clap.mbt",
+    "path": "src/fixture/fixture.mbt",
+    "description": "TheWaWaR/clap.mbt compiled with a small local export harness around parser APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "cli-parser",
+    "argument-parser",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "The exported harness functions parse fixed command-line scenarios so the corpus can assert primitive i32 results while exercising the upstream parser internals."
+}

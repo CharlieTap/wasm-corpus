@@ -1,0 +1,151 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_nyasearch",
+  "path": "moonbit_nyasearch.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_nyasearch.wat"
+  },
+  "description": "MoonBit string search fixture exercising automatic search selection plus KMP, Rabin-Karp, and Boyer-Moore paths.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "missing_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "range_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "boyer_moore_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "rabin_karp_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "kmp_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "auto_search",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise multiple string-search algorithms and miss/range cases",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "automatic search finds fox in a sentence",
+          "function": "auto_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "KMP finds the repeated prefix at the start",
+          "function": "kmp_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "Rabin-Karp finds a middle substring",
+          "function": "rabin_karp_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "Boyer-Moore finds a suffix substring",
+          "function": "boyer_moore_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "range-limited search finds the second o",
+          "function": "range_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "missing pattern returns -1",
+          "function": "missing_search",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "41f99d8f265a87376fc9ef09a7d5f4acd2a2a79fa70abecb1c2ea351b6acce9f",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/NyaSearch",
+    "path": "src/fixture/fixture.mbt",
+    "description": "moonbit-community/NyaSearch compiled with a local export harness around public search APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "string-search",
+    "kmp",
+    "rabin-karp",
+    "boyer-moore",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "Each export searches fixed strings internally and returns the found index or -1 for a miss."
+}

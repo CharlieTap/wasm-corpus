@@ -711,6 +711,25 @@ function executeMemoryWrite(runtime, step, vars, context) {
   }
 }
 
+function executeMemoryGrow(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
+  const pages = integerField(step.pages, vars, `${context}:memory.grow pages`);
+  let previousPages = 0;
+
+  try {
+    previousPages = memory.grow(pages);
+  } catch (error) {
+    fail(`${context}:memory.grow ${memoryName}: ${error.message}`);
+  }
+
+  if (step.assert) {
+    assertActualMatchesValue(previousPages, step.assert.value, `${context}:memory.grow ${memoryName}`);
+  }
+  if (step.capture) {
+    vars.set(step.capture, previousPages);
+  }
+}
+
 function executeMemoryRead(runtime, step, vars, context) {
   const { memory, memoryName } = runtimeMemory(runtime, step, context);
   const offset = integerField(step.offset, vars, `${context}:memory.read offset`);
@@ -821,6 +840,9 @@ async function executeStep(runtime, step, vars, context) {
       return;
     case "memory.write":
       executeMemoryWrite(runtime, step, vars, context);
+      return;
+    case "memory.grow":
+      executeMemoryGrow(runtime, step, vars, context);
       return;
     case "memory.read":
       executeMemoryRead(runtime, step, vars, context);

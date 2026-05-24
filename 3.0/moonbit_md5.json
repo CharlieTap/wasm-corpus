@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_md5",
+  "path": "moonbit_md5.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_md5.wat"
+  },
+  "description": "MoonBit MD5 hashing fixture covering empty input, short input, long input, block processing, and digest reset/reuse.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "reset_reuse_matches",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "long_sentence_matches",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "abc_matches",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "empty_matches",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "hash canonical MD5 vectors and reuse digest state",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "hash the empty string vector",
+          "function": "empty_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash the abc vector",
+          "function": "abc_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "hash a longer sentence vector",
+          "function": "long_sentence_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "reset and reuse one digest instance",
+          "function": "reset_reuse_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "e9509339145391d3904171bc6c86a373da7ca0966ef6b8ddbe96ecdeb0759a79",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/gmlewis/moonbit-md5",
+    "path": "fixture/fixture.mbt",
+    "description": "gmlewis/moonbit-md5 compiled with a local export harness based on upstream golden test vectors."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "md5",
+    "hashing",
+    "crypto",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "The fixture harness checks canonical MD5 golden vectors internally and returns i32 pass/fail values."
+}

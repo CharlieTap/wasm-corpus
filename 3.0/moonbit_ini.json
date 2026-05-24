@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_ini",
+  "path": "moonbit_ini.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_ini.wat"
+  },
+  "description": "MoonBit INI parser fixture covering sections, typed access, case sensitivity, chunked parsing, and parse errors.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "invalid_quote_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "chunked_parse_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "case_sensitive_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "basic_server_score",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse configuration values and error cases",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "parse a server/database configuration and typed bool",
+          "function": "basic_server_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse case-sensitive duplicate section names",
+          "function": "case_sensitive_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse one INI document through multiple chunks",
+          "function": "chunked_parse_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject an unterminated quoted value",
+          "function": "invalid_quote_score",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "bcd6a4119fb8c270432cb9844efb0c7f0fb097a9c7d5f8137b6b8554d21bd14b",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/ini",
+    "path": "fixture/fixture.mbt",
+    "description": "moonbit-community/ini compiled with a local export harness around parser and IniParseState APIs."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "ini",
+    "parser",
+    "config",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "The harness returns integer scores after checking parsed values and error handling inside the MoonBit module."
+}

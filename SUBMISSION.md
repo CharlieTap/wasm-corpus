@@ -136,6 +136,7 @@ Supported steps:
 
 - `function.invoke`: call an exported function by `function` name with typed `params`; use `results` to assert or capture result values, or `trap` to assert a trap message. `params` and `results` are required on every invoke step; use empty arrays when there are no parameters or results. When a host-profile command module exports `_start`, invoke `_start` with empty Wasm params/results and use `host_effects` for effects such as `proc_exit`, stdout, and stderr.
 - `memory.write`: write `hex`, `base64`, `utf8`, or a little-endian numeric `value` into an exported memory or an imported memory addressed as `module.name`, such as `env.memory`.
+- `memory.grow`: grow an exported memory or an imported memory addressed as `module.name` by `pages` WebAssembly pages. Use this when the module's host contract expects the embedder to pre-size memory before writing inputs or reading fixed output buffers. The optional `assert` checks the previous page count as an `i32` value, and `capture` stores the previous page count for later numeric fields.
 - `memory.read`: read bytes or a little-endian numeric value from an exported memory or an imported memory addressed as `module.name`; use `assert` to check the read value or `capture` to store it for later steps. `length` can be omitted for byte assertions when it should equal the asserted byte length, and for numeric values because their type implies the byte width.
 - `global.read`: read an exported global; a `value` assertion is required.
 - `global.write`: write an exported mutable global.
@@ -204,6 +205,15 @@ Captured variables can be used in numeric fields and typed numeric params:
 Numeric memory values are read and written little-endian, matching WebAssembly memory conventions:
 
 ```json
+{
+  "type": "memory.grow",
+  "memory": "memory",
+  "pages": 1,
+  "assert": {
+    "type": "value",
+    "value": { "type": "i32", "value": "1" }
+  }
+}
 {
   "type": "memory.write",
   "memory": "env.memory",

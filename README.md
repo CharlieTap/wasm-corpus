@@ -36,7 +36,7 @@ Each version directory contains:
 
 The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
 
-Fixture JSON files include runnable `tests`: small step sequences that can call exported functions, inspect exported memory, tables, and globals, or provide declared host import profiles for command-style modules. The repository runner uses these tests as smoke checks and as executable examples of each module's ABI.
+Fixture JSON files include runnable `tests`: small step sequences that can call exported functions, grow/read/write exported memory, inspect tables and globals, or provide declared host import profiles for command-style modules. The repository runner uses these tests as smoke checks and as executable examples of each module's ABI.
 
 The repository smoke runner uses Node.js 24 or newer so `3.0` fixtures that require features such as Wasm GC can be validated and executed in CI. Consumers should still treat version and feature filters as the compatibility contract for their own runtimes.
 

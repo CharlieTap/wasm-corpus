@@ -412,6 +412,9 @@
           "$ref": "#/$defs/memoryWriteStep"
         },
         {
+          "$ref": "#/$defs/memoryGrowStep"
+        },
+        {
           "$ref": "#/$defs/memoryReadStep"
         },
         {
@@ -557,6 +560,38 @@
           ]
         }
       ]
+    },
+    "memoryGrowStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "pages"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "memory.grow"
+        },
+        "memory": {
+          "type": "string",
+          "default": "memory"
+        },
+        "pages": {
+          "$ref": "#/$defs/integerExpression"
+        },
+        "assert": {
+          "$ref": "#/$defs/numericValueAssertion"
+        },
+        "capture": {
+          "$ref": "#/$defs/variableName"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     },
     "memoryReadStep": {
       "type": "object",
