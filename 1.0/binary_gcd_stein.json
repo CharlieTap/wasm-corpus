@@ -1,0 +1,143 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "binary_gcd_stein",
+  "path": "binary_gcd_stein.wasm",
+  "wat": {
+    "status": "present",
+    "path": "binary_gcd_stein.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "binary_gcd_stein",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 0)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "mixed even inputs (48, 18)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_gcd_stein",
+          "params": [
+            {
+              "type": "i32",
+              "value": "48"
+            },
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "shared composite factors (270, 192)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_gcd_stein",
+          "params": [
+            {
+              "type": "i32",
+              "value": "270"
+            },
+            {
+              "type": "i32",
+              "value": "192"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "zero operand edge case (0, 37)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_gcd_stein",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "37"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "37"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "coprime-ish odd inputs (391, 299)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "binary_gcd_stein",
+          "params": [
+            {
+              "type": "i32",
+              "value": "391"
+            },
+            {
+              "type": "i32",
+              "value": "299"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "23"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "0dcb941a55e4f51013288b4daf6c21aea5830486aa237de2a343283f1070a24d",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Stein binary GCD over non-negative integer pairs.",
+  "tags": [
+    "algorithm",
+    "number-theory",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Stein binary GCD over non-negative integer pairs. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

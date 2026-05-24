@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bipartite_matching",
+  "path": "bipartite_matching.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bipartite_matching.wat"
+  },
+  "features": [],
+  "exports": [
+    {
+      "name": "bipartite_matching",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "perfect matching graph (0)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_matching",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "conflicting left choices (1)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_matching",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "one universal left vertex (2)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bipartite_matching",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "11a2a11843fab273749c196d8633d23db0d8a13f21fc31f5c0916e1bc93219c6",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Augmenting-path maximum bipartite matching over bounded fixture graphs.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "matching",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Augmenting-path maximum bipartite matching over bounded fixture graphs. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

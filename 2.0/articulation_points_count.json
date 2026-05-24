@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "articulation_points_count",
+  "path": "articulation_points_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "articulation_points_count.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "abort",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "articulation_points_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "tree with two articulation hubs (0)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "articulation_points_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "cycle plus tail (1)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "articulation_points_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "cycle without articulation points (2)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "articulation_points_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "7c6d12050ab1c8ec5d1573f77ca9603b582fad072bf98c4b56734ba60918f4c0",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Tarjan articulation-point counting over fixed undirected graph cases.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Tarjan articulation-point counting over fixed undirected graph cases. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

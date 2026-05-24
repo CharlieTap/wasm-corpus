@@ -1,0 +1,119 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "max_flow_small",
+  "path": "max_flow_small.wasm",
+  "wat": {
+    "status": "present",
+    "path": "max_flow_small.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "abort",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "max_flow_small",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "branched residual network (0)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "max_flow_small",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "parallel sink routes (1)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "max_flow_small",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "bottlenecked two-path network (2)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "max_flow_small",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "39f2eff49f29a510fb093a17739adc3d7c657b2e3839da6ca60a2e6b4247679f",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Edmonds-Karp maximum flow over several fixed six-node networks.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "flow",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Edmonds-Karp maximum flow over several fixed six-node networks. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

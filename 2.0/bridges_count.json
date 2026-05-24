@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bridges_count",
+  "path": "bridges_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bridges_count.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "abort",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "bridges_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "cycle with tail bridge edges (0)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bridges_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "cycle with chain attachment (1)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bridges_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "disconnected graph with one bridge (2)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bridges_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "47a91831aca4686cd46dbe1c939ab3ec3e925fd4aecd4a25dba0c1db03cdd89b",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Tarjan bridge-edge counting across connected and disconnected graph cases.",
+  "tags": [
+    "algorithm",
+    "graph",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Tarjan bridge-edge counting across connected and disconnected graph cases. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

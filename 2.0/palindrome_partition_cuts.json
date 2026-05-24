@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "palindrome_partition_cuts",
+  "path": "palindrome_partition_cuts.wasm",
+  "wat": {
+    "status": "present",
+    "path": "palindrome_partition_cuts.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "palindrome_partition_cuts",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "alternating palindrome (68, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_partition_cuts",
+          "params": [
+            {
+              "type": "i32",
+              "value": "68"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "all distinct symbols (228, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_partition_cuts",
+          "params": [
+            {
+              "type": "i32",
+              "value": "228"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "already-palindromic run (170, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_partition_cuts",
+          "params": [
+            {
+              "type": "i32",
+              "value": "170"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mixed prefix and suffix (3604, 6)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "palindrome_partition_cuts",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3604"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "d251a88b28e79880f260fe0a1a18757eb25e8fc46856666a0660552b92bc0430",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Minimum palindrome partition cuts over packed two-bit symbols.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "string",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Minimum palindrome partition cuts over packed two-bit symbols. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

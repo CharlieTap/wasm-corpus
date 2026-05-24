@@ -1,0 +1,146 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "egg_drop_trials",
+  "path": "egg_drop_trials.wasm",
+  "wat": {
+    "status": "present",
+    "path": "egg_drop_trials.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "egg_drop_trials",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "one egg linear search (1, 9)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "egg_drop_trials",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "two eggs classic case (2, 10)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "egg_drop_trials",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2"
+            },
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "three eggs larger floor count (3, 14)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "egg_drop_trials",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "four eggs bounded case (4, 18)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "egg_drop_trials",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "e8e9a0dc8354129e749cace48cd7bd882c744acacc74725cdf33cd58388561a2",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Worst-case minimum egg-dropping trials for bounded eggs and floors.",
+  "tags": [
+    "algorithm",
+    "dynamic-programming",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Worst-case minimum egg-dropping trials for bounded eggs and floors. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

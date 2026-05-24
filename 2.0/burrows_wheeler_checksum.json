@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "burrows_wheeler_checksum",
+  "path": "burrows_wheeler_checksum.wasm",
+  "wat": {
+    "status": "present",
+    "path": "burrows_wheeler_checksum.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "burrows_wheeler_checksum",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "four-symbol rotation table (132, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "burrows_wheeler_checksum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "132"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "431"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "five-symbol repeated rotations (146, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "burrows_wheeler_checksum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "146"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2282"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "alternating symbols (119, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "burrows_wheeler_checksum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "119"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "612"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "six-symbol mixed rotations (2361, 6)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "burrows_wheeler_checksum",
+          "params": [
+            {
+              "type": "i32",
+              "value": "2361"
+            },
+            {
+              "type": "i32",
+              "value": "6"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "13563"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "366bddc3d7bb52d96c0ec8bc4529f0f7cace77869f3f0b6cad513fa35c18aa9a",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Burrows-Wheeler rotation sorting summarized by a last-column checksum.",
+  "tags": [
+    "algorithm",
+    "string",
+    "sorting",
+    "branching",
+    "loop"
+  ],
+  "notes": "Bounded-general fixture: Burrows-Wheeler rotation sorting summarized by a last-column checksum. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}

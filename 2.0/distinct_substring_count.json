@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "distinct_substring_count",
+  "path": "distinct_substring_count.wasm",
+  "wat": {
+    "status": "present",
+    "path": "distinct_substring_count.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals"
+  ],
+  "exports": [
+    {
+      "name": "distinct_substring_count",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "overlapping repeated substrings (4, 3)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "distinct_substring_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "single repeated symbol (0, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "distinct_substring_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "all distinct symbols (228, 4)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "distinct_substring_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "228"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "mixed repeated tail (921, 5)",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "distinct_substring_count",
+          "params": [
+            {
+              "type": "i32",
+              "value": "921"
+            },
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "109e2abfd36364e1216d0096eb933ac52648f0613391907e9af092f69875cc86",
+  "source": {
+    "contributor": "ai",
+    "language": "assemblyscript",
+    "description": "AI-authored bounded-general AssemblyScript implementation generated for wasm-corpus, compiled to wasm, then prepared with the repository scripts."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Distinct substring counting over a packed two-bit alphabet.",
+  "tags": [
+    "algorithm",
+    "string",
+    "branching",
+    "loop",
+    "memory"
+  ],
+  "notes": "Bounded-general fixture: Distinct substring counting over a packed two-bit alphabet. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
+}
