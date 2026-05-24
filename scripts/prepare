@@ -415,19 +415,23 @@ function inferWasmAbi(wasmPath) {
 }
 
 function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
-  let current = input;
+  const strippedInput = path.join(tmpdir, "stripped-input.wasm");
+  stripWasmCustomSections(input, strippedInput);
+  let current = strippedInput;
 
   for (let pass = 1; pass <= 5; pass += 1) {
     const candidate = path.join(tmpdir, `candidate-${pass}.wasm`);
     const candidateWat = path.join(tmpdir, `candidate-${pass}.wat`);
     const readableWat = path.join(tmpdir, `readable-${pass}.wat`);
     const roundtrip = path.join(tmpdir, `roundtrip-${pass}.wasm`);
+    const strippedRoundtrip = path.join(tmpdir, `roundtrip-stripped-${pass}.wasm`);
     const checked = path.join(tmpdir, `checked-${pass}.wasm`);
 
     runRequired("wasm-opt", [current, ...binaryenArgs, "-O1", "-o", candidate]);
     runRequired("wasm-dis", [candidate, ...binaryenArgs, "-o", candidateWat]);
     runRequired("wasm-as", [candidateWat, ...binaryenArgs, "-o", roundtrip]);
-    runRequired("wasm-opt", [roundtrip, ...binaryenArgs, "-O1", "-o", checked]);
+    stripWasmCustomSections(roundtrip, strippedRoundtrip);
+    runRequired("wasm-opt", [strippedRoundtrip, ...binaryenArgs, "-O1", "-o", checked]);
 
     let prepared = candidate;
     if (fs.readFileSync(checked).equals(fs.readFileSync(current))) {
@@ -459,6 +463,10 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
   }
 
   fail("Binaryen output did not stabilize after 5 passes");
+}
+
+function stripWasmCustomSections(input, output) {
+  runRequired("wasm-tools", ["strip", "--all", input, "-o", output]);
 }
 
 function classify(wasmPath) {
