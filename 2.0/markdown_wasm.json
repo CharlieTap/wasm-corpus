@@ -122,8 +122,8 @@
             "var": "input_ptr"
           },
           "bytes": {
-            "encoding": "hex",
-            "value": "23205469746c650a0a2d205b785d207461736b0a2d20706c61696e0a0a60636f64656020616e64202a2a626f6c642a2a0a"
+            "encoding": "utf8",
+            "value": "# Title\n\n- [x] task\n- plain\n\n`code` and **bold**\n"
           }
         },
         {
@@ -183,8 +183,8 @@
           "assert": {
             "type": "bytes",
             "bytes": {
-              "encoding": "hex",
-              "value": "3c68313e3c612069643d227469746c652220636c6173733d22616e63686f722220617269612d68696464656e3d22747275652220687265663d22237469746c65223e3c2f613e5469746c653c2f68313e0a3c756c3e0a3c6c6920636c6173733d227461736b2d6c6973742d6974656d223e3c696e70757420747970653d22636865636b626f78222064697361626c656420636865636b65643e7461736b3c2f6c693e0a3c6c693e706c61696e3c2f6c693e0a3c2f756c3e0a3c703e3c636f64653e636f64653c2f636f64653e20616e64203c623e626f6c643c2f623e3c2f703e0a"
+              "encoding": "utf8",
+              "value": "<h1><a id=\"title\" class=\"anchor\" aria-hidden=\"true\" href=\"#title\"></a>Title</h1>\n<ul>\n<li class=\"task-list-item\"><input type=\"checkbox\" disabled checked>task</li>\n<li>plain</li>\n</ul>\n<p><code>code</code> and <b>bold</b></p>\n"
             }
           }
         }
