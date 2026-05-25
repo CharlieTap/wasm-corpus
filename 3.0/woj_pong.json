@@ -1,0 +1,2541 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "woj_pong",
+  "path": "woj_pong.wasm",
+  "wat": {
+    "status": "present",
+    "path": "woj_pong.wat"
+  },
+  "features": [
+    "exception-handling",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "list-length",
+      "kind": "function",
+      "type": "(func (param anyref) (result i32))"
+    },
+    {
+      "name": "list-sum",
+      "kind": "function",
+      "type": "(func (param anyref) (result i32))"
+    },
+    {
+      "name": "identity",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "second",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ffirst",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "map",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "filter",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "take",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "drop",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "nth-list",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "length",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "concat-list",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "last",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "butlast",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "even?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "odd?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "range-from",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "reverse",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "concat",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "take-while",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "drop-while",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "split-at",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "split-with",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "interpose",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "interleave",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "some",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "every?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "not-every?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "not-any?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "keep",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "map-indexed",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "keep-indexed",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "distinct",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "partition",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "partition-all",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "flatten-one",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "mapcat",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "remove",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "next",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "nthnext",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "nthrest",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "repeatedly-n",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "merge",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "find",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "select-keys",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "get-in",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "assoc-in",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "update",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "update-in",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "set",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "union",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "intersection",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "difference",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "subset?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "superset?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "swap-vals!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "reset-vals!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "constantly",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "comp",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "partial",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "complement",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "juxt",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "range",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "repeat",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "into",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "zipmap",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "doall",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "meta",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "with-meta",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "vary-meta",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "volatile!",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "vreset!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "vswap!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sorted?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "any?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "mod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "rem",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "abs",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "min",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "max",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sort",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "int?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "double?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "boolean?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ratio?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "rational?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "big-int?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "char?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "val",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "key",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "derive",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "underive",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "ancestors",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "descendants",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "parents",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "isa?",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "make-hierarchy",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "take-last",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "drop-last",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "drop-last-1",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "shuffle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "vec",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "subvec",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "cycle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "add-watch",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "remove-watch",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "get-validator",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "set-validator!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "assoc!",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "conj!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "disj!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "dissoc!",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "transient",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "persistent!",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "boolean",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "not-empty",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "empty",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "str",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "symbol",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "name",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "namespace",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "simple-ident?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "simple-keyword?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "simple-symbol?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qualified-ident?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qualified-keyword?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "qualified-symbol?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ident?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "special-symbol?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ex-info",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "ex-message",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ex-data",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "subs",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "to-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "reversible?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "rseq",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "take-nth",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "compare",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sort-by",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "group-by",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "frequencies",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "iterate",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "realized?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "numerator",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "denominator",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "rationalize",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "byte",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "short",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "int",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "long",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "float",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "double",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "char",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bigint",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bigdec",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "decimal?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "uuid?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "var?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "some-fn",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "every-pred",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "promise",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "deliver",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "ensure-reduced",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "unreduced",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bit-and",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-or",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-xor",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-not",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bit-shift-left",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-shift-right",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "unsigned-bit-shift-right",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-and-not",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-clear",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-flip",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-set",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bit-test",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "run-tests",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "print",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "println",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "pr",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "prn",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "print-str",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "println-str",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "pr-str",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "prn-str",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "aclone",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "add-tap",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "remove-tap",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ifn?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "instance?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "throw",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "peek",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "pop",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "pop!",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "quot",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "repeatedly",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "parse-boolean",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "parse-double",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "parse-long",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "parse-uuid",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "rand-int",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "pos-int?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "neg-int?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "nat-int?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "transduce",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "int-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "object-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "aset",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "aget",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "nnext",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "nfirst",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "keyword-fn",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "intern",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "inc'",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "dec'",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "identical?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "format",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "fnil",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "random-sample",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "rand-nth",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "alter-var-root",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "var-get",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "long-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "fnext",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "force",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "alength",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "ref",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "dosync",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "ref-set",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "alter",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "commute",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sleep",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "double-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "create-ns",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "*'",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "-'",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "agent",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "send",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "send-off",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "await",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "future-cancel",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "future-done?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "future-cancelled?",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "float-array",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "agent-error",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "rand",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "random-uuid",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "restart-agent",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "list",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "keyword",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "split",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "into-array",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "make-array",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "class",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bases",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "satisfies?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "==",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "clamp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "negate",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "set-left-input",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "set-right-input",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "get-ball-x",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "get-ball-y",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "get-paddle-left",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "get-paddle-right",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "get-score-left",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "get-score-right",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "move-paddle",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "update-paddles",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "update-ball-position",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bounce-top",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bounce-bottom",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bounce-walls",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "paddle-hit?",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "check-left-paddle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "check-right-paddle",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "check-paddles",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "reset-ball",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "check-scoring",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "tick-state",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "init",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "tick",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "initialize Pong state and apply opposite paddle inputs for one tick",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "init",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-x",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "40000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-y",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "set-left-input",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "set-right-input",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-x",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "40400"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-y",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30300"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "24200"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25800"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "drive a paddle into its clamp limit over repeated ticks",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "init",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "set-left-input",
+          "params": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-x",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "50000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-y",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "37500"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "run long enough to bounce off the bottom wall and collide with the right paddle",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "init",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "tick",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-x",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "77300"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-ball-y",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "59200"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-paddle-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "25000"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-left",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "get-score-right",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "749a6d411b8d81eae2f8d080c52e82d58ca1c7e0cdac940338be2e58c089a9c4",
+  "source": {
+    "contributor": "human",
+    "language": "wat",
+    "path": "examples/pong.wat",
+    "url": "https://github.com/danielstockton/woj/blob/f435d27b149b63ca7491302e483edead34525a45/examples/pong.wat",
+    "description": "Pong example from the WOJ language repository."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "WOJ Pong example compiled to WasmGC, driven through initialized state, paddle input, clamping, ball movement, wall bounce, and paddle collision behavior.",
+  "tags": [
+    "example",
+    "gc",
+    "mit",
+    "pong",
+    "typed-function-references",
+    "woj"
+  ],
+  "notes": "Tests initialize the Pong state and drive actual game ticks. They assert paddle input movement, clamp behavior, ball position integration, bottom-wall bounce, right-paddle collision, and unchanged score counters."
+}
