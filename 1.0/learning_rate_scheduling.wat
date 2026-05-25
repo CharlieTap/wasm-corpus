@@ -5,6 +5,13 @@
   (export "learning_rate_scheduling" (func 0))
   (func (;0;) (type 0) (param i32 i32) (result i32)
     (local i32 i32 i32 i32)
+    local.get 1
+    i32.const 0
+    i32.lt_s
+    if ;; label = @1
+      i32.const 0
+      return
+    end
     local.get 0
     i32.const 3
     i32.rem_u
