@@ -1901,61 +1901,111 @@
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
           "function": "tick",
           "params": [],
-          "results": []
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
         },
         {
           "type": "function.invoke",
