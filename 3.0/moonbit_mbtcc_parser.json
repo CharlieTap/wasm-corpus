@@ -1,0 +1,129 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_mbtcc_parser",
+  "path": "moonbit_mbtcc_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_mbtcc_parser.wat"
+  },
+  "description": "MoonBit mbtcc parser fixture exercising C tokenization, declaration parsing, function definition parsing, control-flow parsing, expression parsing, and parse errors.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "mbtcc",
+    "c",
+    "parser",
+    "lexer",
+    "compiler",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "parse_error_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that verifies malformed C syntax is rejected by the parser."
+    },
+    {
+      "name": "control_flow_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that parses a function body containing declaration, arithmetic precedence, if, and returns."
+    },
+    {
+      "name": "declaration_sequence_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that parses a global variable declaration followed by a function declaration."
+    },
+    {
+      "name": "function_definition_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that parses a C function definition and checks the rendered AST contains parameters and additive expression nodes."
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise mbtcc lexer/parser paths with readable C snippets",
+      "notes": "The fixture compiles the mbtcc parser package without the CLI and preprocessor filesystem host layer. The harness feeds C source strings into the real lexer and parser, renders the AST, and checks for expected structural nodes.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "parse an add function definition",
+          "function": "function_definition_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Parses 'int add(int a, int b) { return a + b; }' and checks the rendered AST includes the function signature, return statement, additive expression, and both variable references."
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse global and function declarations",
+          "function": "declaration_sequence_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Parses 'int global_var; int multiply(int x, int y);' and checks the rendered AST includes both declaration forms."
+        },
+        {
+          "type": "function.invoke",
+          "description": "parse arithmetic precedence and if/return control flow",
+          "function": "control_flow_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Parses 'int main() { int x = 1 + 2 * 3; if (x > 5) { return x; } return 0; }' and checks declaration, multiplication, if, and return nodes."
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject malformed C syntax",
+          "function": "parse_error_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Attempts to parse 'int x {}' and returns 1 only when parser error handling rejects it."
+        }
+      ]
+    }
+  ],
+  "sha256": "df2cb13fb3b07c8394a9bc8d056775df7dad5d3a0c2bf6b86b6ea390530632a9",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbitlang/mbtcc",
+    "path": "parser",
+    "description": "Apache-2.0 mbtcc parser package compiled with a local export harness. The fixture build disables the filesystem-backed preprocessor path so the parser can run as a standalone Wasm GC module."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "This fixture intentionally targets mbtcc's lexer/parser rather than the command-line compiler entry point. That keeps the module host-independent while still exercising meaningful compiler front-end code."
+}

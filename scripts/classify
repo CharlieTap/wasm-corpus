@@ -108,8 +108,8 @@ function detectFromText(wat) {
     }
   }
 
-  const funcTypes = wat.match(/\(func\b[^)]*\(result\s+[^)]*\s+[^)]*\)/g) || [];
-  for (const match of funcTypes) {
+  const multiValueResults = wat.match(/\(result\s+(?:\([^)]*\)|[A-Za-z0-9_.$/-]+)\s+(?:\([^)]*\)|[A-Za-z0-9_.$/-]+)/g) || [];
+  for (const match of multiValueResults) {
     addEvidence(evidence, "multi-value", match.replace(/\s+/g, " ").trim());
   }
 

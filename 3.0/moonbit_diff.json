@@ -1,0 +1,127 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_diff",
+  "path": "moonbit_diff.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_diff.wat"
+  },
+  "description": "MoonBit Myers/linear diff fixture exercising line splitting, bipolar arrays, shortest-edit-script construction, and pretty-printing.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "diff",
+    "myers",
+    "linear-diff",
+    "text",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "bipolar_array_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that validates the bipolar array helper used by the diff frontier logic."
+    },
+    {
+      "name": "identical_lines_match",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that diffs identical multi-line text and compares the pretty-printed equal-line output."
+    },
+    {
+      "name": "insert_delete_summary_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that diffs text with one deletion and one insertion, then summarizes edit counts."
+    },
+    {
+      "name": "myers_example_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that runs the classic Myers ABCABBA to CBABAC example and compares the rendered edit script."
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise MoonBit diff helpers and representative edit-script paths",
+      "notes": "The diff implementation returns MoonBit GC-managed arrays and strings. The harness uses fixed readable text inputs, calls the real linear_diff and pprint_diff functions, and reduces the checks to i32 pass/fail results for the corpus runner.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "validate bipolar array positive and negative indexing",
+          "function": "bipolar_array_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Writes values at positive indices 0 and 1 and negative indices -1 and -2, then reads them back through the translated storage positions used by the diff frontier."
+        },
+        {
+          "type": "function.invoke",
+          "description": "diff identical line sequences",
+          "function": "identical_lines_match",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Uses 'same / same / same' on both sides and checks the pretty printer emits only equal-line rows."
+        },
+        {
+          "type": "function.invoke",
+          "description": "count a simple insertion and deletion",
+          "function": "insert_delete_summary_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Diffs 'alpha beta gamma delta' against 'alpha gamma epsilon delta' and expects one insert, one delete, and three equal lines."
+        },
+        {
+          "type": "function.invoke",
+          "description": "run the classic Myers shortest-edit-script example",
+          "function": "myers_example_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Diffs ABCABBA against CBABAC and checks the complete pretty-printed script, exercising a less trivial path through the linear diff algorithm."
+        }
+      ]
+    }
+  ],
+  "sha256": "9ae42d31625de013c5304fad8e3c3bc6018e5f01a0540ac2fb0ee0681350b787",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbitlang/moonbit-docs/tree/main/next/sources/diff",
+    "path": "src/part3",
+    "description": "Apache-2.0 MoonBit documentation diff implementation compiled with a local export harness for corpus tests."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The committed Wasm was built from the official MoonBit docs diff example plus a small local export harness. The tests intentionally use readable source strings so it is clear which edit paths are being exercised."
+}
