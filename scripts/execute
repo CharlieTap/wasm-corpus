@@ -4,13 +4,14 @@
 const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
+const { performance } = require("perf_hooks");
 
 function fail(message) {
   throw new Error(message);
 }
 
 function usage() {
-  process.stderr.write(`Usage: ./scripts/execute <path/to/module.wasm> [path/to/another.wasm...]
+  process.stderr.write(`Usage: ./scripts/execute [--timings] <path/to/module.wasm> [path/to/another.wasm...]
 
 Finds each module's colocated fixture metadata, instantiates it with simple
 import stubs or declared host profiles, and runs the declared step tests with
@@ -24,6 +25,22 @@ function toPosixPath(file) {
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function createTimings() {
+  return {
+    compile: 0,
+    instantiate: 0,
+    execute: 0,
+  };
+}
+
+function formatMs(value) {
+  return value.toFixed(3);
+}
+
+function fixtureName(entry, wasmPath) {
+  return entry.name || path.parse(wasmPath).name;
 }
 
 function fixtureMetadataPath(wasmPath) {
@@ -454,45 +471,59 @@ function wasiInitializationInstance(instance, memories) {
   return instance;
 }
 
-async function instantiate(wasmPath, entry, test) {
-  const bytes = fs.readFileSync(wasmPath);
-  const module = new WebAssembly.Module(bytes);
-  const host = test?.host || {};
+async function instantiate(wasmPath, entry, test, timings = null) {
+  // Node/V8 does not expose validation as a separate paid-for phase here:
+  // constructing a Module decodes, validates, and compiles or throws.
+  const compileStart = performance.now();
+  let module;
+  try {
+    const bytes = fs.readFileSync(wasmPath);
+    module = new WebAssembly.Module(bytes);
+  } finally {
+    if (timings) timings.compile += performance.now() - compileStart;
+  }
 
-  if (usesWasiPreview1(module) && isWasiPreview1CommandTest(test)) {
+  const instantiateStart = performance.now();
+  try {
+    const host = test?.host || {};
+
+    if (usesWasiPreview1(module) && isWasiPreview1CommandTest(test)) {
+      return {
+        instance: null,
+        host,
+        wasmPath,
+        memories: new Map(),
+      };
+    }
+
+    let wasi = null;
+    if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
+      const wasiInput = host.wasi_preview_1 || {};
+      wasi = new (require("node:wasi").WASI)({
+        version: "preview1",
+        args: wasiInput.command_args || [],
+        env: wasiInput.system_env || {},
+        preopens: wasiInput.preopened_directories || {},
+        returnOnExit: true,
+      });
+    }
+
+    const { imports, memories, importCaptures } = buildImports(entry, wasi?.wasiImport);
+    const instance = await WebAssembly.instantiate(module, imports);
+    if (wasi) {
+      wasi.initialize(wasiInitializationInstance(instance, memories));
+    }
     return {
-      instance: null,
+      instance,
       host,
       wasmPath,
-      memories: new Map(),
+      memories,
+      importCaptures,
+      wasi,
     };
+  } finally {
+    if (timings) timings.instantiate += performance.now() - instantiateStart;
   }
-
-  let wasi = null;
-  if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
-    const wasiInput = host.wasi_preview_1 || {};
-    wasi = new (require("node:wasi").WASI)({
-      version: "preview1",
-      args: wasiInput.command_args || [],
-      env: wasiInput.system_env || {},
-      preopens: wasiInput.preopened_directories || {},
-      returnOnExit: true,
-    });
-  }
-
-  const { imports, memories, importCaptures } = buildImports(entry, wasi?.wasiImport);
-  const instance = await WebAssembly.instantiate(module, imports);
-  if (wasi) {
-    wasi.initialize(wasiInitializationInstance(instance, memories));
-  }
-  return {
-    instance,
-    host,
-    wasmPath,
-    memories,
-    importCaptures,
-    wasi,
-  };
 }
 
 function testList(entry) {
@@ -910,8 +941,10 @@ async function executeStep(runtime, step, vars, context) {
   }
 }
 
-async function executeWasm(inputPath) {
+async function executeWasm(inputPath, options = {}) {
+  const fixtureStart = performance.now();
   const wasmPath = path.resolve(inputPath);
+  const timings = options.timings ? createTimings() : null;
   if (!inputPath.endsWith(".wasm")) {
     fail(`expected a .wasm file, got: ${inputPath}`);
   }
@@ -943,24 +976,36 @@ async function executeWasm(inputPath) {
     if (test.shared_instance === true) {
       const cacheKey = runtimeCacheKey(test);
       if (!sharedRuntimes.has(cacheKey)) {
-        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, entry, test));
+        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, entry, test, timings));
       }
       runtime = sharedRuntimes.get(cacheKey);
     } else {
-      runtime = await instantiate(wasmPath, entry, test);
+      runtime = await instantiate(wasmPath, entry, test, timings);
     }
     const context = `${inputPath}:${testDescription}`;
     const vars = new Map();
-    for (const step of steps) {
-      const stepContext = step.description ? `${context}:${step.description}` : context;
-      await executeStep(runtime, step, vars, stepContext);
-      stepCount += 1;
+    const executeStart = performance.now();
+    try {
+      for (const step of steps) {
+        const stepContext = step.description ? `${context}:${step.description}` : context;
+        await executeStep(runtime, step, vars, stepContext);
+        stepCount += 1;
+      }
+    } finally {
+      if (timings) timings.execute += performance.now() - executeStart;
     }
   }
 
+  const name = fixtureName(entry, wasmPath);
+  const elapsedMs = performance.now() - fixtureStart;
   console.log(
     `Executed ${inputPath} (${tests.length} test${tests.length === 1 ? "" : "s"}, ${stepCount} step${stepCount === 1 ? "" : "s"})`,
   );
+  if (options.timings) {
+    console.log(
+      `TIME ${name} total=${formatMs(elapsedMs)}ms compile=${formatMs(timings.compile)}ms instantiate=${formatMs(timings.instantiate)}ms execute=${formatMs(timings.execute)}ms`,
+    );
+  }
 }
 
 async function main() {
@@ -970,8 +1015,23 @@ async function main() {
     process.exit(1);
   }
 
-  for (const wasmPath of args) {
-    await executeWasm(wasmPath);
+  const wasmPaths = [];
+  const options = { timings: false };
+  for (const arg of args) {
+    if (arg === "--timings") {
+      options.timings = true;
+    } else {
+      wasmPaths.push(arg);
+    }
+  }
+
+  if (wasmPaths.length === 0) {
+    usage();
+    process.exit(1);
+  }
+
+  for (const wasmPath of wasmPaths) {
+    await executeWasm(wasmPath, options);
   }
 }
 
