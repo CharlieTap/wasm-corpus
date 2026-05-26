@@ -1,0 +1,129 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_linalg",
+  "path": "moonbit_linalg.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_linalg.wat"
+  },
+  "description": "MoonBit linear algebra fixture exercising matrix multiplication, Cholesky decomposition, inverse/linear solve, SVD, and eigen decomposition.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "linear-algebra",
+    "matrix",
+    "cholesky",
+    "svd",
+    "eigen",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "eigenvalues_match",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that computes eigenvalues and eigenvectors for a diagonal matrix."
+    },
+    {
+      "name": "svd_reconstructs",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that computes SVD and reconstructs the original matrix."
+    },
+    {
+      "name": "inverse_and_solve_match",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that checks a 2x2 matrix inverse and linear-system solve."
+    },
+    {
+      "name": "cholesky_reconstructs",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that computes Cholesky decomposition and verifies L * transpose(L)."
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise numerical matrix algorithms across decomposition and solving paths",
+      "notes": "The matrix package returns MoonBit matrix objects, so each harness export performs a real numerical operation and compares complete reconstructed matrices or expected values with the package's approximation helpers.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "factor a symmetric positive-definite matrix with Cholesky",
+          "function": "cholesky_reconstructs",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Uses the classic 3x3 SPD example [[4,12,-16],[12,37,-43],[-16,-43,98]] and checks that L * transpose(L) reconstructs the original matrix."
+        },
+        {
+          "type": "function.invoke",
+          "description": "compute inverse and solve Ax=b",
+          "function": "inverse_and_solve_match",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Inverts [[4,7],[2,6]], checks the expected inverse [[0.6,-0.7],[-0.2,0.4]], verifies A * inv(A) is identity, and solves for b=[1,0]."
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompose and reconstruct a matrix with SVD",
+          "function": "svd_reconstructs",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Runs SVD on [[3,1],[1,3]] and verifies U * S * transpose(V) approximately equals the input."
+        },
+        {
+          "type": "function.invoke",
+          "description": "compute eigenvalues and eigenvectors",
+          "function": "eigenvalues_match",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Computes eigenpairs for diagonal [[3,0],[0,4]], checking eigenvalues 3 and 4 and identity eigenvectors."
+        }
+      ]
+    }
+  ],
+  "sha256": "fc0a2417726fa07e74b71f6d687d0a6fb5485836be5a468a7691fb797735fe9e",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbit-community/linalg",
+    "path": "src/lib/matrix",
+    "description": "Apache-2.0 moonbit-community/linalg matrix package compiled with a local export harness for corpus tests."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The tests avoid opaque magic constants where possible by documenting the input matrices and the mathematical reconstruction being checked."
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_gmachine",
+  "path": "moonbit_gmachine.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_gmachine.wat"
+  },
+  "description": "MoonBit G-machine fixture exercising parsing, compilation, lazy graph reduction, algebraic data constructors, recursion, and syntax-error trapping.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "moonbit",
+    "g-machine",
+    "compiler",
+    "interpreter",
+    "lazy-evaluation",
+    "parser",
+    "wasm3",
+    "gc"
+  ],
+  "exports": [
+    {
+      "name": "bad_syntax_traps",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that calls the parser on an intentionally malformed Core program and expects the implementation to trap."
+    },
+    {
+      "name": "list_case_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that builds a Cons/Nil list and evaluates length through the G-machine runtime."
+    },
+    {
+      "name": "factorial_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that evaluates factorial 7 through the sample program definitions."
+    },
+    {
+      "name": "fibs_take_20_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that evaluates the first twenty Fibonacci numbers from the documented lazy list program."
+    }
+  ],
+  "tests": [
+    {
+      "description": "drive the G-machine compiler and evaluator through numeric, list, recursion, lazy-list, and error paths",
+      "notes": "The G-machine produces MoonBit strings representing reduced Core values. Each harness export constructs a readable Core-language program, calls the real run() pipeline, and returns 1 only when the full rendered output matches the expected result.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "evaluate factorial through recursive function calls",
+          "function": "factorial_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Runs '(defn main[] (factorial 7))' with the documented fixture_programs definitions and expects the rendered result '5040'."
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate list construction and case analysis",
+          "function": "list_case_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Builds '(Cons 10 (Cons 20 (Cons 30 Nil)))', invokes the documented length function, and expects '3'."
+        },
+        {
+          "type": "function.invoke",
+          "description": "evaluate a lazy infinite Fibonacci list prefix",
+          "function": "fibs_take_20_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Runs '(take 20 fibs)' so the fixture exercises lazy list construction, recursion, arithmetic, and enough graph reduction to produce twenty values."
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject a malformed Core program",
+          "function": "bad_syntax_traps",
+          "params": [],
+          "results": [],
+          "trap": "unreachable",
+          "notes": "Passes a missing-parenthesis program into run(). The expected trap verifies that the parser/error path is reached instead of only testing successful reductions."
+        }
+      ]
+    }
+  ],
+  "sha256": "ea1695b47ffefadbba0c0b7543d3e304d09e761421dfbc7529ef6404a4e4bdaf",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbitlang/moonbit-docs/tree/main/next/sources/gmachine",
+    "path": "src/part3",
+    "description": "Apache-2.0 MoonBit documentation G-machine implementation compiled with a local export harness for corpus tests."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The fixture uses the part3 G-machine from the MoonBit docs. The local harness adds no replacement algorithm; it feeds readable Core-language source strings into the real parser, compiler, and evaluator."
+}

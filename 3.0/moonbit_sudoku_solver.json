@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "moonbit_sudoku_solver",
+  "path": "moonbit_sudoku_solver.wasm",
+  "wat": {
+    "status": "present",
+    "path": "moonbit_sudoku_solver.wat"
+  },
+  "description": "MoonBit Sudoku Solver fixture exercising coordinate lookup, peer/unit table construction, constraint propagation, contradiction handling, and DFS search.",
+  "features": [
+    "bulk-memory",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "contradiction_traps",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that builds an impossible grid with duplicate row givens and expects the real parser/constraint propagation code to trap."
+    },
+    {
+      "name": "hard_grid_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that calls solve(grid1) for the documented harder Norvig-style puzzle and compares the formatted solved grid with the documented expected solution."
+    },
+    {
+      "name": "propagation_grid_matches",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that parses grid2 and verifies the puzzle is solved by assignment/elimination propagation against the documented expected solution."
+    },
+    {
+      "name": "helper_tables_match",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Harness export that validates coordinate lookup plus generated unit and peer tables before the solver tests run."
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise Sudoku helper tables, propagation, full search, and contradiction paths",
+      "notes": "The MoonBit solver works with GC-managed strings, sorted sets, and Grid values, so the JSON runner cannot directly inspect those internals. Each i32 result is produced by a small harness function that constructs a real puzzle, calls the documented solver implementation, compares against a known solved grid, and returns 1 only when that internal check passes.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "build and validate square indices plus unit and peer tables",
+          "function": "helper_tables_match",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Checks square_to_int(\"C3\") == 20, units[\"A1\"] == A2,A3,B1,B2,B3,C1,C2,C3, and peers[\"A1\"].length() == 20."
+        },
+        {
+          "type": "function.invoke",
+          "description": "solve a puzzle through constraint propagation alone",
+          "function": "propagation_grid_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Uses the docs grid2 puzzle beginning '003020600 / 900305001 / 001806400 ...' and verifies the full formatted solution beginning '4 8 3 | 9 2 1 | 6 5 7'. This primarily exercises Grid::parse, assign, eliminate, peer propagation, and Grid::format."
+        },
+        {
+          "type": "function.invoke",
+          "description": "solve a harder Norvig-style puzzle through recursive search",
+          "function": "hard_grid_matches",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "notes": "Uses the documented magictour/top95-style grid1 puzzle beginning '4 . . | . . . | 8 . 5' and verifies the full solution beginning '4 1 7 | 3 6 9 | 8 2 5'. This reaches search() in addition to the propagation code."
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject a contradictory row with duplicate givens",
+          "function": "contradiction_traps",
+          "params": [],
+          "results": [],
+          "trap": "unreachable",
+          "notes": "Builds an impossible puzzle with two '1' givens in the first row, then calls Grid::parse. The expected trap proves the contradiction path is exercised rather than silently accepting invalid input."
+        }
+      ]
+    }
+  ],
+  "sha256": "416c99d91043c5248767798e4b3cd6fc5dda54429565a5181d9fdbd346b94e80",
+  "source": {
+    "contributor": "human",
+    "language": "MoonBit",
+    "url": "https://github.com/moonbitlang/moonbit-docs/tree/main/next/sources/sudoku",
+    "path": "src/index.mbt.md",
+    "description": "Apache-2.0 MoonBit documentation Sudoku solver compiled with a local export harness for corpus smoke tests."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "tags": [
+    "moonbit",
+    "sudoku",
+    "sudoku-solver",
+    "solver",
+    "constraint-propagation",
+    "search",
+    "wasm3",
+    "gc"
+  ],
+  "notes": "The committed Wasm was built from the official MoonBit docs Sudoku solver plus a local export harness. The harness does not replace the algorithm: it calls the real square_to_int, unit/peer construction, Grid::parse, assign, eliminate, search, solve, and Grid::format functions, then reduces the internal MoonBit GC/string results to simple i32 pass/fail exports that this corpus runner can assert. The two positive tests compare complete formatted solved grids, not just spot checks."
+}
