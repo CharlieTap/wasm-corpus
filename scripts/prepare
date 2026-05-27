@@ -10,6 +10,7 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
+const maxBinaryenRoundtripPasses = Number.parseInt(process.env.WASM_CORPUS_MAX_BINARYEN_ROUNDTRIP_PASSES || "12", 10);
 let cachedBinaryenVersion = null;
 
 function usage() {
@@ -463,7 +464,7 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
   stripWasmCustomSections(input, strippedInput);
   let current = strippedInput;
 
-  for (let pass = 1; pass <= 5; pass += 1) {
+  for (let pass = 1; pass <= maxBinaryenRoundtripPasses; pass += 1) {
     const candidate = path.join(tmpdir, `candidate-${pass}.wasm`);
     const candidateWat = path.join(tmpdir, `candidate-${pass}.wat`);
     const readableWat = path.join(tmpdir, `readable-${pass}.wat`);
@@ -506,7 +507,7 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     current = checked;
   }
 
-  fail("Binaryen output did not stabilize after 5 passes");
+  fail(`Binaryen output did not stabilize after ${maxBinaryenRoundtripPasses} passes`);
 }
 
 function stripWasmCustomSections(input, output) {
