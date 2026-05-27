@@ -1,0 +1,897 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kotlinx_serialization_json",
+  "path": "kotlinx_serialization_json.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kotlinx_serialization_json.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "exception-handling",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "typed-function-references"
+  ],
+  "tags": [
+    "kotlin",
+    "wasm3",
+    "gc",
+    "wasi-p1",
+    "kotlinx",
+    "serialization",
+    "json",
+    "kotlinx-serialization-json"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Deterministic stub for Kotlin runtime hash seed initialization; returning errno 0 with unchanged zeroed memory is sufficient for these fixed tests."
+      },
+      "description": "Kotlin/WASI runtime entropy hook used while initializing hash-related runtime state."
+    }
+  ],
+  "exports": [
+    {
+      "name": "jsonTreeScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse a nested JSON object, traverse object/array members, and score nested fields."
+    },
+    {
+      "name": "jsonArrayScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse an array of objects and aggregate present numeric fields while skipping missing ones."
+    },
+    {
+      "name": "jsonMissingScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Read a present field, a missing field, and an explicit JSON null branch."
+    },
+    {
+      "name": "jsonDeepScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse a deeper object containing arrays of team records and aggregate nested member totals."
+    },
+    {
+      "name": "jsonPersonScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Encode and decode a nested Person model with Address data."
+    },
+    {
+      "name": "jsonOrderScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode an order with repeated line items and aggregate quantities."
+    },
+    {
+      "name": "jsonCopyScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode, copy, and rescore a typed model instance."
+    },
+    {
+      "name": "jsonTeamScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Roundtrip a team model containing multiple nested Person records."
+    },
+    {
+      "name": "jsonUnknownScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode with ignoreUnknownKeys and default values enabled."
+    },
+    {
+      "name": "jsonDefaultScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Encode default-valued configuration through the Json format."
+    },
+    {
+      "name": "jsonNullScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode an explicit null optional field."
+    },
+    {
+      "name": "jsonEncodeSkipDefaultsScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Encode with defaults omitted, then decode back through default restoration."
+    },
+    {
+      "name": "jsonListScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a list of typed metric records and aggregate fields."
+    },
+    {
+      "name": "jsonMapScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a string-to-int map and iterate sorted entries."
+    },
+    {
+      "name": "jsonSetScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Encode a Kotlin set to JSON and checksum the text result."
+    },
+    {
+      "name": "jsonNestedCollectionScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a map of metric lists and aggregate nested collection values."
+    },
+    {
+      "name": "jsonCircleScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a sealed polymorphic circle payload and dispatch by subtype."
+    },
+    {
+      "name": "jsonRectangleScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a sealed polymorphic rectangle payload and dispatch by subtype."
+    },
+    {
+      "name": "jsonShapeListScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a list of sealed shapes and aggregate subtype-specific scores."
+    },
+    {
+      "name": "jsonMixedShapeScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a larger mixed sealed-shape list and fold subtype scores."
+    },
+    {
+      "name": "jsonNumberScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Convert JSON integer, long, and double primitives."
+    },
+    {
+      "name": "jsonBooleanScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Convert and count JSON boolean primitives."
+    },
+    {
+      "name": "jsonStringScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build a JsonPrimitive string and apply Kotlin string processing."
+    },
+    {
+      "name": "jsonNumericArrayScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse numeric records with negative values and boolean-dependent scoring."
+    },
+    {
+      "name": "jsonBuildObjectScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build a JSON object with nested array content using the DSL."
+    },
+    {
+      "name": "jsonBuildArrayScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build an array of objects using the JSON builder DSL."
+    },
+    {
+      "name": "jsonMutateScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Create and merge JsonObject maps."
+    },
+    {
+      "name": "jsonBuildNestedScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build nested JSON objects and arrays in loops using the DSL."
+    },
+    {
+      "name": "jsonInventoryTotal",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode nested inventory records and compute stock value."
+    },
+    {
+      "name": "jsonInventoryMissing",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode inventory while ignoring unknown fields and reading optional tags."
+    },
+    {
+      "name": "jsonInventoryEncode",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Encode a nested inventory object and checksum the generated JSON."
+    },
+    {
+      "name": "jsonInventoryFilterScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode a larger inventory and filter zero-count stock before aggregation."
+    },
+    {
+      "name": "jsonFilterScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode events and filter successful records."
+    },
+    {
+      "name": "jsonPartitionScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode events and partition success/failure branches."
+    },
+    {
+      "name": "jsonFoldScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode events and fold across all records."
+    },
+    {
+      "name": "jsonGroupScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Decode events, group by kind, and aggregate per group."
+    },
+    {
+      "name": "jsonMalformedScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Exercise malformed JSON exception handling."
+    },
+    {
+      "name": "jsonTypeMismatchScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Exercise JSON type-mismatch exception handling."
+    },
+    {
+      "name": "jsonValidAfterErrorScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Recover after an error path and decode a valid payload."
+    },
+    {
+      "name": "jsonMissingRequiredScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Exercise missing-required-field JSON exception handling."
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 0)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)",
+      "description": "Kotlin/Wasm runtime entry export generated by the library binary; corpus tests call explicit score exports instead."
+    }
+  ],
+  "tests": [
+    {
+      "description": "Kotlinx Json Tree Navigation library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_tree_navigation: Parse a nested JSON object, traverse object/array members, and score nested fields. Parse an array of objects and aggregate present numeric fields while skipping missing ones. Read a present field, a missing field, and an explicit JSON null branch. Parse a deeper object containing arrays of team records and aggregate nested member totals.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Parse a nested JSON object, traverse object/array members, and score nested fields.",
+          "function": "jsonTreeScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3097"
+            }
+          ],
+          "notes": "Parse a nested JSON object, traverse object/array members, and score nested fields. This assertion is preserved from kotlinx_json_tree_navigation and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse an array of objects and aggregate present numeric fields while skipping missing ones.",
+          "function": "jsonArrayScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "164"
+            }
+          ],
+          "notes": "Parse an array of objects and aggregate present numeric fields while skipping missing ones. This assertion is preserved from kotlinx_json_tree_navigation and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Read a present field, a missing field, and an explicit JSON null branch.",
+          "function": "jsonMissingScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "71"
+            }
+          ],
+          "notes": "Read a present field, a missing field, and an explicit JSON null branch. This assertion is preserved from kotlinx_json_tree_navigation and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse a deeper object containing arrays of team records and aggregate nested member totals.",
+          "function": "jsonDeepScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "74"
+            }
+          ],
+          "notes": "Parse a deeper object containing arrays of team records and aggregate nested member totals. This assertion is preserved from kotlinx_json_tree_navigation and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Model Roundtrip library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_model_roundtrip: Encode and decode a nested Person model with Address data. Decode an order with repeated line items and aggregate quantities. Decode, copy, and rescore a typed model instance. Roundtrip a team model containing multiple nested Person records.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Encode and decode a nested Person model with Address data.",
+          "function": "jsonPersonScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3804"
+            }
+          ],
+          "notes": "Encode and decode a nested Person model with Address data. This assertion is preserved from kotlinx_json_model_roundtrip and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode an order with repeated line items and aggregate quantities.",
+          "function": "jsonOrderScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "907"
+            }
+          ],
+          "notes": "Decode an order with repeated line items and aggregate quantities. This assertion is preserved from kotlinx_json_model_roundtrip and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode, copy, and rescore a typed model instance.",
+          "function": "jsonCopyScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "423"
+            }
+          ],
+          "notes": "Decode, copy, and rescore a typed model instance. This assertion is preserved from kotlinx_json_model_roundtrip and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Roundtrip a team model containing multiple nested Person records.",
+          "function": "jsonTeamScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "587"
+            }
+          ],
+          "notes": "Roundtrip a team model containing multiple nested Person records. This assertion is preserved from kotlinx_json_model_roundtrip and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Config Defaults library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_config_defaults: Decode with ignoreUnknownKeys and default values enabled. Encode default-valued configuration through the Json format. Decode an explicit null optional field. Encode with defaults omitted, then decode back through default restoration.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Decode with ignoreUnknownKeys and default values enabled.",
+          "function": "jsonUnknownScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "387"
+            }
+          ],
+          "notes": "Decode with ignoreUnknownKeys and default values enabled. This assertion is preserved from kotlinx_json_config_defaults and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Encode default-valued configuration through the Json format.",
+          "function": "jsonDefaultScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "59944"
+            }
+          ],
+          "notes": "Encode default-valued configuration through the Json format. This assertion is preserved from kotlinx_json_config_defaults and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode an explicit null optional field.",
+          "function": "jsonNullScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "305"
+            }
+          ],
+          "notes": "Decode an explicit null optional field. This assertion is preserved from kotlinx_json_config_defaults and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Encode with defaults omitted, then decode back through default restoration.",
+          "function": "jsonEncodeSkipDefaultsScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "6448"
+            }
+          ],
+          "notes": "Encode with defaults omitted, then decode back through default restoration. This assertion is preserved from kotlinx_json_config_defaults and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Collections Codec library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_collections_codec: Decode a list of typed metric records and aggregate fields. Decode a string-to-int map and iterate sorted entries. Encode a Kotlin set to JSON and checksum the text result. Decode a map of metric lists and aggregate nested collection values.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Decode a list of typed metric records and aggregate fields.",
+          "function": "jsonListScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "80"
+            }
+          ],
+          "notes": "Decode a list of typed metric records and aggregate fields. This assertion is preserved from kotlinx_json_collections_codec and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a string-to-int map and iterate sorted entries.",
+          "function": "jsonMapScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "75"
+            }
+          ],
+          "notes": "Decode a string-to-int map and iterate sorted entries. This assertion is preserved from kotlinx_json_collections_codec and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Encode a Kotlin set to JSON and checksum the text result.",
+          "function": "jsonSetScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30992"
+            }
+          ],
+          "notes": "Encode a Kotlin set to JSON and checksum the text result. This assertion is preserved from kotlinx_json_collections_codec and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a map of metric lists and aggregate nested collection values.",
+          "function": "jsonNestedCollectionScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "81"
+            }
+          ],
+          "notes": "Decode a map of metric lists and aggregate nested collection values. This assertion is preserved from kotlinx_json_collections_codec and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Sealed Shapes library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_sealed_shapes: Decode a sealed polymorphic circle payload and dispatch by subtype. Decode a sealed polymorphic rectangle payload and dispatch by subtype. Decode a list of sealed shapes and aggregate subtype-specific scores. Decode a larger mixed sealed-shape list and fold subtype scores.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Decode a sealed polymorphic circle payload and dispatch by subtype.",
+          "function": "jsonCircleScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "275"
+            }
+          ],
+          "notes": "Decode a sealed polymorphic circle payload and dispatch by subtype. This assertion is preserved from kotlinx_json_sealed_shapes and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a sealed polymorphic rectangle payload and dispatch by subtype.",
+          "function": "jsonRectangleScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "328"
+            }
+          ],
+          "notes": "Decode a sealed polymorphic rectangle payload and dispatch by subtype. This assertion is preserved from kotlinx_json_sealed_shapes and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a list of sealed shapes and aggregate subtype-specific scores.",
+          "function": "jsonShapeListScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "542"
+            }
+          ],
+          "notes": "Decode a list of sealed shapes and aggregate subtype-specific scores. This assertion is preserved from kotlinx_json_sealed_shapes and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a larger mixed sealed-shape list and fold subtype scores.",
+          "function": "jsonMixedShapeScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "7259"
+            }
+          ],
+          "notes": "Decode a larger mixed sealed-shape list and fold subtype scores. This assertion is preserved from kotlinx_json_sealed_shapes and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Numeric Primitives library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_numeric_primitives: Convert JSON integer, long, and double primitives. Convert and count JSON boolean primitives. Build a JsonPrimitive string and apply Kotlin string processing. Parse numeric records with negative values and boolean-dependent scoring.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Convert JSON integer, long, and double primitives.",
+          "function": "jsonNumberScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2566"
+            }
+          ],
+          "notes": "Convert JSON integer, long, and double primitives. This assertion is preserved from kotlinx_json_numeric_primitives and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Convert and count JSON boolean primitives.",
+          "function": "jsonBooleanScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "304"
+            }
+          ],
+          "notes": "Convert and count JSON boolean primitives. This assertion is preserved from kotlinx_json_numeric_primitives and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build a JsonPrimitive string and apply Kotlin string processing.",
+          "function": "jsonStringScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "73944"
+            }
+          ],
+          "notes": "Build a JsonPrimitive string and apply Kotlin string processing. This assertion is preserved from kotlinx_json_numeric_primitives and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse numeric records with negative values and boolean-dependent scoring.",
+          "function": "jsonNumericArrayScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "113"
+            }
+          ],
+          "notes": "Parse numeric records with negative values and boolean-dependent scoring. This assertion is preserved from kotlinx_json_numeric_primitives and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Builder Dsl library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_builder_dsl: Build a JSON object with nested array content using the DSL. Build an array of objects using the JSON builder DSL. Create and merge JsonObject maps. Build nested JSON objects and arrays in loops using the DSL.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Build a JSON object with nested array content using the DSL.",
+          "function": "jsonBuildObjectScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "523"
+            }
+          ],
+          "notes": "Build a JSON object with nested array content using the DSL. This assertion is preserved from kotlinx_json_builder_dsl and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build an array of objects using the JSON builder DSL.",
+          "function": "jsonBuildArrayScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ],
+          "notes": "Build an array of objects using the JSON builder DSL. This assertion is preserved from kotlinx_json_builder_dsl and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Create and merge JsonObject maps.",
+          "function": "jsonMutateScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "63"
+            }
+          ],
+          "notes": "Create and merge JsonObject maps. This assertion is preserved from kotlinx_json_builder_dsl and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build nested JSON objects and arrays in loops using the DSL.",
+          "function": "jsonBuildNestedScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ],
+          "notes": "Build nested JSON objects and arrays in loops using the DSL. This assertion is preserved from kotlinx_json_builder_dsl and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Nested Inventory library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_nested_inventory: Decode nested inventory records and compute stock value. Decode inventory while ignoring unknown fields and reading optional tags. Encode a nested inventory object and checksum the generated JSON. Decode a larger inventory and filter zero-count stock before aggregation.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Decode nested inventory records and compute stock value.",
+          "function": "jsonInventoryTotal",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "76"
+            }
+          ],
+          "notes": "Decode nested inventory records and compute stock value. This assertion is preserved from kotlinx_json_nested_inventory and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode inventory while ignoring unknown fields and reading optional tags.",
+          "function": "jsonInventoryMissing",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "411"
+            }
+          ],
+          "notes": "Decode inventory while ignoring unknown fields and reading optional tags. This assertion is preserved from kotlinx_json_nested_inventory and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Encode a nested inventory object and checksum the generated JSON.",
+          "function": "jsonInventoryEncode",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "9253"
+            }
+          ],
+          "notes": "Encode a nested inventory object and checksum the generated JSON. This assertion is preserved from kotlinx_json_nested_inventory and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode a larger inventory and filter zero-count stock before aggregation.",
+          "function": "jsonInventoryFilterScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "92"
+            }
+          ],
+          "notes": "Decode a larger inventory and filter zero-count stock before aggregation. This assertion is preserved from kotlinx_json_nested_inventory and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Array Filtering library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_array_filtering: Decode events and filter successful records. Decode events and partition success/failure branches. Decode events and fold across all records. Decode events, group by kind, and aggregate per group.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Decode events and filter successful records.",
+          "function": "jsonFilterScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "33"
+            }
+          ],
+          "notes": "Decode events and filter successful records. This assertion is preserved from kotlinx_json_array_filtering and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode events and partition success/failure branches.",
+          "function": "jsonPartitionScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "205"
+            }
+          ],
+          "notes": "Decode events and partition success/failure branches. This assertion is preserved from kotlinx_json_array_filtering and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode events and fold across all records.",
+          "function": "jsonFoldScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "711"
+            }
+          ],
+          "notes": "Decode events and fold across all records. This assertion is preserved from kotlinx_json_array_filtering and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Decode events, group by kind, and aggregate per group.",
+          "function": "jsonGroupScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ],
+          "notes": "Decode events, group by kind, and aggregate per group. This assertion is preserved from kotlinx_json_array_filtering and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Json Error Recovery library scenarios",
+      "notes": "Preserved coverage from kotlinx_json_error_recovery: Exercise malformed JSON exception handling. Exercise JSON type-mismatch exception handling. Recover after an error path and decode a valid payload. Exercise missing-required-field JSON exception handling.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Exercise malformed JSON exception handling.",
+          "function": "jsonMalformedScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "210"
+            }
+          ],
+          "notes": "Exercise malformed JSON exception handling. This assertion is preserved from kotlinx_json_error_recovery and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Exercise JSON type-mismatch exception handling.",
+          "function": "jsonTypeMismatchScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "212"
+            }
+          ],
+          "notes": "Exercise JSON type-mismatch exception handling. This assertion is preserved from kotlinx_json_error_recovery and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Recover after an error path and decode a valid payload.",
+          "function": "jsonValidAfterErrorScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "72"
+            }
+          ],
+          "notes": "Recover after an error path and decode a valid payload. This assertion is preserved from kotlinx_json_error_recovery and now runs inside the combined kotlinx.serialization-json fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Exercise missing-required-field JSON exception handling.",
+          "function": "jsonMissingRequiredScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "320"
+            }
+          ],
+          "notes": "Exercise missing-required-field JSON exception handling. This assertion is preserved from kotlinx_json_error_recovery and now runs inside the combined kotlinx.serialization-json fixture."
+        }
+      ]
+    }
+  ],
+  "sha256": "5779f0337b000b18448db2570af6d519f1951f99940f95addef4df79692f3491",
+  "source": {
+    "contributor": "ai",
+    "language": "Kotlin",
+    "path": "src/wasmWasiMain/kotlin/Main.kt",
+    "url": "https://github.com/Kotlin/kotlinx.serialization",
+    "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx.serialization-json 1.11.0 library (kotlinx.serialization, Apache-2.0), aggregating 10 scenario groups and 40 deterministic corpus calls into one library-level Wasm module."
+  },
+  "toolchain": {
+    "name": "Kotlin/Wasm + Binaryen",
+    "version": "Kotlin Gradle plugin 2.3.21; kotlinx.serialization-json 1.11.0; wasm-opt version 125",
+    "command": "/tmp/gradle-8.14/bin/gradle compileProductionLibraryKotlinWasmWasiOptimize && ./scripts/prepare"
+  },
+  "description": "Kotlinx Serialization JSON fixture aggregating 10 scenario groups and 40 deterministic calls against kotlinx.serialization-json.",
+  "notes": "Aggregates the previous JSON-focused Kotlinx fixtures into one library-level module so the Kotlin/Wasm runtime and kotlinx.serialization JSON implementation are embedded once while preserving all scenario coverage."
+}

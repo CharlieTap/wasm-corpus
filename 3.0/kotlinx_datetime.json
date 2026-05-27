@@ -1,0 +1,484 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kotlinx_datetime",
+  "path": "kotlinx_datetime.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kotlinx_datetime.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "exception-handling",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "kotlin",
+    "wasm3",
+    "gc",
+    "wasi-p1",
+    "kotlinx",
+    "datetime",
+    "kotlinx-datetime"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Deterministic stub for Kotlin runtime hash seed initialization; returning errno 0 with unchanged zeroed memory is sufficient for these fixed tests."
+      },
+      "description": "Kotlin/WASI runtime entropy hook used while initializing hash-related runtime state."
+    }
+  ],
+  "exports": [
+    {
+      "name": "dateLeapScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Add a year to a leap-day date and check month/day clamping."
+    },
+    {
+      "name": "dateMonthScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Add one month from a month-end date."
+    },
+    {
+      "name": "dateCompareScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Count days between dates and inspect the target weekday."
+    },
+    {
+      "name": "dateRangeScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Generate a short date range across a leap-day boundary and aggregate day fields."
+    },
+    {
+      "name": "instantDeltaScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse two Instants and compute their epoch-second delta."
+    },
+    {
+      "name": "instantLocalScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Convert an Instant to a UTC LocalDateTime."
+    },
+    {
+      "name": "instantParseScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Construct an Instant from epoch seconds."
+    },
+    {
+      "name": "instantOrderingScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse, sort, and score several Instants."
+    },
+    {
+      "name": "periodForwardScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Add a compound DatePeriod across year/month/day fields."
+    },
+    {
+      "name": "periodBackwardScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Subtract a DatePeriod across a leap-year boundary."
+    },
+    {
+      "name": "periodChainScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Chain date addition and subtraction operations."
+    },
+    {
+      "name": "periodLoopScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Apply several month/day DatePeriod increments in a loop."
+    },
+    {
+      "name": "parseDateScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse an ISO LocalDate string."
+    },
+    {
+      "name": "parseDateTimeScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse an ISO LocalDateTime string."
+    },
+    {
+      "name": "parseInvalidScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Exercise invalid date parsing and exception handling."
+    },
+    {
+      "name": "parseManyScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Parse several ISO LocalDate strings and aggregate distinct month/day data."
+    },
+    {
+      "name": "dayCountScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Count days across a leap year."
+    },
+    {
+      "name": "dayOfWeekScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Inspect day-of-week values for several dates."
+    },
+    {
+      "name": "yearDayScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Read day-of-year and month fields."
+    },
+    {
+      "name": "weekdayHistogramScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build a weekday histogram across a two-week date range."
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 0)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)",
+      "description": "Kotlin/Wasm runtime entry export generated by the library binary; corpus tests call explicit score exports instead."
+    }
+  ],
+  "tests": [
+    {
+      "description": "Kotlinx Datetime Calendar Math library scenarios",
+      "notes": "Preserved coverage from kotlinx_datetime_calendar_math: Add a year to a leap-day date and check month/day clamping. Add one month from a month-end date. Count days between dates and inspect the target weekday. Generate a short date range across a leap-day boundary and aggregate day fields.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Add a year to a leap-day date and check month/day clamping.",
+          "function": "dateLeapScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2253"
+            }
+          ],
+          "notes": "Add a year to a leap-day date and check month/day clamping. This assertion is preserved from kotlinx_datetime_calendar_math and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Add one month from a month-end date.",
+          "function": "dateMonthScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "250228"
+            }
+          ],
+          "notes": "Add one month from a month-end date. This assertion is preserved from kotlinx_datetime_calendar_math and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Count days between dates and inspect the target weekday.",
+          "function": "dateCompareScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "703"
+            }
+          ],
+          "notes": "Count days between dates and inspect the target weekday. This assertion is preserved from kotlinx_datetime_calendar_math and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Generate a short date range across a leap-day boundary and aggregate day fields.",
+          "function": "dateRangeScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "387"
+            }
+          ],
+          "notes": "Generate a short date range across a leap-day boundary and aggregate day fields. This assertion is preserved from kotlinx_datetime_calendar_math and now runs inside the combined kotlinx-datetime fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Datetime Instants library scenarios",
+      "notes": "Preserved coverage from kotlinx_datetime_instants: Parse two Instants and compute their epoch-second delta. Convert an Instant to a UTC LocalDateTime. Construct an Instant from epoch seconds. Parse, sort, and score several Instants.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Parse two Instants and compute their epoch-second delta.",
+          "function": "instantDeltaScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "200"
+            }
+          ],
+          "notes": "Parse two Instants and compute their epoch-second delta. This assertion is preserved from kotlinx_datetime_instants and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Convert an Instant to a UTC LocalDateTime.",
+          "function": "instantLocalScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "22912"
+            }
+          ],
+          "notes": "Convert an Instant to a UTC LocalDateTime. This assertion is preserved from kotlinx_datetime_instants and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Construct an Instant from epoch seconds.",
+          "function": "instantParseScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "345"
+            }
+          ],
+          "notes": "Construct an Instant from epoch seconds. This assertion is preserved from kotlinx_datetime_instants and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse, sort, and score several Instants.",
+          "function": "instantOrderingScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "68630"
+            }
+          ],
+          "notes": "Parse, sort, and score several Instants. This assertion is preserved from kotlinx_datetime_instants and now runs inside the combined kotlinx-datetime fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Datetime Periods library scenarios",
+      "notes": "Preserved coverage from kotlinx_datetime_periods: Add a compound DatePeriod across year/month/day fields. Subtract a DatePeriod across a leap-year boundary. Chain date addition and subtraction operations. Apply several month/day DatePeriod increments in a loop.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Add a compound DatePeriod across year/month/day fields.",
+          "function": "periodForwardScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "250225"
+            }
+          ],
+          "notes": "Add a compound DatePeriod across year/month/day fields. This assertion is preserved from kotlinx_datetime_periods and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Subtract a DatePeriod across a leap-year boundary.",
+          "function": "periodBackwardScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "240229"
+            }
+          ],
+          "notes": "Subtract a DatePeriod across a leap-year boundary. This assertion is preserved from kotlinx_datetime_periods and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Chain date addition and subtraction operations.",
+          "function": "periodChainScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "240129"
+            }
+          ],
+          "notes": "Chain date addition and subtraction operations. This assertion is preserved from kotlinx_datetime_periods and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Apply several month/day DatePeriod increments in a loop.",
+          "function": "periodLoopScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "240805"
+            }
+          ],
+          "notes": "Apply several month/day DatePeriod increments in a loop. This assertion is preserved from kotlinx_datetime_periods and now runs inside the combined kotlinx-datetime fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Datetime Parsing library scenarios",
+      "notes": "Preserved coverage from kotlinx_datetime_parsing: Parse an ISO LocalDate string. Parse an ISO LocalDateTime string. Exercise invalid date parsing and exception handling. Parse several ISO LocalDate strings and aggregate distinct month/day data.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Parse an ISO LocalDate string.",
+          "function": "parseDateScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "260527"
+            }
+          ],
+          "notes": "Parse an ISO LocalDate string. This assertion is preserved from kotlinx_datetime_parsing and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse an ISO LocalDateTime string.",
+          "function": "parseDateTimeScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "602313"
+            }
+          ],
+          "notes": "Parse an ISO LocalDateTime string. This assertion is preserved from kotlinx_datetime_parsing and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Exercise invalid date parsing and exception handling.",
+          "function": "parseInvalidScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "230"
+            }
+          ],
+          "notes": "Exercise invalid date parsing and exception handling. This assertion is preserved from kotlinx_datetime_parsing and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Parse several ISO LocalDate strings and aggregate distinct month/day data.",
+          "function": "parseManyScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "391"
+            }
+          ],
+          "notes": "Parse several ISO LocalDate strings and aggregate distinct month/day data. This assertion is preserved from kotlinx_datetime_parsing and now runs inside the combined kotlinx-datetime fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Datetime Day Counts library scenarios",
+      "notes": "Preserved coverage from kotlinx_datetime_day_counts: Count days across a leap year. Inspect day-of-week values for several dates. Read day-of-year and month fields. Build a weekday histogram across a two-week date range.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Count days across a leap year.",
+          "function": "dayCountScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "366"
+            }
+          ],
+          "notes": "Count days across a leap year. This assertion is preserved from kotlinx_datetime_day_counts and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Inspect day-of-week values for several dates.",
+          "function": "dayOfWeekScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "73"
+            }
+          ],
+          "notes": "Inspect day-of-week values for several dates. This assertion is preserved from kotlinx_datetime_day_counts and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Read day-of-year and month fields.",
+          "function": "yearDayScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "12366"
+            }
+          ],
+          "notes": "Read day-of-year and month fields. This assertion is preserved from kotlinx_datetime_day_counts and now runs inside the combined kotlinx-datetime fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build a weekday histogram across a two-week date range.",
+          "function": "weekdayHistogramScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "567"
+            }
+          ],
+          "notes": "Build a weekday histogram across a two-week date range. This assertion is preserved from kotlinx_datetime_day_counts and now runs inside the combined kotlinx-datetime fixture."
+        }
+      ]
+    }
+  ],
+  "sha256": "b958bb6a0b869f3f3a4d34d0e25c697d941c93bc4640f2106d23999fc54807e7",
+  "source": {
+    "contributor": "ai",
+    "language": "Kotlin",
+    "path": "src/wasmWasiMain/kotlin/Main.kt",
+    "url": "https://github.com/Kotlin/kotlinx-datetime",
+    "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx-datetime 0.7.1 library (kotlinx-datetime, Apache-2.0), aggregating 5 scenario groups and 20 deterministic corpus calls into one library-level Wasm module."
+  },
+  "toolchain": {
+    "name": "Kotlin/Wasm + Binaryen",
+    "version": "Kotlin Gradle plugin 2.3.21; kotlinx-datetime 0.7.1; wasm-opt version 125",
+    "command": "/tmp/gradle-8.14/bin/gradle compileProductionLibraryKotlinWasmWasiOptimize && ./scripts/prepare"
+  },
+  "description": "Kotlinx DateTime fixture aggregating 5 scenario groups and 20 deterministic calls against kotlinx-datetime.",
+  "notes": "Aggregates the previous kotlinx-datetime fixtures into one library-level module so the Kotlin/Wasm runtime and datetime implementation are embedded once while preserving all calendar, instant, parsing, and period coverage."
+}
