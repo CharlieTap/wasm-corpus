@@ -1,0 +1,485 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kotlinx_collections_immutable",
+  "path": "kotlinx_collections_immutable.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kotlinx_collections_immutable.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "exception-handling",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "tags": [
+    "kotlin",
+    "wasm3",
+    "gc",
+    "wasi-p1",
+    "kotlinx",
+    "collections",
+    "persistent-data-structures",
+    "kotlinx-collections-immutable"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "0"
+          }
+        ],
+        "notes": "Deterministic stub for Kotlin runtime hash seed initialization; returning errno 0 with unchanged zeroed memory is sufficient for these fixed tests."
+      },
+      "description": "Kotlin/WASI runtime entropy hook used while initializing hash-related runtime state."
+    }
+  ],
+  "exports": [
+    {
+      "name": "plistAppendScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Append to a persistent list and sum the resulting values."
+    },
+    {
+      "name": "plistRemoveScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Remove and update elements in a persistent list."
+    },
+    {
+      "name": "plistSliceScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build a persistent list and aggregate a sub-list."
+    },
+    {
+      "name": "plistBuilderSharingScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Mutate a persistent list builder while proving the original snapshot is unchanged."
+    },
+    {
+      "name": "pmapPutScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Put several entries into a persistent map."
+    },
+    {
+      "name": "pmapRemoveScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Remove an entry from a persistent map."
+    },
+    {
+      "name": "pmapMergeScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Merge persistent map entries while preserving the original map."
+    },
+    {
+      "name": "pmapBuilderSharingScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Mutate a persistent map builder while proving the original map is unchanged."
+    },
+    {
+      "name": "psetUnionScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Add duplicate and new elements to a persistent set."
+    },
+    {
+      "name": "psetIntersectScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Intersect a persistent set with a regular set."
+    },
+    {
+      "name": "psetContainsScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Remove from a persistent set and test contains/not-contains branches."
+    },
+    {
+      "name": "psetSubtractScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Remove several elements from a persistent set and add a new element."
+    },
+    {
+      "name": "builderListScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Mutate a persistent list builder and build a snapshot."
+    },
+    {
+      "name": "builderMapScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Mutate a persistent map builder with overwritten keys."
+    },
+    {
+      "name": "builderSetScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Mutate a persistent set builder with duplicate values."
+    },
+    {
+      "name": "builderSnapshotScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Build one snapshot, mutate the builder again, and verify both snapshot states."
+    },
+    {
+      "name": "nestedLookupScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Look up values in a persistent map of persistent lists."
+    },
+    {
+      "name": "nestedUpdateScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Update nested persistent collections while preserving the source."
+    },
+    {
+      "name": "nestedFlattenScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Flatten nested persistent lists."
+    },
+    {
+      "name": "nestedTransformScore",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Transform nested persistent lists and compare transformed versus original aggregates."
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 0)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)",
+      "description": "Kotlin/Wasm runtime entry export generated by the library binary; corpus tests call explicit score exports instead."
+    }
+  ],
+  "tests": [
+    {
+      "description": "Kotlinx Collections Persistent List library scenarios",
+      "notes": "Preserved coverage from kotlinx_collections_persistent_list: Append to a persistent list and sum the resulting values. Remove and update elements in a persistent list. Build a persistent list and aggregate a sub-list. Mutate a persistent list builder while proving the original snapshot is unchanged.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Append to a persistent list and sum the resulting values.",
+          "function": "plistAppendScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "195"
+            }
+          ],
+          "notes": "Append to a persistent list and sum the resulting values. This assertion is preserved from kotlinx_collections_persistent_list and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Remove and update elements in a persistent list.",
+          "function": "plistRemoveScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "603"
+            }
+          ],
+          "notes": "Remove and update elements in a persistent list. This assertion is preserved from kotlinx_collections_persistent_list and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build a persistent list and aggregate a sub-list.",
+          "function": "plistSliceScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "251"
+            }
+          ],
+          "notes": "Build a persistent list and aggregate a sub-list. This assertion is preserved from kotlinx_collections_persistent_list and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Mutate a persistent list builder while proving the original snapshot is unchanged.",
+          "function": "plistBuilderSharingScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "618"
+            }
+          ],
+          "notes": "Mutate a persistent list builder while proving the original snapshot is unchanged. This assertion is preserved from kotlinx_collections_persistent_list and now runs inside the combined kotlinx.collections.immutable fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Collections Persistent Map library scenarios",
+      "notes": "Preserved coverage from kotlinx_collections_persistent_map: Put several entries into a persistent map. Remove an entry from a persistent map. Merge persistent map entries while preserving the original map. Mutate a persistent map builder while proving the original map is unchanged.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Put several entries into a persistent map.",
+          "function": "pmapPutScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "37"
+            }
+          ],
+          "notes": "Put several entries into a persistent map. This assertion is preserved from kotlinx_collections_persistent_map and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Remove an entry from a persistent map.",
+          "function": "pmapRemoveScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "402"
+            }
+          ],
+          "notes": "Remove an entry from a persistent map. This assertion is preserved from kotlinx_collections_persistent_map and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Merge persistent map entries while preserving the original map.",
+          "function": "pmapMergeScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "417"
+            }
+          ],
+          "notes": "Merge persistent map entries while preserving the original map. This assertion is preserved from kotlinx_collections_persistent_map and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Mutate a persistent map builder while proving the original map is unchanged.",
+          "function": "pmapBuilderSharingScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "315"
+            }
+          ],
+          "notes": "Mutate a persistent map builder while proving the original map is unchanged. This assertion is preserved from kotlinx_collections_persistent_map and now runs inside the combined kotlinx.collections.immutable fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Collections Persistent Set library scenarios",
+      "notes": "Preserved coverage from kotlinx_collections_persistent_set: Add duplicate and new elements to a persistent set. Intersect a persistent set with a regular set. Remove from a persistent set and test contains/not-contains branches. Remove several elements from a persistent set and add a new element.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Add duplicate and new elements to a persistent set.",
+          "function": "psetUnionScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "195"
+            }
+          ],
+          "notes": "Add duplicate and new elements to a persistent set. This assertion is preserved from kotlinx_collections_persistent_set and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Intersect a persistent set with a regular set.",
+          "function": "psetIntersectScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "902"
+            }
+          ],
+          "notes": "Intersect a persistent set with a regular set. This assertion is preserved from kotlinx_collections_persistent_set and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Remove from a persistent set and test contains/not-contains branches.",
+          "function": "psetContainsScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "notes": "Remove from a persistent set and test contains/not-contains branches. This assertion is preserved from kotlinx_collections_persistent_set and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Remove several elements from a persistent set and add a new element.",
+          "function": "psetSubtractScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3256"
+            }
+          ],
+          "notes": "Remove several elements from a persistent set and add a new element. This assertion is preserved from kotlinx_collections_persistent_set and now runs inside the combined kotlinx.collections.immutable fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Collections Builder Mutation library scenarios",
+      "notes": "Preserved coverage from kotlinx_collections_builder_mutation: Mutate a persistent list builder and build a snapshot. Mutate a persistent map builder with overwritten keys. Mutate a persistent set builder with duplicate values. Build one snapshot, mutate the builder again, and verify both snapshot states.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Mutate a persistent list builder and build a snapshot.",
+          "function": "builderListScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "875"
+            }
+          ],
+          "notes": "Mutate a persistent list builder and build a snapshot. This assertion is preserved from kotlinx_collections_builder_mutation and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Mutate a persistent map builder with overwritten keys.",
+          "function": "builderMapScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "60"
+            }
+          ],
+          "notes": "Mutate a persistent map builder with overwritten keys. This assertion is preserved from kotlinx_collections_builder_mutation and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Mutate a persistent set builder with duplicate values.",
+          "function": "builderSetScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1804"
+            }
+          ],
+          "notes": "Mutate a persistent set builder with duplicate values. This assertion is preserved from kotlinx_collections_builder_mutation and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Build one snapshot, mutate the builder again, and verify both snapshot states.",
+          "function": "builderSnapshotScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "412"
+            }
+          ],
+          "notes": "Build one snapshot, mutate the builder again, and verify both snapshot states. This assertion is preserved from kotlinx_collections_builder_mutation and now runs inside the combined kotlinx.collections.immutable fixture."
+        }
+      ]
+    },
+    {
+      "description": "Kotlinx Collections Nested Structures library scenarios",
+      "notes": "Preserved coverage from kotlinx_collections_nested_structures: Look up values in a persistent map of persistent lists. Update nested persistent collections while preserving the source. Flatten nested persistent lists. Transform nested persistent lists and compare transformed versus original aggregates.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "Look up values in a persistent map of persistent lists.",
+          "function": "nestedLookupScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "201"
+            }
+          ],
+          "notes": "Look up values in a persistent map of persistent lists. This assertion is preserved from kotlinx_collections_nested_structures and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Update nested persistent collections while preserving the source.",
+          "function": "nestedUpdateScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "112"
+            }
+          ],
+          "notes": "Update nested persistent collections while preserving the source. This assertion is preserved from kotlinx_collections_nested_structures and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Flatten nested persistent lists.",
+          "function": "nestedFlattenScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "192"
+            }
+          ],
+          "notes": "Flatten nested persistent lists. This assertion is preserved from kotlinx_collections_nested_structures and now runs inside the combined kotlinx.collections.immutable fixture."
+        },
+        {
+          "type": "function.invoke",
+          "description": "Transform nested persistent lists and compare transformed versus original aggregates.",
+          "function": "nestedTransformScore",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "399"
+            }
+          ],
+          "notes": "Transform nested persistent lists and compare transformed versus original aggregates. This assertion is preserved from kotlinx_collections_nested_structures and now runs inside the combined kotlinx.collections.immutable fixture."
+        }
+      ]
+    }
+  ],
+  "sha256": "0bac5e7bae1829f832415b073d9d369d3b3f06dc37ac43df353bf2a1c657ef0c",
+  "source": {
+    "contributor": "ai",
+    "language": "Kotlin",
+    "path": "src/wasmWasiMain/kotlin/Main.kt",
+    "url": "https://github.com/Kotlin/kotlinx.collections.immutable",
+    "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx.collections.immutable 0.4.0 library (kotlinx.collections.immutable, Apache-2.0), aggregating 5 scenario groups and 20 deterministic corpus calls into one library-level Wasm module."
+  },
+  "toolchain": {
+    "name": "Kotlin/Wasm + Binaryen",
+    "version": "Kotlin Gradle plugin 2.3.21; kotlinx.collections.immutable 0.4.0; wasm-opt version 125",
+    "command": "/tmp/gradle-8.14/bin/gradle compileProductionLibraryKotlinWasmWasiOptimize && ./scripts/prepare"
+  },
+  "description": "Kotlinx Collections Immutable fixture aggregating 5 scenario groups and 20 deterministic calls against kotlinx.collections.immutable.",
+  "notes": "Aggregates the previous persistent-collection Kotlinx fixtures into one library-level module so the Kotlin/Wasm runtime and kotlinx.collections.immutable implementation are embedded once while preserving list, map, set, builder, and nested-structure coverage."
+}
