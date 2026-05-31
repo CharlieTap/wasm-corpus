@@ -305,7 +305,7 @@ Function imports can include static stubs when the fixture can be instantiated w
 
 Use `stub.trap` instead of `stub.returns` when the host stub should trap. Imported memory values are created by the runner from their inferred `type` and can be targeted in `memory.write` and `memory.read` steps as `module.name`. Imported table and tag values should be described with `type` and `description`; metadata does not try to encode full host behavior for them.
 
-Function import stubs can also capture simple character-style callback output when that is the best observable proof that a module exercised an interesting path. This is useful for emulator traces or diagnostic printers exposed as imports. Keep the capture bounded with `max_calls`, then assert it from an invoke step with `host_effects.import_captures`:
+Function import stubs can also capture simple callback output when that is the best observable proof that a module exercised an interesting path. This is useful for emulator traces or diagnostic printers exposed as imports. Use `format: "utf16_code_unit"` for UTF-16 character callbacks, `format: "unicode_code_point"` for full Unicode scalar callbacks, and `format: "decimal_i32"` for integer-print callbacks. Multiple imports can share the same capture `name` when they append to the same logical output stream. Keep the capture bounded with `max_calls`, then assert it from an invoke step with `host_effects.import_captures`. Prefer `text` for human-readable transcripts; use `bytes` only when the captured stream is genuinely binary or not sensible to review as text:
 
 ```json
 {
@@ -317,7 +317,7 @@ Function import stubs can also capture simple character-style callback output wh
     "capture": {
       "name": "trace_prefix",
       "param": 0,
-      "encoding": "utf16_code_unit",
+      "format": "utf16_code_unit",
       "max_calls": 64
     }
   }
@@ -334,13 +334,7 @@ Function import stubs can also capture simple character-style callback output wh
     "import_captures": [
       {
         "name": "trace_prefix",
-        "bytes": {
-          "type": "bytes",
-          "bytes": {
-            "encoding": "utf8",
-            "value": "diagnostic started\n"
-          }
-        }
+        "text": "diagnostic started\n"
       }
     ]
   }
