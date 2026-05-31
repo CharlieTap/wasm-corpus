@@ -323,13 +323,16 @@ function buildFunctionStub(importEntry, importCaptures) {
   const capture = stub.capture || null;
 
   if (capture) {
-    importCaptures.set(capture.name, {
-      text: "",
-      calls: 0,
-      param: capture.param || 0,
-      maxCalls: capture.max_calls || Infinity,
-      importName: `${importEntry.module}.${importEntry.name}`,
-    });
+    const existing = importCaptures.get(capture.name);
+    if (existing) {
+      existing.maxCalls = Math.max(existing.maxCalls, capture.max_calls || Infinity);
+    } else {
+      importCaptures.set(capture.name, {
+        text: "",
+        calls: 0,
+        maxCalls: capture.max_calls || Infinity,
+      });
+    }
   }
 
   return (...actualArgs) => {
@@ -348,11 +351,25 @@ function buildFunctionStub(importEntry, importCaptures) {
     if (capture) {
       const target = importCaptures.get(capture.name);
       if (target.calls < target.maxCalls) {
-        const value = actualArgs[target.param];
+        const param = capture.param || 0;
+        const value = actualArgs[param];
         if (value == null) {
-          fail(`import ${target.importName}: capture param ${target.param} is missing`);
+          fail(`import ${importEntry.module}.${importEntry.name}: capture param ${param} is missing`);
         }
-        target.text += String.fromCharCode(Number(value) & 0xffff);
+        const format = capture.format || capture.encoding || "utf16_code_unit";
+        switch (format) {
+          case "utf16_code_unit":
+            target.text += String.fromCharCode(Number(value) & 0xffff);
+            break;
+          case "unicode_code_point":
+            target.text += String.fromCodePoint(Number(value));
+            break;
+          case "decimal_i32":
+            target.text += String(BigInt.asIntN(32, BigInt(Number(value))));
+            break;
+          default:
+            fail(`import ${importEntry.module}.${importEntry.name}: unsupported capture format ${format}`);
+        }
       }
       target.calls += 1;
     }
@@ -552,6 +569,16 @@ function assertCapturedBytes(actual, assertion, context) {
   }
 }
 
+function decodeImportCaptureAssertion(assertion, context) {
+  if (typeof assertion.text === "string") {
+    return Buffer.from(assertion.text, "utf8");
+  }
+  if (assertion.bytes) {
+    return decodeBytes(assertion.bytes.bytes, context);
+  }
+  fail(`${context}: expected text or bytes assertion`);
+}
+
 function assertImportCaptures(importCaptures, assertions, context) {
   if (!assertions) return;
   if (!importCaptures) {
@@ -563,7 +590,11 @@ function assertImportCaptures(importCaptures, assertions, context) {
     if (!capture) {
       fail(`${context}: missing import capture ${assertion.name}`);
     }
-    assertCapturedBytes(Buffer.from(capture.text, "utf8"), assertion.bytes, `${context}:import capture ${assertion.name}`);
+    const actual = Buffer.from(capture.text, "utf8");
+    const expected = decodeImportCaptureAssertion(assertion, `${context}:import capture ${assertion.name}`);
+    if (actual.length !== expected.length || !actual.equals(expected)) {
+      fail(`${context}:import capture ${assertion.name}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+    }
   }
 }
 

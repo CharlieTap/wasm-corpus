@@ -344,12 +344,23 @@
           "$ref": "#/$defs/nonNegativeInteger",
           "default": 0
         },
-        "encoding": {
+        "format": {
           "type": "string",
           "enum": [
+            "decimal_i32",
+            "unicode_code_point",
             "utf16_code_unit"
           ],
           "default": "utf16_code_unit"
+        },
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "decimal_i32",
+            "unicode_code_point",
+            "utf16_code_unit"
+          ],
+          "deprecated": true
         },
         "max_calls": {
           "type": "integer",
@@ -809,8 +820,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "name",
-        "bytes"
+        "name"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "bytes"
+          ]
+        },
+        {
+          "required": [
+            "text"
+          ]
+        }
       ],
       "properties": {
         "name": {
@@ -818,6 +840,9 @@
         },
         "bytes": {
           "$ref": "#/$defs/bytesAssertion"
+        },
+        "text": {
+          "type": "string"
         }
       }
     },

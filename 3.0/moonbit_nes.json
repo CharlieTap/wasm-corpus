@@ -120,13 +120,7 @@
             "import_captures": [
               {
                 "name": "nes_trace_prefix",
-                "bytes": {
-                  "type": "bytes",
-                  "bytes": {
-                    "encoding": "utf8",
-                    "value": "nestest\nmagic: 441664846)\nnumPRG: b'\\x01')\nnumCHR: b'\\x01')\ncontrol1: b'\\x00')\ncontrol2: b'\\x00')\nnumRAM: b'\\x00')\niNESMagic matched!!!\nmapper: b'\\x00')\nread 16384 bytes of prg-rom\nread 8192 bytes of chr-rom\ncreating mapper\nMapper2::new: 16384 1\nmapper: 16384 1 0 0\nInitial instruction after reset: C004  78        SEI                             A:00 X:00 Y:00 P:24 SP:FD PPU:240,340 CYC:0\nC000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7\nC5F5  A2 00     LDX #$00                        A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 30 CYC:10\nC5F7  86 00     STX $00 "
-                  }
-                }
+                "text": "nestest\nmagic: 441664846)\nnumPRG: b'\\x01')\nnumCHR: b'\\x01')\ncontrol1: b'\\x00')\ncontrol2: b'\\x00')\nnumRAM: b'\\x00')\niNESMagic matched!!!\nmapper: b'\\x00')\nread 16384 bytes of prg-rom\nread 8192 bytes of chr-rom\ncreating mapper\nMapper2::new: 16384 1\nmapper: 16384 1 0 0\nInitial instruction after reset: C004  78        SEI                             A:00 X:00 Y:00 P:24 SP:FD PPU:240,340 CYC:0\nC000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7\nC5F5  A2 00     LDX #$00                        A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 30 CYC:10\nC5F7  86 00     STX $00 "
               }
             ]
           }
