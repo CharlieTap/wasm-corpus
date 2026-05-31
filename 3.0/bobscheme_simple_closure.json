@@ -1,0 +1,102 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bobscheme_simple_closure",
+  "path": "bobscheme_simple_closure.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bobscheme_simple_closure.wat"
+  },
+  "features": [
+    "gc",
+    "reference-types",
+    "tail-call"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "write_char",
+      "kind": "function",
+      "type": "(func (param i32))",
+      "stub": {
+        "capture": {
+          "name": "stdout",
+          "param": 0,
+          "max_calls": 4096,
+          "format": "utf16_code_unit"
+        }
+      }
+    },
+    {
+      "module": "env",
+      "name": "write_i32",
+      "kind": "function",
+      "type": "(func (param i32))",
+      "stub": {
+        "capture": {
+          "name": "stdout",
+          "param": 0,
+          "max_calls": 4096,
+          "format": "decimal_i32"
+        }
+      }
+    }
+  ],
+  "exports": [
+    {
+      "name": "start",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "description": "Runs the compiled Scheme top-level program and emits its write output through env.write_char/env.write_i32 imports."
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the compiled Scheme program and assert its printed transcript",
+      "notes": "Constructs a closure that captures two outer parameters, invokes it with an argument, then prints both the arithmetic result and an explicit dotted pair.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "invoke Bob Scheme start function",
+          "function": "start",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "stdout",
+                "text": "19\n(2 . 3)\n"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "0d354968f7eae757770a1e18500f263e6dc0a1a02feffbf3d2e0492d9a8e2e6a",
+  "source": {
+    "contributor": "human",
+    "language": "Scheme",
+    "path": "examples/simple_func.scm",
+    "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/examples/simple_func.scm",
+    "description": "Bob Scheme example program simple_func.scm, compiled with Bob's WasmGC backend."
+  },
+  "toolchain": {
+    "name": "Bob Scheme WasmCompiler + wasm-tools + Binaryen",
+    "version": "bobscheme 9a3c7d9; wasm-opt version 125",
+    "command": "PYTHONPATH=<bobscheme checkout> python3.13 examples/compile_to_wasm.py <source> | wasm-tools parse -o stage/<name>.wasm; ./scripts/prepare"
+  },
+  "description": "Bob Scheme closure fixture exercising lexical capture, higher-order function calls, integer arithmetic, and dotted-pair printing.",
+  "tags": [
+    "scheme",
+    "bobscheme",
+    "closure",
+    "pair",
+    "wasmgc"
+  ],
+  "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
+}
