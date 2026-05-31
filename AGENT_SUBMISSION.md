@@ -177,6 +177,19 @@ Reject the candidate if Node cannot instantiate and execute it because it needs 
 
 Follow [SUBMISSION.md](SUBMISSION.md) for staging, running `prepare`, completing metadata, validating, and executing the fixture. This agent guide intentionally does not duplicate the core submission flow.
 
+## PR Description Guidance
+
+When asked to open a PR or draft PR text, read and use [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) as the starting point. Agents do not get the same GitHub UI pre-fill that human contributors see, so copy the template structure intentionally rather than writing a free-form summary.
+
+Keep the final PR body reviewer-focused:
+
+- Replace every placeholder with concrete information or delete sections that do not apply.
+- Summarize what changed and why it is useful to the corpus.
+- List each fixture with the behavior, library area, or Wasm/runtime shape it exercises.
+- Describe the test coverage in human terms, especially when setup data is encoded or non-obvious.
+- Include provenance, source/license details, validation commands, and rough timing/runtime context for larger fixture batches.
+- Mention skipped candidates, intentionally excluded fixtures, or runtime caveats only when they help a reviewer understand the submitted change.
+
 ## Final Review Checklist
 
 - The final checklist in [SUBMISSION.md](SUBMISSION.md) is complete.
