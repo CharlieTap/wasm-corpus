@@ -467,8 +467,16 @@ function usesWasiPreview1Host(test) {
   return Boolean(test?.host?.wasi_preview_1);
 }
 
+function usesEmscriptenPhpCliHost(test) {
+  return Boolean(test?.host?.emscripten_php_cli);
+}
+
 function isWasiPreview1CommandTest(test) {
   return usesWasiPreview1Host(test) && (test.steps || []).some((step) => step.type === "function.invoke" && step.function === "_start");
+}
+
+function isEmscriptenPhpCliCommandTest(test) {
+  return usesEmscriptenPhpCliHost(test) && (test.steps || []).some((step) => step.type === "function.invoke" && step.function === "main");
 }
 
 function wasiInitializationInstance(instance, memories) {
@@ -488,7 +496,7 @@ function wasiInitializationInstance(instance, memories) {
   return instance;
 }
 
-async function instantiate(wasmPath, entry, test, timings = null) {
+async function instantiate(wasmPath, fixtureDir, entry, test, timings = null) {
   // Node/V8 does not expose validation as a separate paid-for phase here:
   // constructing a Module decodes, validates, and compiles or throws.
   const compileStart = performance.now();
@@ -509,6 +517,17 @@ async function instantiate(wasmPath, entry, test, timings = null) {
         instance: null,
         host,
         wasmPath,
+        fixtureDir,
+        memories: new Map(),
+      };
+    }
+
+    if (isEmscriptenPhpCliCommandTest(test)) {
+      return {
+        instance: null,
+        host,
+        wasmPath,
+        fixtureDir,
         memories: new Map(),
       };
     }
@@ -534,6 +553,7 @@ async function instantiate(wasmPath, entry, test, timings = null) {
       instance,
       host,
       wasmPath,
+      fixtureDir,
       memories,
       importCaptures,
       wasi,
@@ -608,9 +628,10 @@ function assertHostEffects(result, assertion, context, runtime = null) {
   assertImportCaptures(runtime?.importCaptures, assertion.import_captures, context);
 }
 
-function hostForChild(host) {
+function hostForChild(host, fixtureDir = null) {
   const wasi = host.wasi_preview_1 || {};
-  return {
+  const emscriptenPhpCli = host.emscripten_php_cli || {};
+  const childHost = {
     wasi_preview_1: {
       command_args: wasi.command_args || [],
       system_env: wasi.system_env || {},
@@ -618,11 +639,29 @@ function hostForChild(host) {
       stdin: wasi.stdin ? decodeBytes(wasi.stdin, "host.wasi_preview_1.stdin").toString("base64") : "",
     },
   };
+
+  if (host.emscripten_php_cli) {
+    if (typeof emscriptenPhpCli.glue !== "string") {
+      fail("host.emscripten_php_cli.glue is required");
+    }
+    childHost.emscripten_php_cli = {
+      glue_path: path.resolve(fixtureDir || ".", emscriptenPhpCli.glue),
+      command_args: emscriptenPhpCli.command_args || [],
+      stdin: emscriptenPhpCli.stdin ? decodeBytes(emscriptenPhpCli.stdin, "host.emscripten_php_cli.stdin").toString("base64") : "",
+      files: (emscriptenPhpCli.files || []).map((file, index) => ({
+        path: file.path,
+        bytes: decodeBytes(file.bytes, `host.emscripten_php_cli.files[${index}].bytes`).toString("base64"),
+      })),
+      ini: emscriptenPhpCli.ini || "",
+    };
+  }
+
+  return childHost;
 }
 
-function runtimeCacheKey(test) {
-  if (usesWasiPreview1Host(test)) {
-    return `wasi_preview_1:${JSON.stringify(hostForChild(test.host || {}))}`;
+function runtimeCacheKey(test, fixtureDir = null) {
+  if (usesWasiPreview1Host(test) || usesEmscriptenPhpCliHost(test)) {
+    return `host:${JSON.stringify(hostForChild(test.host || {}, fixtureDir))}`;
   }
   return "direct";
 }
@@ -694,7 +733,7 @@ const stderr = fs.openSync(stderrPath, "w+");
     encoding: "utf8",
     input: JSON.stringify({
       wasmPath: runtime.wasmPath,
-      host: hostForChild(runtime.host),
+      host: hostForChild(runtime.host, runtime.fixtureDir),
     }),
     maxBuffer: 64 * 1024 * 1024,
   });
@@ -714,6 +753,144 @@ const stderr = fs.openSync(stderrPath, "w+");
     }
     fail(`WASI Preview 1 child execution returned invalid JSON: ${error.message}`);
   }
+}
+
+function runEmscriptenPhpCliInChild(runtime) {
+  const childScript = `
+import fs from "node:fs";
+import { pathToFileURL } from "node:url";
+
+const input = JSON.parse(fs.readFileSync(0, "utf8"));
+const host = input.host.emscripten_php_cli || {};
+const stdin = Array.from(Buffer.from(host.stdin || "", "base64"));
+const stdout = [];
+const stderr = [];
+
+function pushOutput(target, byte) {
+  target.push(Number(byte) & 0xff);
+}
+
+function ensureDirectory(php, directory) {
+  if (!directory || directory === "/" || php.FS.analyzePath(directory).exists) return;
+  const parent = directory.slice(0, directory.lastIndexOf("/")) || "/";
+  ensureDirectory(php, parent);
+  php.FS.mkdir(directory);
+}
+
+(async () => {
+  let exitCode = null;
+  let trap = null;
+  try {
+    const runtimeModule = await import(pathToFileURL(host.glue_path).href);
+    const PHP = runtimeModule.default || runtimeModule;
+    const php = await new PHP({
+      noInitialRun: true,
+      locateFile: (name) => name.endsWith(".wasm") ? input.wasmPath : undefined,
+      stdin: () => stdin.length ? stdin.shift() : null,
+      stdout: (byte) => pushOutput(stdout, byte),
+      stderr: (byte) => pushOutput(stderr, byte),
+    });
+
+    await php.ccall("pib_storage_init", "number", [], [], { async: true });
+    if (!php.FS.analyzePath("/preload").exists) {
+      php.FS.mkdir("/preload");
+    }
+    php.FS.writeFile("/php.ini", (host.ini || "") + "\\n", { encoding: "utf8" });
+    for (const file of host.files || []) {
+      const directory = file.path.slice(0, file.path.lastIndexOf("/")) || "/";
+      ensureDirectory(php, directory);
+      php.FS.writeFile(file.path, Buffer.from(file.bytes || "", "base64"));
+    }
+    await php.ccall("pib_init", "number", ["string"], ["cli"], { async: true });
+
+    const commandArgs = host.command_args || [];
+    const ptrs = commandArgs.map((part) => {
+      const len = php.lengthBytesUTF8(part) + 1;
+      const loc = php._malloc(len);
+      php.stringToUTF8(part, loc, len);
+      return loc;
+    });
+    const argv = php._malloc(4 * ptrs.length);
+    ptrs.forEach((ptr, index) => php.setValue(argv + 4 * index, ptr, "*"));
+
+    try {
+      exitCode = await php.ccall("main", "number", ["number", "number"], [ptrs.length, argv], { async: true });
+    } catch (error) {
+      exitCode = Number.isInteger(error?.status) ? error.status : null;
+      if (exitCode === null) throw error;
+    }
+  } catch (error) {
+    trap = error && error.message ? error.message : String(error);
+  }
+
+  process.stdout.write(JSON.stringify({
+    exitCode,
+    trap,
+    stdout: Buffer.from(stdout).toString("base64"),
+    stderr: Buffer.from(stderr).toString("base64"),
+  }));
+})().catch((error) => {
+  console.error(error && error.stack ? error.stack : String(error));
+  process.exit(1);
+});
+`;
+
+  const result = spawnSync(process.execPath, ["--input-type=module", "-e", childScript], {
+    encoding: "utf8",
+    input: JSON.stringify({
+      wasmPath: runtime.wasmPath,
+      host: hostForChild(runtime.host, runtime.fixtureDir),
+    }),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+
+  try {
+    const parsed = JSON.parse(result.stdout);
+    return {
+      exitCode: parsed.exitCode,
+      trap: parsed.trap,
+      stdout: Buffer.from(parsed.stdout || "", "base64"),
+      stderr: Buffer.from(parsed.stderr || "", "base64"),
+    };
+  } catch (error) {
+    if (result.status !== 0) {
+      const output = `${result.stderr || ""}${result.stdout || ""}`.trim();
+      fail(`Emscripten PHP CLI child execution failed${output ? `\n${output}` : ""}`);
+    }
+    fail(`Emscripten PHP CLI child execution returned invalid JSON: ${error.message}`);
+  }
+}
+
+function executeEmscriptenPhpCliMain(runtime, step, context) {
+  const label = `${context}:invoke ${step.function}`;
+  if (!runtime.host.emscripten_php_cli) {
+    fail(`${label}: test does not declare host.emscripten_php_cli`);
+  }
+  if (step.function !== "main") {
+    fail(`${label}: Emscripten PHP CLI command entrypoint must be main`);
+  }
+  if ((step.params || []).length > 0) {
+    fail(`${label}: main command invocation reads argv from test.host.emscripten_php_cli.command_args`);
+  }
+  if ((step.results || []).length > 0) {
+    fail(`${label}: main command invocation does not produce Wasm result values`);
+  }
+
+  const result = runEmscriptenPhpCliInChild(runtime);
+  if (result.trap) {
+    if (step.trap) {
+      if (!result.trap.includes(step.trap)) {
+        fail(`${label}: expected trap '${step.trap}', got '${result.trap}'`);
+      }
+      return;
+    }
+    fail(`${label}: unexpected trap '${result.trap}'`);
+  }
+
+  if (step.trap) {
+    fail(`${label}: expected trap '${step.trap}', but call returned`);
+  }
+  assertHostEffects(result, step.host_effects, label);
 }
 
 function executeWasiPreview1Start(runtime, step, context) {
@@ -751,6 +928,11 @@ function executeWasiPreview1Start(runtime, step, context) {
 function executeInvoke(runtime, step, vars, context) {
   if (runtime.host.wasi_preview_1 && step.function === "_start") {
     executeWasiPreview1Start(runtime, step, context);
+    return;
+  }
+
+  if (runtime.host.emscripten_php_cli && step.function === "main") {
+    executeEmscriptenPhpCliMain(runtime, step, context);
     return;
   }
 
@@ -1005,13 +1187,13 @@ async function executeWasm(inputPath, options = {}) {
 
     let runtime;
     if (test.shared_instance === true) {
-      const cacheKey = runtimeCacheKey(test);
+      const cacheKey = runtimeCacheKey(test, fixtureDir);
       if (!sharedRuntimes.has(cacheKey)) {
-        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, entry, test, timings));
+        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, fixtureDir, entry, test, timings));
       }
       runtime = sharedRuntimes.get(cacheKey);
     } else {
-      runtime = await instantiate(wasmPath, entry, test, timings);
+      runtime = await instantiate(wasmPath, fixtureDir, entry, test, timings);
     }
     const context = `${inputPath}:${testDescription}`;
     const vars = new Map();

@@ -478,6 +478,9 @@
       "properties": {
         "wasi_preview_1": {
           "$ref": "#/$defs/wasiPreview1Host"
+        },
+        "emscripten_php_cli": {
+          "$ref": "#/$defs/emscriptenPhpCliHost"
         }
       }
     },
@@ -507,6 +510,57 @@
           "default": {}
         },
         "stdin": {
+          "$ref": "#/$defs/bytes"
+        }
+      }
+    },
+    "emscriptenPhpCliHost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "glue",
+        "command_args"
+      ],
+      "properties": {
+        "glue": {
+          "type": "string",
+          "pattern": "^[^/].*\\.mjs$"
+        },
+        "command_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "stdin": {
+          "$ref": "#/$defs/bytes"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hostFile"
+          },
+          "default": []
+        },
+        "ini": {
+          "type": "string"
+        }
+      }
+    },
+    "hostFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/.*[^/]$"
+        },
+        "bytes": {
           "$ref": "#/$defs/bytes"
         }
       }

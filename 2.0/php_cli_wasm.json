@@ -1,0 +1,1529 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "php_cli_wasm",
+  "description": "PHP 8.4 CLI runtime from php-cli-wasm, exercised through its Emscripten command-line host profile with inline code, stdin, script files, modules, SPL, tokenizer, regex, bcmath, date/time, filesystem, sessions, and hashing coverage.",
+  "path": "php_cli_wasm.wasm",
+  "wat": {
+    "status": "too_large_for_corpus",
+    "generated_size": 183756838,
+    "limit": 67108864,
+    "tool": "wasm-tools print"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "php",
+    "cli",
+    "emscripten",
+    "runtime",
+    "wasi-p1"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "__assert_fail",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlUnlinkNode",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlReconciliateNs",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlRemoveID",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlInitParser",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "xmlGetExternalEntityLoader",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSetExternalEntityLoader",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlRelaxNGCleanupTypes",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "xmlSetStructuredErrorFunc",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlGetLastError",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlResetLastError",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeDoc",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlNodeGetContent",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlStrdup",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlHashLookup",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlHashRemoveEntry",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeProp",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeNodeList",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlDictOwns",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeNs",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeNode",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlHashScan",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeDtd",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlCopyError",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlAllocParserInputBuffer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlNewIOInputStream",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeParserInputBuffer",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlNewInputFromFile",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSetGenericErrorFunc",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlParserInputBufferCreateFilenameDefault",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlOutputBufferCreateFilenameDefault",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlParseCharEncoding",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlParseURI",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlStrncmp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlURIUnescapeString",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlFreeURI",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlAllocOutputBuffer",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlResetError",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlOutputBufferCreateIO",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlNodeDumpOutput",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlOutputBufferFlush",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlOutputBufferClose",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSaveToIO",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSaveDoc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSaveClose",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlOutputBufferCreateFilename",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "xmlSaveFormatFileEnc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_stmt_execute",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_doer",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_handle_begin",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_handle_commit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_handle_rollback",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__pdo_pglite_real_last_insert_id",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_asm_const_int",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_asm_const_ptr",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "php_embed_init",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "php_embed_shutdown",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "getprotobyname",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "getprotobynumber",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "strptime",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "getnameinfo",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "getdtablesize",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "posix_spawnp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__php_stream_fetch_real_open",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__vrzno_await_internal",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncjs__waitline_real_consume_stdin_line",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "getaddrinfo",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "getcontext",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "makecontext",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "swapcontext",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fcntl64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_ioctl",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_openat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_tzset_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_abort_js",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_faccessat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_chdir",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_chmod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchownat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_dup",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_dup3",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_dlopen_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_promise_create",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_promise_resolve",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_dlsym_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_dlopen_js",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_promise_destroy",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_memcpy_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_date_now",
+      "kind": "function",
+      "type": "(func (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_get_now_is_monotonic",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_get_now",
+      "kind": "function",
+      "type": "(func (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_get_now_res",
+      "kind": "function",
+      "type": "(func (result f64))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchdir",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchmod",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchmodat2",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fchown32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fdatasync",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fstat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_stat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_lstat64",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_newfstatat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_sync",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getcwd",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getdents64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_lookup_name",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_mkdirat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_mknodat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_pipe",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_poll",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_get_progname",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_runtime_keepalive_clear",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "__call_sighandler",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_readlinkat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_unlinkat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_rmdir",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_renameat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_resize_heap",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall__newselect",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_setitimer_js",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_statfs64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fstatfs64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_symlink",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_symlinkat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "emscripten_get_heap_max",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_system",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_utimensat",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_emscripten_throw_longjmp",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "module": "env",
+      "name": "getentropy",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_accept4",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_bind",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_connect",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getpeername",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getsockname",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_getsockopt",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_listen",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_recvfrom",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_recvmsg",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_sendmsg",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_sendto",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_socket",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_vi",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_ii",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_v",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_i",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_viii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_vii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_viiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiiiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiiiiiiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiiiiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_iiiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_viiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "invoke_viiiiiii",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_munmap_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_msync_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_mmap_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_ftruncate64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_timegm_js",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_mktime_js",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "_localtime_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "_gmtime_js",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fadvise64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_fallocate",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_pread",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_pwrite",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__syscall_truncate64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "env",
+      "name": "__memory_base",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "module": "env",
+      "name": "__stack_pointer",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "env",
+      "name": "__table_base",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "module": "GOT.mem",
+      "name": "phpdbg_globals",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.mem",
+      "name": "__heap_base",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.mem",
+      "name": "__stack_high",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.mem",
+      "name": "__stack_low",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "phpdbg_arm_auto_global",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "phpdbg_restore_frame",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "exit",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_console_log",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_console_error",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_console_warn",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_console_trace",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_out",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "GOT.func",
+      "name": "emscripten_err",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncify_state",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "env",
+      "name": "__asyncify_data",
+      "kind": "global",
+      "type": "(global (mut i32))"
+    },
+    {
+      "module": "env",
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 2048 65536)"
+    },
+    {
+      "module": "env",
+      "name": "__indirect_function_table",
+      "kind": "table",
+      "type": "(table 5247 funcref)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "report PHP CLI version",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-v"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "PHP 8.4.1 (cli) (built: May 18 2026 10:42:24) (NTS)\nCopyright (c) The PHP Group\nZend Engine v4.4.1, Copyright (c) Zend Technologies\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "list compiled PHP modules",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-m"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "[PHP Modules]\nbcmath\ncalendar\nCore\nctype\ndate\nexif\nfilter\nhash\njson\nlibxml\npcre\nPDO\npdo_pglite\npib\nrandom\nReflection\nsession\nSPL\nstandard\ntokenizer\nvrzno\nwaitline\n\n[Zend Modules]\n\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "process stdin JSON, hash input, and run PCRE captures",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-r",
+            "$input=stream_get_contents(STDIN); $data=json_decode($input,true); ksort($data); echo \"json=\".json_encode($data).\"\\n\"; echo \"hash=\".hash(\"sha256\",$input).\"\\n\"; preg_match_all(\"/([a-z]+)=(\\d+)/\",\"alpha=12 beta=345\",$m,PREG_SET_ORDER); foreach($m as $row){ echo $row[1].\":\".($row[2]*2).\"\\n\"; }"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "{\"b\":2,\"a\":1}\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "json={\"a\":1,\"b\":2}\nhash=21e15bd7f77a30fef3f21276e3d98cb363575f826663a994911cb1bc95674f01\nalpha:24\nbeta:690\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "exercise Reflection, SPL priority queues, and tokenization",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-r",
+            "class Box { public function inc(int $x): int { return $x + 1; } } $m=new ReflectionMethod(Box::class,\"inc\"); echo \"return=\".$m->getReturnType().\",params=\".count($m->getParameters()).\"\\n\"; $h=new SplPriorityQueue(); foreach([[\"low\",1],[\"high\",10],[\"mid\",5]] as $x) $h->insert($x[0],$x[1]); foreach($h as $v) echo \"heap=\".$v.\"\\n\"; $code='<?php function f($x){ return $x*2; }'; $names=[]; foreach(token_get_all($code) as $tok) if(is_array($tok)) $names[]=token_name($tok[0]); echo \"tokens=\".implode(\",\",array_slice($names,0,6)).\"\\n\";"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "return=int,params=1\nheap=high\nheap=mid\nheap=low\ntokens=T_OPEN_TAG,T_FUNCTION,T_WHITESPACE,T_STRING,T_VARIABLE,T_WHITESPACE\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "exercise sessions, bcmath, date/time, and virtual filesystem IO",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-r",
+            "session_id(\"corpus\"); session_start(); $_SESSION[\"n\"] = ($_SESSION[\"n\"] ?? 0) + 1; session_write_close(); echo \"session=corpus:1\\n\"; echo \"bc=\".bcadd(\"12345678901234567890\",\"98765432109876543210\").\"\\n\"; echo \"mul=\".bcmul(\"123456789\",\"987654321\").\"\\n\"; $d=new DateTimeImmutable(\"2026-05-31T10:15:00+00:00\"); echo \"date=\".$d->modify(\"+3 days\")->format(DateTimeInterface::ATOM).\"\\n\"; $p=\"/tmp/corpus.txt\"; file_put_contents($p,\"alpha\\nbeta\\n\"); echo \"file=\".filesize($p).\":\".strtoupper(file_get_contents($p));"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "session=corpus:1\nbc=111111111011111111100\nmul=121932631112635269\ndate=2026-06-03T10:15:00+00:00\nfile=11:ALPHA\nBETA\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "run PHP CLI begin/process/end line mode over stdin",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-B",
+            "echo \"begin\\n\";",
+            "-R",
+            "echo strtoupper($argn);",
+            "-E",
+            "echo \"end\\n\";"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "first\nsecond\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "begin\nFIRSTSECONDend\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "execute a staged PHP script file with -f",
+      "host": {
+        "emscripten_php_cli": {
+          "glue": "php_cli_wasm.mjs",
+          "command_args": [
+            "php",
+            "-c",
+            "/php.ini",
+            "-f",
+            "/work/script.php"
+          ],
+          "files": [
+            {
+              "path": "/work/script.php",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "<?php\n$rows = [3, 1, 4, 1, 5, 9];\nsort($rows);\necho \"sorted=\" . implode(\",\", $rows) . \"\\n\";\n$sum = array_reduce($rows, fn($carry, $item) => $carry + $item, 0);\necho \"sum=$sum\\n\";\nclass Greeter {\n    public function __construct(private string $name) {}\n    public function greet(): string { return \"hello {$this->name}\"; }\n}\necho (new Greeter(\"corpus\"))->greet() . \"\\n\";\n"
+              }
+            }
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "main",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "sorted=1,1,3,4,5,9\nsum=23\nhello corpus\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "433b1ded6c4d284c2611bb7d1d010c6a00167786bd6db4e7c5f9bd4f020e7ddc",
+  "source": {
+    "contributor": "human",
+    "language": "C/PHP",
+    "url": "https://www.npmjs.com/package/php-cli-wasm/v/0.1.0",
+    "path": "package/3412757a1d04962b4b10cbcd9e3dd3f311c37031.wasm and package/php8.4-cli-node.mjs",
+    "description": "Apache-2.0 php-cli-wasm package published from seanmorris/php-wasm; PHP 8.4 CLI Emscripten runtime."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "The PHP CLI runtime requires the checked-in Emscripten glue file because the raw module imports a large Emscripten/JS host surface in addition to WASI Preview 1. The readable WAT disassembly is intentionally omitted because wasm-tools print generated more than the corpus WAT size limit. Exports are omitted from metadata because this Emscripten build exposes thousands of internal PHP/Zend/libc symbols that make the JSON difficult to review without improving the fixture tests."
+}

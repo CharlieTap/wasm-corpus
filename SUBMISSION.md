@@ -184,6 +184,44 @@ For modules that import `wasi_snapshot_preview1`, declare a test-level `host.was
 
 `host.wasi_preview_1` support is intentionally limited to the `wasi_snapshot_preview1` import module. It does not cover WASI Preview 2, the component model, WASIX, browser JavaScript glue, or arbitrary host APIs.
 
+Some Emscripten command-style runtimes need more host setup than the raw Wasm imports can describe. For the PHP CLI runtime, tests can declare `host.emscripten_php_cli`, which loads a checked-in Emscripten glue module, passes CLI `command_args`, optionally writes stdin and virtual files, invokes the module's `main`, and asserts stdout/stderr/exit code as host effects. Use this only for PHP CLI Emscripten runtimes whose interesting behavior cannot be reached through direct exports or the generic WASI Preview 1 host.
+
+```json
+{
+  "description": "run PHP code from a staged script file",
+  "host": {
+    "emscripten_php_cli": {
+      "glue": "php_cli_wasm.mjs",
+      "command_args": ["php", "-c", "/php.ini", "-f", "/work/script.php"],
+      "files": [
+        {
+          "path": "/work/script.php",
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<?php echo strtoupper('corpus') . \"\\n\";\n"
+          }
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "type": "function.invoke",
+      "function": "main",
+      "params": [],
+      "results": [],
+      "host_effects": {
+        "exit_code": 0,
+        "stdout": {
+          "type": "bytes",
+          "bytes": { "encoding": "utf8", "value": "CORPUS\n" }
+        }
+      }
+    }
+  ]
+}
+```
+
 `function.invoke` steps can capture result values for later steps:
 
 ```json

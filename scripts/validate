@@ -10,6 +10,13 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
+const removableCustomSectionPatterns = [
+  /^name$/,
+  /^producers$/,
+  /^sourceMappingURL$/,
+  /^target_features$/,
+  /^\.debug/,
+];
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm...]
@@ -285,7 +292,57 @@ function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binar
 }
 
 function stripWasmCustomSections(input, output, message) {
-  runRequired("wasm-tools", ["strip", "--all", input, "-o", output], message);
+  try {
+    const bytes = fs.readFileSync(input);
+    const chunks = [bytes.subarray(0, 8)];
+    let offset = 8;
+
+    while (offset < bytes.length) {
+      const sectionStart = offset;
+      const sectionId = bytes[offset];
+      offset += 1;
+      const size = readVarUint32(bytes, offset);
+      offset = size.next;
+      const payloadStart = offset;
+      const payloadEnd = payloadStart + size.value;
+
+      let remove = false;
+      if (sectionId === 0) {
+        const nameSize = readVarUint32(bytes, payloadStart);
+        const nameStart = nameSize.next;
+        const nameEnd = nameStart + nameSize.value;
+        const name = bytes.subarray(nameStart, nameEnd).toString("utf8");
+        remove = removableCustomSectionPatterns.some((pattern) => pattern.test(name));
+      }
+
+      if (!remove) {
+        chunks.push(bytes.subarray(sectionStart, payloadEnd));
+      }
+      offset = payloadEnd;
+    }
+
+    fs.writeFileSync(output, Buffer.concat(chunks));
+  } catch (error) {
+    throw new Error(`${message}\n${error.message}`);
+  }
+}
+
+function readVarUint32(bytes, offset) {
+  let result = 0;
+  let shift = 0;
+  let current = offset;
+
+  while (current < bytes.length) {
+    const byte = bytes[current];
+    current += 1;
+    result |= (byte & 0x7f) << shift;
+    if ((byte & 0x80) === 0) {
+      return { value: result >>> 0, next: current };
+    }
+    shift += 7;
+  }
+
+  throw new Error(`could not decode LEB128 value at byte ${offset}`);
 }
 
 function validateShrinkage(wasmPath, optimizedPath, binaryen) {
