@@ -1215,13 +1215,47 @@
     {
       "description": "report PHP CLI version",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
             "-c",
             "/php.ini",
             "-v"
+          ],
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
           ]
         }
       },
@@ -1254,13 +1288,47 @@
     {
       "description": "list compiled PHP modules",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
             "-c",
             "/php.ini",
             "-m"
+          ],
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
           ]
         }
       },
@@ -1293,7 +1361,7 @@
     {
       "description": "process stdin JSON, hash input, and run PCRE captures",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
@@ -1305,7 +1373,41 @@
           "stdin": {
             "encoding": "utf8",
             "value": "{\"b\":2,\"a\":1}\n"
-          }
+          },
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
+          ]
         }
       },
       "steps": [
@@ -1337,7 +1439,7 @@
     {
       "description": "exercise Reflection, SPL priority queues, and tokenization",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
@@ -1345,6 +1447,40 @@
             "/php.ini",
             "-r",
             "class Box { public function inc(int $x): int { return $x + 1; } } $m=new ReflectionMethod(Box::class,\"inc\"); echo \"return=\".$m->getReturnType().\",params=\".count($m->getParameters()).\"\\n\"; $h=new SplPriorityQueue(); foreach([[\"low\",1],[\"high\",10],[\"mid\",5]] as $x) $h->insert($x[0],$x[1]); foreach($h as $v) echo \"heap=\".$v.\"\\n\"; $code='<?php function f($x){ return $x*2; }'; $names=[]; foreach(token_get_all($code) as $tok) if(is_array($tok)) $names[]=token_name($tok[0]); echo \"tokens=\".implode(\",\",array_slice($names,0,6)).\"\\n\";"
+          ],
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
           ]
         }
       },
@@ -1377,7 +1513,7 @@
     {
       "description": "exercise sessions, bcmath, date/time, and virtual filesystem IO",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
@@ -1385,6 +1521,40 @@
             "/php.ini",
             "-r",
             "session_id(\"corpus\"); session_start(); $_SESSION[\"n\"] = ($_SESSION[\"n\"] ?? 0) + 1; session_write_close(); echo \"session=corpus:1\\n\"; echo \"bc=\".bcadd(\"12345678901234567890\",\"98765432109876543210\").\"\\n\"; echo \"mul=\".bcmul(\"123456789\",\"987654321\").\"\\n\"; $d=new DateTimeImmutable(\"2026-05-31T10:15:00+00:00\"); echo \"date=\".$d->modify(\"+3 days\")->format(DateTimeInterface::ATOM).\"\\n\"; $p=\"/tmp/corpus.txt\"; file_put_contents($p,\"alpha\\nbeta\\n\"); echo \"file=\".filesize($p).\":\".strtoupper(file_get_contents($p));"
+          ],
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
           ]
         }
       },
@@ -1417,7 +1587,7 @@
     {
       "description": "run PHP CLI begin/process/end line mode over stdin",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
@@ -1433,7 +1603,41 @@
           "stdin": {
             "encoding": "utf8",
             "value": "first\nsecond\n"
-          }
+          },
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
+            }
+          ]
         }
       },
       "steps": [
@@ -1465,7 +1669,7 @@
     {
       "description": "execute a staged PHP script file with -f",
       "host": {
-        "emscripten_php_cli": {
+        "emscripten": {
           "glue": "php_cli_wasm.mjs",
           "command_args": [
             "php",
@@ -1481,6 +1685,40 @@
                 "encoding": "utf8",
                 "value": "<?php\n$rows = [3, 1, 4, 1, 5, 9];\nsort($rows);\necho \"sorted=\" . implode(\",\", $rows) . \"\\n\";\n$sum = array_reduce($rows, fn($carry, $item) => $carry + $item, 0);\necho \"sum=$sum\\n\";\nclass Greeter {\n    public function __construct(private string $name) {}\n    public function greet(): string { return \"hello {$this->name}\"; }\n}\necho (new Greeter(\"corpus\"))->greet() . \"\\n\";\n"
               }
+            }
+          ],
+          "init": [
+            {
+              "type": "ccall",
+              "function": "pib_storage_init",
+              "return_type": "number",
+              "param_types": [],
+              "params": [],
+              "async": true
+            },
+            {
+              "type": "fs.mkdir",
+              "path": "/preload"
+            },
+            {
+              "type": "fs.write_file",
+              "path": "/php.ini",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\n"
+              }
+            },
+            {
+              "type": "ccall",
+              "function": "pib_init",
+              "return_type": "number",
+              "param_types": [
+                "string"
+              ],
+              "params": [
+                "cli"
+              ],
+              "async": true
             }
           ]
         }

@@ -107,7 +107,7 @@ Before staging anything for the corpus, answer these questions:
 - Which schema-supported `features` are required?
 - Does it export at least one deterministic function that Node can call?
 - Are imports absent, WASI Preview 1 via `wasi_snapshot_preview1`, or simple enough to describe with fixture metadata import stubs?
-- If the module needs Emscripten JavaScript glue, is it a strong enough CLI-style runtime candidate to justify a narrow checked-in host profile such as `emscripten_php_cli`, and can tests still drive meaningful command behavior through readable argv/stdin/files?
+- If the module needs Emscripten JavaScript glue, can it be driven through the generic `host.emscripten` shape with readable argv/stdin/files and any required setup expressed as explicit `init` steps?
 - Can the values be represented by the Node runner: `i32`, `i64`, `f32`, `f64`, null `externref`, or null `funcref`?
 - Is the module at least factorial-level in behavioral substance, or a compact known algorithm worth keeping?
 - Can the fixture tests reach the code paths that make this binary worth adding, rather than just a metadata, version, allocation, or marker helper export?

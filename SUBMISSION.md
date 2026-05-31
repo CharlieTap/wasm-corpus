@@ -184,13 +184,13 @@ For modules that import `wasi_snapshot_preview1`, declare a test-level `host.was
 
 `host.wasi_preview_1` support is intentionally limited to the `wasi_snapshot_preview1` import module. It does not cover WASI Preview 2, the component model, WASIX, browser JavaScript glue, or arbitrary host APIs.
 
-Some Emscripten command-style runtimes need more host setup than the raw Wasm imports can describe. For the PHP CLI runtime, tests can declare `host.emscripten_php_cli`, which loads a checked-in Emscripten glue module, passes CLI `command_args`, optionally writes stdin and virtual files, invokes the module's `main`, and asserts stdout/stderr/exit code as host effects. Use this only for PHP CLI Emscripten runtimes whose interesting behavior cannot be reached through direct exports or the generic WASI Preview 1 host.
+Some Emscripten command-style runtimes need their generated JavaScript glue before they can be driven like a CLI. Tests can declare `host.emscripten`, which loads a checked-in Emscripten glue module, passes CLI `command_args`, optionally writes stdin and virtual files, runs explicit setup actions, invokes the module's `main`, and asserts stdout/stderr/exit code as host effects. Use this only when direct exports or the generic WASI Preview 1 host cannot reach the interesting behavior.
 
 ```json
 {
   "description": "run PHP code from a staged script file",
   "host": {
-    "emscripten_php_cli": {
+    "emscripten": {
       "glue": "php_cli_wasm.mjs",
       "command_args": ["php", "-c", "/php.ini", "-f", "/work/script.php"],
       "files": [
@@ -200,6 +200,33 @@ Some Emscripten command-style runtimes need more host setup than the raw Wasm im
             "encoding": "utf8",
             "value": "<?php echo strtoupper('corpus') . \"\\n\";\n"
           }
+        }
+      ],
+      "init": [
+        {
+          "type": "ccall",
+          "function": "pib_storage_init",
+          "return_type": "number",
+          "param_types": [],
+          "params": [],
+          "async": true
+        },
+        {
+          "type": "fs.mkdir",
+          "path": "/preload"
+        },
+        {
+          "type": "fs.write_file",
+          "path": "/php.ini",
+          "bytes": { "encoding": "utf8", "value": "\n" }
+        },
+        {
+          "type": "ccall",
+          "function": "pib_init",
+          "return_type": "number",
+          "param_types": ["string"],
+          "params": ["cli"],
+          "async": true
         }
       ]
     }

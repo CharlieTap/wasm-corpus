@@ -479,8 +479,8 @@
         "wasi_preview_1": {
           "$ref": "#/$defs/wasiPreview1Host"
         },
-        "emscripten_php_cli": {
-          "$ref": "#/$defs/emscriptenPhpCliHost"
+        "emscripten": {
+          "$ref": "#/$defs/emscriptenHost"
         }
       }
     },
@@ -514,7 +514,7 @@
         }
       }
     },
-    "emscriptenPhpCliHost": {
+    "emscriptenHost": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -543,8 +543,132 @@
           },
           "default": []
         },
-        "ini": {
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "init": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/emscriptenInitStep"
+          },
+          "default": []
+        }
+      }
+    },
+    "emscriptenInitStep": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/emscriptenCcallInitStep"
+        },
+        {
+          "$ref": "#/$defs/emscriptenMkdirInitStep"
+        },
+        {
+          "$ref": "#/$defs/emscriptenWriteFileInitStep"
+        }
+      ]
+    },
+    "emscriptenCcallInitStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "function",
+        "return_type",
+        "param_types",
+        "params"
+      ],
+      "properties": {
+        "type": {
+          "const": "ccall"
+        },
+        "function": {
           "type": "string"
+        },
+        "return_type": {
+          "enum": [
+            null,
+            "number",
+            "string",
+            "array",
+            "boolean"
+          ]
+        },
+        "param_types": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "number",
+              "string",
+              "array",
+              "boolean"
+            ]
+          }
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "async": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "emscriptenMkdirInitStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "path"
+      ],
+      "properties": {
+        "type": {
+          "const": "fs.mkdir"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/.*[^/]$"
+        }
+      }
+    },
+    "emscriptenWriteFileInitStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "path",
+        "bytes"
+      ],
+      "properties": {
+        "type": {
+          "const": "fs.write_file"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/.*[^/]$"
+        },
+        "bytes": {
+          "$ref": "#/$defs/bytes"
         }
       }
     },
