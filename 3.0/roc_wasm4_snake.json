@@ -1,0 +1,832 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "roc_wasm4_snake",
+  "path": "roc_wasm4_snake.wasm",
+  "wat": {
+    "status": "present",
+    "path": "roc_wasm4_snake.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "tail-call"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "traceUtf8",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "description": "WASM-4 UTF-8 trace callback; unused by the exercised paths."
+    },
+    {
+      "module": "env",
+      "name": "textUtf8",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "title_x",
+          "param": 2,
+          "format": "decimal_i32",
+          "max_calls": 1
+        }
+      },
+      "description": "WASM-4 text callback; captures the title's x coordinate."
+    },
+    {
+      "module": "env",
+      "name": "rect",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "snake_rect_x_prefix",
+          "param": 0,
+          "format": "decimal_i32",
+          "max_calls": 3
+        }
+      },
+      "description": "WASM-4 rectangle callback used to draw snake body segments and the head."
+    },
+    {
+      "module": "env",
+      "name": "blitSub",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "fruit_x_prefix",
+          "param": 1,
+          "format": "decimal_i32",
+          "max_calls": 16
+        }
+      },
+      "description": "WASM-4 sprite callback used to draw fruit; captures x positions through the first fruit replacement."
+    },
+    {
+      "module": "env",
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1 1)"
+    }
+  ],
+  "exports": [
+    {
+      "name": "update",
+      "kind": "function",
+      "type": "(func)",
+      "description": "Advance the application's model by one WASM-4 frame using registers in imported env.memory."
+    },
+    {
+      "name": "start",
+      "kind": "function",
+      "type": "(func)",
+      "description": "Initialize the Roc model and WASM-4 platform state."
+    }
+  ],
+  "tests": [
+    {
+      "description": "play from the title screen, eat a deterministic fruit, and move in four directions",
+      "notes": "GAMEPAD1 is byte 0x16 in imported WASM-4 memory. Waiting 43 frames makes the X press seed frame 44; the first fruit is then at grid (2,18). UP moves at frames 45 and 60, eating it on frame 60. The captured fruit x callback changes from 16 to 72 on replacement, while rectangle callbacks prove the real snake drawing path. Subsequent RIGHT, DOWN, and LEFT inputs exercise direction changes and wrapped grid movement.",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "initialize the compiled Roc application",
+          "function": "start",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "render the title screen and leave GAMEPAD1 clear"
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "finish the deterministic 43-frame title-screen wait used as the random seed"
+        },
+        {
+          "type": "memory.write",
+          "description": "press WASM-4 BUTTON_1 (X) to start",
+          "memory": "env.memory",
+          "offset": 22,
+          "bytes": {
+            "encoding": "hex",
+            "value": "01"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "start the game; the title screen is still drawn on this transition frame"
+        },
+        {
+          "type": "memory.write",
+          "description": "hold UP for the first two snake grid ticks",
+          "memory": "env.memory",
+          "offset": 22,
+          "bytes": {
+            "encoding": "hex",
+            "value": "40"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "advance to frame 45 and move the snake upward with wraparound"
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "advance to frame 60; the second upward move eats the seeded fruit at grid position (2, 18)"
+        },
+        {
+          "type": "memory.write",
+          "description": "turn RIGHT",
+          "memory": "env.memory",
+          "offset": 22,
+          "bytes": {
+            "encoding": "hex",
+            "value": "20"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "complete the next grid tick moving right"
+        },
+        {
+          "type": "memory.write",
+          "description": "turn DOWN",
+          "memory": "env.memory",
+          "offset": 22,
+          "bytes": {
+            "encoding": "hex",
+            "value": "80"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "complete the next grid tick moving down"
+        },
+        {
+          "type": "memory.write",
+          "description": "turn LEFT",
+          "memory": "env.memory",
+          "offset": 22,
+          "bytes": {
+            "encoding": "hex",
+            "value": "10"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "update",
+          "params": [],
+          "results": [],
+          "description": "complete the next grid tick moving left and assert title, fruit, and snake draw callbacks",
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "title_x",
+                "text": "15"
+              },
+              {
+                "name": "fruit_x_prefix",
+                "text": "16161616161616161616161616161672"
+              },
+              {
+                "name": "snake_rect_x_prefix",
+                "text": "16816"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "8fd0c18fed2baf95e52c7604f77f7cd867403ca6ac594518070a20e4828229f5",
+  "source": {
+    "contributor": "human",
+    "language": "Roc",
+    "path": "examples/snake.roc",
+    "url": "https://github.com/lukewilliamboswell/roc-wasm4/blob/4ec6b695d66530bc9de41bc80b112038e3c1ea12/examples/snake.roc",
+    "description": "Human-authored Snake example from roc-wasm4 commit 4ec6b695d66530bc9de41bc80b112038e3c1ea12."
+  },
+  "toolchain": {
+    "name": "Roc nightly + Zig + Binaryen",
+    "version": "Roc release-fast-c2d30e8a; Zig 0.16.0; wasm-opt version 125",
+    "command": "zig build -Doptimize=ReleaseSmall; roc build --opt=size <source> --output=stage/<fixture>.wasm; ./scripts/prepare"
+  },
+  "description": "Playable Roc Snake cart for WASM-4, exercising imported memory input, deterministic PRNG state, lists, wrapped movement, fruit growth, sprite blits, rectangle drawing, and tail calls.",
+  "tags": [
+    "roc",
+    "wasm-4",
+    "game",
+    "snake",
+    "input",
+    "drawing",
+    "tail-call"
+  ],
+  "notes": "Upstream source is licensed under UPL-1.0. The binary preserves the upstream application and platform behavior and was built from the pinned source after generating platform/targets/wasm32/host.wasm with Zig ReleaseSmall."
+}
