@@ -1,0 +1,188 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "ocaml_binarytrees",
+  "path": "ocaml_binarytrees.wasm",
+  "wat": {
+    "status": "present",
+    "path": "ocaml_binarytrees.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "exception-handling",
+    "gc",
+    "multi-value",
+    "mutable-globals",
+    "reference-types",
+    "tail-call",
+    "typed-function-references"
+  ],
+  "tags": [
+    "benchmark",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-tail-call",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "random_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 2)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "allocate and check binary trees through depth six",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "ocaml_binarytrees",
+            "6"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the depth-six benchmark",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "stretch tree of depth 7\t check: 255\n64\t trees of depth 4\t check: 1984\n16\t trees of depth 6\t check: 2032\nlong lived tree of depth 6\t check: 127\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises the minimum-depth clamp, recursive allocation, object-method dispatch, option matching, repeated tree checks, and long-lived object retention."
+    },
+    {
+      "description": "allocate and check binary trees through depth eight",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "ocaml_binarytrees",
+            "8"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the deeper allocation workload",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "stretch tree of depth 9\t check: 1023\n256\t trees of depth 4\t check: 7936\n64\t trees of depth 6\t check: 8128\n16\t trees of depth 8\t check: 8176\nlong lived tree of depth 8\t check: 511\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Increases allocation and recursive traversal work while adding the depth-eight loop branch and verifying every aggregate check."
+    }
+  ],
+  "sha256": "db073b117605075290fe5bf9329658be70042ab3b303de2093d2e8c4270c10f3",
+  "source": {
+    "contributor": "human",
+    "language": "ocaml",
+    "path": "bench/algorithm/binarytrees/1.ml",
+    "url": "https://github.com/hanabi1224/Programming-Language-Benchmarks/blob/ad18b203dd1769724f4eea94fc3ac1e99f6593e0/bench/algorithm/binarytrees/1.ml",
+    "description": "OCaml binary-trees benchmark redistributed by Programming-Language-Benchmarks under its nested BSD-3-Clause benchmark license."
+  },
+  "toolchain": {
+    "name": "OCaml + wasm_of_ocaml + Binaryen",
+    "version": "OCaml 5.3.0; wasm_of_ocaml 6.4.1 (02ac3ba6a21f6f58b0a4c69b799ac6f43023d674); wasm-opt version 125",
+    "command": "ocamlc -o binarytrees.byte bench/algorithm/binarytrees/1.ml; wasm_of_ocaml compile --enable wasi --effects=cps --opt=3 --no-source-map -o binarytrees.js binarytrees.byte; cp binarytrees.wasm stage/ocaml_binarytrees.wasm; ./scripts/prepare"
+  },
+  "description": "OCaml binary-tree benchmark compiled directly to WasmGC, repeatedly allocating, traversing, and checking short-lived and long-lived object trees.",
+  "notes": "The exact upstream OCaml source is compiled unchanged. Its nested binary-trees benchmark license is BSD-3-Clause; the containing Programming-Language-Benchmarks repository is MIT-licensed. wasm_of_ocaml is LGPL-2.1-or-later with a linking exception that permits distribution of linked executables under chosen terms. The generated JavaScript launcher is not used; tests execute the compiler's WASI Preview 1 module directly."
+}

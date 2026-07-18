@@ -1,0 +1,96 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "grain_baklava",
+  "path": "grain_baklava.wasm",
+  "wat": {
+    "status": "present",
+    "path": "grain_baklava.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-string-processing",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 64)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "render all 21 rows of the symmetric baklava pattern",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "grain_baklava"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "build and print the ascending and descending rows",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "          *\n         ***\n        *****\n       *******\n      *********\n     ***********\n    *************\n   ***************\n  *****************\n *******************\n*********************\n *******************\n  *****************\n   ***************\n    *************\n     ***********\n      *********\n       *******\n        *****\n         ***\n          *\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises the signed range from -10 through 10, absolute-value behavior on both sides of zero, closure invocation, array construction and joins, repeated string allocation, concatenation, and every ascending/descending output width."
+    }
+  ],
+  "sha256": "b40bcc569a4cef6b47796d9ca6b1f7b367e9cab39ecbde494e532a8cade0a40c",
+  "source": {
+    "contributor": "human",
+    "language": "grain",
+    "path": "archive/g/grain/baklava.gr",
+    "url": "https://github.com/TheRenegadeCoder/sample-programs/blob/0920f4be6b4d1205156d67b514d68a2b1a5e70d3/archive/g/grain/baklava.gr",
+    "description": "Grain Baklava sample from the MIT-licensed Sample Programs in Every Language repository."
+  },
+  "toolchain": {
+    "name": "Grain compiler + Binaryen",
+    "version": "Grain 0.7.2 (49829d7966b38b177291f7e91f5eb81c65ec07aa); wasm-opt version 125",
+    "command": "grain compile --release --no-wasm-tail-call --no-bulk-memory archive/g/grain/baklava.gr -o stage/grain_baklava.wasm; ./scripts/prepare"
+  },
+  "description": "Grain program that constructs a symmetric 21-row text pattern with ranges, closures, numeric branching, arrays, and string operations.",
+  "notes": "The human-authored source is compiled unchanged. The application source and the Grain standard library/runtime included in the binary are MIT-licensed; the LGPL-licensed compiler is used only as build tooling."
+}

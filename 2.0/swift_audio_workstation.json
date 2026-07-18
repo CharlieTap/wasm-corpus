@@ -1,0 +1,133 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "swift_audio_workstation",
+  "description": "Embedded Swift audio workstation example that sequences and mixes kick, hi-hat, and synthesized bass into a six-second Float32 buffer.",
+  "path": "swift_audio_workstation.wasm",
+  "wat": {
+    "status": "present",
+    "path": "swift_audio_workstation.wat"
+  },
+  "features": [
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int"
+  ],
+  "tags": [
+    "domain-audio",
+    "duration-medium",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "audio",
+      "name": "encode",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "encoded_byte_count",
+          "param": 2,
+          "format": "decimal_i32",
+          "max_calls": 1
+        }
+      },
+      "description": "Receives the context, linear-memory address, and byte length of the completed Float32 audio buffer."
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 2)"
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "sequence and mix six seconds of kick, hi-hat, and bass audio",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "synthesize 264,600 Float32 samples and submit the buffer",
+          "function": "main",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "encoded_byte_count",
+                "text": "1058400"
+              }
+            ]
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check the mixed opening waveform",
+          "memory": "memory",
+          "offset": 131088,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "07a0bab906f88bba0a48e9ba5b851bbbb26642bb084869bbaf1488bb5b859bbb06f6aebbb166c2bb5dd7d5bb0848e9bbb3b8fcbbaf1408bc05cd11bc5b851bbc"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check the waveform half a second into the sequence",
+          "memory": "memory",
+          "offset": 219288,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "98bd6e3c6fd86f3cf8ee703c3f01723c4b0f733c2719743cda1e753c6d20763cea1d773c5a17783cc30c793c32fe793cabeb7a3c38d57b3ce3ba7c3cb59c7d3c"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check the waveform one second into the sequence",
+          "memory": "memory",
+          "offset": 307488,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "2b76b1bc03acb1bce543b1bc5fb3b0bc88a6b0bccb3fb1bca2f4b1bc56e9b1bc0681b1bccbfeb1bc56aeb3bc10deb2bc02b7afbc8262acbc5135abbc17c1aabc"
+            }
+          }
+        }
+      ],
+      "notes": "The callback proves the full six-second buffer length, while three separated waveform windows verify deterministic synthesis and changing sequencer/mixer state rather than a zero-filled or repeated buffer."
+    }
+  ],
+  "sha256": "09a7c65f5b9d982f9a7348c1a6964b20cf3137412cdcf93480a124c6604267e2",
+  "source": {
+    "contributor": "human",
+    "language": "swift",
+    "path": "AudioWorkstation/Guest/Sources/Mix/main.swift",
+    "url": "https://github.com/swiftlang/swift-for-wasm-examples/blob/135aa444d2725929602b5e31a2788c5583f6af55/AudioWorkstation/Guest/Sources/Mix/main.swift",
+    "description": "AudioWorkstation Mix example from Swift's Apache-2.0 with Runtime Library Exception WebAssembly examples, including MIT-licensed Vult DSP sources."
+  },
+  "toolchain": {
+    "name": "Swift Embedded WebAssembly toolchain + Binaryen",
+    "version": "Swift 6.2 release; wasm-opt version 125",
+    "command": "swift build --disable-sandbox --triple wasm32-unknown-none-wasm -c release --product Mix -Xcc -U__wasm_bulk_memory__; cp .build/wasm32-unknown-none-wasm/release/Mix.wasm stage/swift_audio_workstation.wasm; ./scripts/prepare"
+  },
+  "notes": "The Swift application sources are Apache-2.0 with the Swift Runtime Library Exception. Vendored Vult DSP sources are MIT-licensed, and the remaining vendored allocator/libc sources carry permissive CC0, MIT, or Apache-2.0 with LLVM exception terms documented upstream. The official Swift 6.2 macOS package used for the clean build has SHA-256 9eac4a13500c7a6dedfd90814fd31c17af2efc38150137b56b70bf5f44b2d64b. Tests call the raw Wasm export and inspect its memory directly without the browser demo host."
+}

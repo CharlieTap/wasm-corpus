@@ -1,0 +1,183 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "cpp_nbody",
+  "path": "cpp_nbody.wasm",
+  "wat": {
+    "status": "present",
+    "path": "cpp_nbody.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "benchmark",
+    "domain-numerics",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 2)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "report initial energy without advancing the simulation",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "cpp_nbody",
+            "0"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the benchmark with zero integration steps",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "-0.169075164\n-0.169075164\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises argument parsing, momentum correction, pairwise energy calculation, and the zero-iteration boundary."
+    },
+    {
+      "description": "advance the five-body solar system for 1,000 steps",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "cpp_nbody",
+            "1000"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run pairwise gravity and position updates",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "-0.169075164\n-0.169087605\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises nested body-pair loops, floating-point distance and magnitude calculations, velocity updates, position integration, and final energy calculation."
+    }
+  ],
+  "sha256": "e75a33b1e0d5118b0e6eb0f643a16404cd232d897d0bfbaa8d4ae41a0f8e3443",
+  "source": {
+    "contributor": "human",
+    "language": "cpp",
+    "path": "bench/algorithm/nbody/1.cpp",
+    "url": "https://github.com/hanabi1224/Programming-Language-Benchmarks/blob/ad18b203dd1769724f4eea94fc3ac1e99f6593e0/bench/algorithm/nbody/1.cpp",
+    "description": "C++ n-body benchmark contributed by Jeffrey Beu to the Computer Language Benchmarks Game and redistributed by Programming-Language-Benchmarks under its nested BSD-3-Clause benchmark license."
+  },
+  "toolchain": {
+    "name": "WASI SDK Clang++ + Binaryen",
+    "version": "wasi-sdk 33 (clang 22.1.0-wasi-sdk); wasm-opt version 125",
+    "command": "clang++ --sysroot=<wasi-sdk>/share/wasi-sysroot -O2 bench/algorithm/nbody/1.cpp -o stage/cpp_nbody.wasm; ./scripts/prepare"
+  },
+  "description": "C++ n-body benchmark simulating the Sun and four gas giants with pairwise gravitational updates and energy calculations.",
+  "notes": "The exact upstream C++ source is compiled unchanged. Its nested n-body benchmark license is BSD-3-Clause; the containing Programming-Language-Benchmarks repository is MIT-licensed."
+}

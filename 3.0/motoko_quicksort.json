@@ -1,0 +1,111 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "motoko_quicksort",
+  "path": "motoko_quicksort.wasm",
+  "wat": {
+    "status": "present",
+    "path": "motoko_quicksort.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "memory64",
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-memory64",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory i64 65)"
+    },
+    {
+      "name": "table",
+      "kind": "table",
+      "type": "(table i64 8 8 funcref)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "sort a duplicate-containing mutable array and run all result assertions",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "motoko_quicksort"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run generic recursive quicksort and its six assertions",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "The upstream program sorts [8, 8, 3, 9, 5, 2] in place with Hoare partitioning, recursion, generic comparison dispatch, swaps, duplicate handling, and six assertions for [2, 3, 5, 8, 8, 9]. Any failed assertion traps."
+    }
+  ],
+  "sha256": "ee937f7769f3470df10bf218cd7a756ced2cba49549f42bfbe49791214a041b2",
+  "source": {
+    "contributor": "human",
+    "language": "motoko",
+    "path": "test/run/quicksort.mo",
+    "url": "https://github.com/caffeinelabs/motoko/blob/ac693b1d5c7ee01b01e2889e49eaf7c0027f3aef/test/run/quicksort.mo",
+    "description": "Generic in-place quicksort and result assertions from the Apache-2.0-licensed Motoko compiler repository."
+  },
+  "toolchain": {
+    "name": "Motoko compiler + Binaryen",
+    "version": "Motoko compiler 1.11.1 (ac693b1d5c7ee01b01e2889e49eaf7c0027f3aef); wasm-opt version 125",
+    "command": "moc -c -wasi-system-api --release test/run/quicksort.mo -o stage/motoko_quicksort.wasm; ./scripts/prepare"
+  },
+  "description": "Motoko generic in-place quicksort using mutable arrays, Hoare partitioning, recursion, swaps, duplicate handling, and embedded result assertions.",
+  "notes": "The application and compiler are Apache-2.0 licensed. The exact upstream regression program is compiled unchanged with Motoko's WASI system API; its internal assertions make the otherwise silent command observably fail by trapping if any sorted position is incorrect."
+}

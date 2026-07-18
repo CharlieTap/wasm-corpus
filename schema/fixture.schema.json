@@ -1195,12 +1195,23 @@
           "enum": [
             "assemblyscript",
             "c",
+            "cpp",
+            "d",
             "go",
+            "grain",
+            "haskell",
+            "javascript",
             "kotlin",
             "moonbit",
+            "motoko",
+            "ocaml",
+            "odin",
             "roc",
             "rust",
             "scheme",
+            "swift",
+            "v",
+            "zig",
             "wat"
           ]
         },

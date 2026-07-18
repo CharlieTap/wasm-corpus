@@ -1,0 +1,752 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "d_meta_tictactoe",
+  "path": "d_meta_tictactoe.wasm",
+  "wat": {
+    "status": "present",
+    "path": "d_meta_tictactoe.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-game",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "env",
+      "name": "setFont",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "font_lengths",
+          "param": 1,
+          "format": "decimal_i32",
+          "max_calls": 2
+        }
+      },
+      "description": "Selects a font by pointer and byte length; captures the first two lengths."
+    },
+    {
+      "module": "env",
+      "name": "drawText",
+      "kind": "function",
+      "type": "(func (param f64 f64 i32 i32 i32))",
+      "stub": {
+        "capture": {
+          "name": "text_lengths",
+          "param": 3,
+          "format": "decimal_i32",
+          "max_calls": 3
+        }
+      },
+      "description": "Draws text and captures the first three byte lengths."
+    },
+    {
+      "module": "env",
+      "name": "getTimeMillis",
+      "kind": "function",
+      "type": "(func (result i32))",
+      "stub": {
+        "returns": [
+          {
+            "type": "i32",
+            "value": "1234"
+          }
+        ],
+        "notes": "Uses a fixed clock value so AI benchmark reporting is deterministic."
+      }
+    },
+    {
+      "module": "env",
+      "name": "reportBenchmark",
+      "kind": "function",
+      "type": "(func (param i32 i32))",
+      "stub": {},
+      "description": "Receives the AI move count and elapsed time."
+    },
+    {
+      "module": "env",
+      "name": "setAlpha",
+      "kind": "function",
+      "type": "(func (param f64))",
+      "stub": {},
+      "description": "Sets drawing opacity."
+    },
+    {
+      "module": "env",
+      "name": "drawRect",
+      "kind": "function",
+      "type": "(func (param f64 f64 f64 f64 i32))",
+      "stub": {
+        "capture": {
+          "name": "rect_color",
+          "param": 4,
+          "format": "decimal_i32",
+          "max_calls": 1
+        }
+      },
+      "description": "Draws board rectangles and captures the first packed color."
+    },
+    {
+      "module": "env",
+      "name": "drawLine",
+      "kind": "function",
+      "type": "(func (param f64 f64 f64 f64 f64 i32))",
+      "stub": {},
+      "description": "Draws board and scramble lines."
+    },
+    {
+      "module": "env",
+      "name": "drawCircle",
+      "kind": "function",
+      "type": "(func (param f64 f64 f64 i32))",
+      "stub": {
+        "capture": {
+          "name": "circle_color",
+          "param": 3,
+          "format": "decimal_i32",
+          "max_calls": 1
+        }
+      },
+      "description": "Draws circular player marks and captures the first packed color."
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "getRandom8",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "randomSeed",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "get_random16",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "getRandom",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "clamp",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "dclamp",
+      "kind": "function",
+      "type": "(func (param f64 f64 f64) (result f64))"
+    },
+    {
+      "name": "dmax",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "dmin",
+      "kind": "function",
+      "type": "(func (param f64 f64) (result f64))"
+    },
+    {
+      "name": "boxChar",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "isCpu",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "_D4game9GameState10initializeMUNiZv",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "_D4game9GameState6__initZ",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "_D4game9GameState6updateMUNiSQBb5InputZv",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "updateGame",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "playerTryMove",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "cpuDoMove",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "randomizeField",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "getValidMoves",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "_D4game9GameState4drawMUZv",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "windowContext",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "drawGameCanvas",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "drawField",
+      "kind": "function",
+      "type": "(func (param i32 i32 f64))"
+    },
+    {
+      "name": "drawCursor",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "setMessage",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "_D4game__T16checkThreeInARowTG9G9EQBg3WhoZQBgUNaNbNiNfIKG9G9EQChQBbiiZQBl",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "_D4game__T16checkThreeInARowTG3G3EQBg3WhoZQBgUNaNbNiNfIKG3G3EQChQBbiiZQBl",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "totalMovesConsidered",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "benchmarkStartTime",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "bestMoveScore",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "doMove",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "updateAfterMove",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "checkSupercellWin",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "checkGameWin",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "benchmarkStart",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "benchmarkEnd",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "moveEvaluateScore",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "__assert",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "drawMessage",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "drawSetFont",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "drawString",
+      "kind": "function",
+      "type": "(func (param f64 f64 i32 i32 i32))"
+    },
+    {
+      "name": "getCellCenter",
+      "kind": "function",
+      "type": "(func (param i32 f64) (result f64))"
+    },
+    {
+      "name": "toSymbol",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "toColor",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "alterAlpha",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "initGame",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "state",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "stepGame",
+      "kind": "function",
+      "type": "(func (param f64 f64 i32 i32 i32))"
+    },
+    {
+      "name": "drawGame",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "resize",
+      "kind": "function",
+      "type": "(func (param f64 f64))"
+    },
+    {
+      "name": "memcpy",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "memset",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "_D4util10RandomSeed6__initZ",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "_D4game5Field6__initZ",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "_D4game5Input6__initZ",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "messageStrings",
+      "kind": "global",
+      "type": "(global i32)"
+    },
+    {
+      "name": "_D3app13WindowContext6__initZ",
+      "kind": "global",
+      "type": "(global i32)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "drive title, scramble, game entry, a move, drawing, and restart",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "initialize the D runtime",
+          "function": "_start",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "initialize title and game state",
+          "function": "initGame",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "check title mode",
+          "memory": "memory",
+          "offset": 1050028,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "draw the title screen",
+          "function": "drawGame",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "font_lengths",
+                "text": "1110"
+              },
+              {
+                "name": "text_lengths",
+                "text": "161128"
+              }
+            ]
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "click through the title and randomize the starting board",
+          "function": "stepGame",
+          "params": [
+            {
+              "type": "f64",
+              "value": "4647714815446351872"
+            },
+            {
+              "type": "f64",
+              "value": "4644337115725824000"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "check scramble mode",
+          "memory": "memory",
+          "offset": 1050028,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "01"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check the deterministic randomized board prefix",
+          "memory": "memory",
+          "offset": 1049848,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00010002000002000000000200000100"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "draw the randomized board and scramble overlay",
+          "function": "drawGame",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "click again to enter active play",
+          "function": "stepGame",
+          "params": [
+            {
+              "type": "f64",
+              "value": "4647714815446351872"
+            },
+            {
+              "type": "f64",
+              "value": "4644337115725824000"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "check active game mode",
+          "memory": "memory",
+          "offset": 1050028,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "02"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "draw the active meta-board",
+          "function": "drawGame",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "rect_color",
+                "text": "11193514"
+              }
+            ]
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "place a move in the upper-left cell and advance game logic",
+          "function": "stepGame",
+          "params": [
+            {
+              "type": "f64",
+              "value": "4643985272004935680"
+            },
+            {
+              "type": "f64",
+              "value": "4635329916471083008"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "check the placed player mark",
+          "memory": "memory",
+          "offset": 1049848,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "01"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check cursor movement and turn progression",
+          "memory": "memory",
+          "offset": 1050029,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "0000"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check the third update tick",
+          "memory": "memory",
+          "offset": 1050044,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "3"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "draw the placed circular mark",
+          "function": "drawGame",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "import_captures": [
+              {
+                "name": "circle_color",
+                "text": "16772676"
+              }
+            ]
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "restart from active play",
+          "function": "stepGame",
+          "params": [
+            {
+              "type": "f64",
+              "value": "0"
+            },
+            {
+              "type": "f64",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "check restart mode and reset board prefix",
+          "memory": "memory",
+          "offset": 1049848,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00000000000000000000000000000000"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check reset mode and cursor coordinates",
+          "memory": "memory",
+          "offset": 1050028,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "000404"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "check restart tick",
+          "memory": "memory",
+          "offset": 1050044,
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        }
+      ],
+      "notes": "One continuous scenario exercises runtime setup, title rendering, start input, deterministic board randomization, active-game drawing, a legal move, state/timer/cursor mutation, mark rendering, and restart cleanup."
+    }
+  ],
+  "sha256": "06f2918fcdac891a4e86604745fa1b49a8ca08f9c5cc8eb01f1de3ceef1255fb",
+  "source": {
+    "contributor": "human",
+    "language": "d",
+    "path": "source/",
+    "url": "https://github.com/dkorpel/tictac/tree/d5b008746d4ff41dde60ae55ed9a28b2a9bc2623/source",
+    "description": "Ultimate/meta tic-tac-toe implementation from dkorpel/tictac, licensed under BSL-1.0 and authored to test D's WebAssembly target."
+  },
+  "toolchain": {
+    "name": "LDC + Binaryen",
+    "version": "LDC 1.42.0 (LLVM 21.1.8); wasm-opt version 125",
+    "command": "ldc2 -of=stage/d_meta_tictactoe.wasm -mtriple=wasm32-unknown-unknown-wasm -betterC -link-internally -L-allow-undefined -O3 -release -Isource source/app.d source/jsdraw.d source/game.d source/util.d; ./scripts/prepare"
+  },
+  "description": "D implementation of ultimate tic-tac-toe with randomized setup, nested-board rules, recursive AI search, input handling, drawing, and restart behavior.",
+  "notes": "The exact human-authored upstream source is BSL-1.0 licensed and compiled with LDC's direct LLVM WebAssembly backend. The browser canvas host is replaced only by simple numeric import stubs; tests drive the raw application exports and inspect real drawing callbacks and game memory."
+}

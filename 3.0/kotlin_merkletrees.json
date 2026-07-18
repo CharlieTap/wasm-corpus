@@ -1,0 +1,112 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "kotlin_merkletrees",
+  "path": "kotlin_merkletrees.wasm",
+  "wat": {
+    "status": "present",
+    "path": "kotlin_merkletrees.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "exception-handling",
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "sign-extensions",
+    "typed-function-references"
+  ],
+  "tags": [
+    "benchmark",
+    "domain-hashing",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 0)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "build and hash the complete default-depth Merkle-tree benchmark workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "kotlin_merkletrees"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run recursive allocation, hashing, verification, and reporting at depths 4 through 11",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "stretch tree of depth 11\t root hash: 2048 check: true\n1024\t trees of depth 4\t root hash sum: 16384\n256\t trees of depth 6\t root hash sum: 16384\n64\t trees of depth 8\t root hash sum: 16384\n16\t trees of depth 10\t root hash sum: 16384\nlong lived tree of depth 10\t root hash: 1024 check: true\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises recursive node construction, mutable cached hashes, recursive verification, repeated tree batches, long-lived object retention, Kotlin/Wasm GC objects, and WASI output. Kotlin/Wasm-WASI does not expose command arguments to this program, so the unchanged source follows its built-in depth-10 path."
+    }
+  ],
+  "sha256": "a7d5c30c611715ba6ce80a51af8245a57166f8b6d41138b701ab076987737767",
+  "source": {
+    "contributor": "human",
+    "language": "kotlin",
+    "path": "bench/algorithm/merkletrees/1.kt",
+    "url": "https://github.com/hanabi1224/Programming-Language-Benchmarks/blob/ad18b203dd1769724f4eea94fc3ac1e99f6593e0/bench/algorithm/merkletrees/1.kt",
+    "description": "Human-authored Kotlin Merkle-tree benchmark from Programming-Language-Benchmarks, distributed under the repository's MIT license."
+  },
+  "toolchain": {
+    "name": "Kotlin/Wasm-WASI + Gradle + Binaryen",
+    "version": "Kotlin 2.3.21; Gradle 8.14; wasm-opt version 125",
+    "command": "gradle --no-daemon compileProductionExecutableKotlinWasmWasiOptimize; cp build/compileSync/wasmWasi/main/productionExecutable/optimized/kotlin-merkletrees.wasm stage/kotlin_merkletrees.wasm; ./scripts/prepare"
+  },
+  "description": "Kotlin/Wasm Merkle-tree benchmark performing recursive allocation, cached hashing, verification, and repeated depth-scaled workloads.",
+  "notes": "The upstream Kotlin source is compiled byte-for-byte unchanged as a raw WASI command module with no JavaScript loader or source wrapper. The pinned source repository is MIT-licensed; the Kotlin compiler and standard library are Apache-2.0. Repeated optimized builds were byte-identical."
+}

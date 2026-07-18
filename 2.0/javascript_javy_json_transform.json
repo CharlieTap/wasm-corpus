@@ -1,0 +1,253 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "javascript_javy_json_transform",
+  "path": "javascript_javy_json_transform.wasm",
+  "wat": {
+    "status": "present",
+    "path": "javascript_javy_json_transform.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "simd"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-long",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "feature-simd",
+    "host-wasi-preview1",
+    "size-extra-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 22)"
+    },
+    {
+      "name": "cabi_realloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "config-schema",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse, transform, and serialize a JSON object",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "javascript_javy_json_transform"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": "{\"n\":2,\"bar\":\"baz\"}"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the bundled JavaScript through Javy's QuickJS runtime",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "{\"foo\":3,\"newBar\":\"baz!\"}"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises stdin reads, typed-array chunk collection, UTF-8 decoding, JSON parsing, numeric addition, string concatenation, JSON serialization, UTF-8 encoding, and stdout writes."
+    },
+    {
+      "description": "transform negative and empty values",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "javascript_javy_json_transform"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": "{\"n\":-5,\"bar\":\"\"}"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run negative arithmetic and empty-string concatenation",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "{\"foo\":-4,\"newBar\":\"!\"}"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "assemble and transform JSON spanning multiple 1 KiB input chunks",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "javascript_javy_json_transform"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": "{\"n\":7,\"bar\":\"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\"}"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "read two chunks and preserve a long UTF-8 string through JSON",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "{\"foo\":8,\"newBar\":\"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀!\"}"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "The 260 four-byte emoji make the JSON input exceed the program's 1,024-byte read buffer, exercising multiple fd_read calls, subarrays, offset accumulation, and final Uint8Array assembly."
+    }
+  ],
+  "sha256": "51be02859fc04ee83dc0f00115bc40d2c7cf3d2ad08c6ca37d7b2835bd62005e",
+  "source": {
+    "contributor": "human",
+    "language": "javascript",
+    "path": "crates/cli/tests/sample-scripts/readme.js",
+    "url": "https://github.com/bytecodealliance/javy/blob/03458aaa9ed3e56d9a2baffcf646ac38f69664b5b/crates/cli/tests/sample-scripts/readme.js",
+    "description": "Input-driven JavaScript JSON transformation example from the Apache-2.0-licensed Javy repository."
+  },
+  "toolchain": {
+    "name": "Javy + Binaryen",
+    "version": "Javy 9.0.0 (03458aaa9ed3e56d9a2baffcf646ac38f69664b5b); wasm-opt version 125",
+    "command": "javy build crates/cli/tests/sample-scripts/readme.js -o stage/javascript_javy_json_transform.wasm; ./scripts/prepare"
+  },
+  "description": "JavaScript JSON transformer bundled with Javy's embedded QuickJS runtime, reading arbitrary stdin chunks and writing transformed JSON.",
+  "notes": "Javy is Apache-2.0 licensed and embeds the MIT-licensed QuickJS engine. This is a bundled JavaScript application rather than direct JavaScript-to-native-Wasm AOT: the source is compiled to QuickJS bytecode and linked with the runtime. Unlike the existing bare QuickJS fixture, the tests execute the packaged human-authored JavaScript program through its real stdin/stdout contract."
+}
