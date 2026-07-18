@@ -80,7 +80,7 @@
   "sha256": "abcce55ebdd688009570db6caf2e5fba77a45b3a8f5e0542493cef72a050849f",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/builtins.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/builtins.scm",
     "description": "Bob Scheme builtin predicate regression program, compiled with Bob's WasmGC backend."
@@ -92,11 +92,11 @@
   },
   "description": "Bob Scheme type-dispatch fixture exercising predicates over symbols, null, numbers, booleans, pairs, and procedures.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "type-predicates",
-    "dispatch",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

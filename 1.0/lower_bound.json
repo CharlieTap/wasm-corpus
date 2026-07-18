@@ -9,12 +9,8 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "search",
-    "binary-search",
-    "memory",
-    "loop",
-    "branching"
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

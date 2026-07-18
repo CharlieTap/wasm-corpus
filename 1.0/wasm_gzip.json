@@ -9,11 +9,9 @@
   },
   "features": [],
   "tags": [
-    "compression",
-    "decompression",
-    "gzip",
-    "npm",
-    "real-world"
+    "domain-compression",
+    "duration-short",
+    "size-medium"
   ],
   "exports": [
     {

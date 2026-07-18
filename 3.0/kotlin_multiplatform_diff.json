@@ -15,14 +15,16 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "diff",
-    "myers",
-    "text",
-    "patch"
+    "domain-string-processing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-large"
   ],
   "imports": [
     {
@@ -139,7 +141,7 @@
   "sha256": "9928818a6f06c21e137368dcf913e667b5a042b32b79a5345b736bb70cf2c292",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/petertrr/kotlin-multiplatform-diff",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlin-multiplatform-diff 1.3.0 library (Apache-2.0), exposing deterministic text/list diff score functions."

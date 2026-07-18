@@ -9,12 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "clustering",
-    "dbscan"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

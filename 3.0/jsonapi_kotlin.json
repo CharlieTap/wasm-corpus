@@ -17,14 +17,18 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "jsonapi",
-    "serialization",
-    "json",
-    "kotlinx-serialization"
+    "domain-serialization",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-large"
   ],
   "imports": [
     {
@@ -159,7 +163,7 @@
   "sha256": "5f9f6392ab37aa605ef994200deac77116278c8c9a84fc4cfa59c164d8b4d7f2",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/eygraber/jsonapi-kotlin",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored jsonapi-kotlin 0.2.3 library (MIT), covering JSON:API builders and serializers with deterministic score exports."

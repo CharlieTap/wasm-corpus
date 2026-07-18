@@ -16,13 +16,16 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "json",
-    "validator",
-    "parser"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-small"
   ],
   "imports": [
     {
@@ -123,7 +126,7 @@
   "sha256": "72e3136fb79995d34d5427ce9f6ec975b8c4b8e73719eab6fbc2bb02eda5584a",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "description": "AI-authored Kotlin source compiled with Kotlin/Wasm wasmWasi production library output to represent Kotlin compiler lowering in the corpus."
   },

@@ -97,12 +97,9 @@
   },
   "description": "Wait-for graph cycle detection over fixed process graphs.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "memory",
-    "systems"
+    "domain-graph",
+    "duration-short",
+    "size-small"
   ],
   "notes": "Fixed-dataset fixture: Wait-for graph cycle detection over fixed process graphs. Tests cover cycle, acyclic, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

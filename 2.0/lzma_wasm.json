@@ -15,13 +15,14 @@
     "sign-extensions"
   ],
   "tags": [
-    "compression",
-    "decompression",
-    "lzma",
-    "npm",
-    "real-world",
-    "wasm-bindgen",
-    "xz"
+    "domain-compression",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-large"
   ],
   "imports": [
     {

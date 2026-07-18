@@ -80,7 +80,7 @@
   "sha256": "7b5c865e17550508b145b1622154106cdb0b8b3e78214fc6a597cb50409ecbe6",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/symbolic-diff.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/symbolic-diff.scm",
     "description": "Bob Scheme symbolic differentiation regression program, compiled with Bob's WasmGC backend."
@@ -92,11 +92,12 @@
   },
   "description": "Bob Scheme symbolic differentiator fixture exercising SICP-style expression trees, symbols, quoted lists, and recursive algebraic rewriting.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "symbolic-differentiation",
-    "sicp",
-    "wasmgc"
+    "domain-numerics",
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

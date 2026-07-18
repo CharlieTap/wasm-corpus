@@ -159,13 +159,9 @@
   },
   "description": "Additive gradient-boosted stump score over fixed learners.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "ensemble",
-    "gradient",
-    "boosting"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Gradient boosting. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative boosting behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

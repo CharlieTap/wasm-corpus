@@ -159,12 +159,9 @@
   },
   "description": "Leaf-wise gradient boosting split score over fixed histogram bins.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "ensemble",
-    "lightgbm"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for LightGBM. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative boosting behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

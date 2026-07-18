@@ -9,10 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "dynamic-programming",
-    "branching",
-    "loop"
+    "domain-dynamic-programming",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

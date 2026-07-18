@@ -109,12 +109,9 @@
   },
   "description": "Lehmer-code permutation rank for the first n integers packed in decimal digits.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "combinatorics",
-    "loop",
-    "memory"
+    "domain-numerics",
+    "duration-short",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Lehmer-code permutation rank for the first n integers packed in decimal digits. Tests cover identity, middle, invalid-duplicate, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

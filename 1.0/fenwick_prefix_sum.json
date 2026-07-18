@@ -121,12 +121,8 @@
   },
   "description": "Fenwick tree point updates and prefix-sum query over generated bounded arrays.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "data-structure",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Fenwick tree point updates and prefix-sum query over generated bounded arrays. Tests cover prefix, clamped, negative, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

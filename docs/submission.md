@@ -28,9 +28,9 @@ brew install binaryen wasm-tools
 1. Place one or more candidate `.wasm` or `.wat` files directly in `stage/`
 2. Run `./scripts/prepare`
 3. Edit the generated JSON metadata
-4. Run the `validate` step printed by `prepare`
-5. Run the `execute` step printed by `prepare`
-6. Commit the prepared `.wasm`, `.json`, and `.wat` file when one was generated
+4. Run the fixture with Node 24, complete representative tests, and assign its duration tag using [tagging.md](tagging.md)
+5. Run the `validate` step printed by `prepare`
+6. Commit the prepared `.wasm`, `.json`, and `.wat` when a WAT was generated
 
 Example:
 
@@ -55,6 +55,7 @@ Stage only one source file per basename. For example, use either `stage/gcd.wasm
 - `path`
 - `wat`
 - `features`
+- generated `feature-*`, statically detectable `host-*`, and `size-*` tags
 - `imports[].module`
 - `imports[].name`
 - `imports[].kind`
@@ -65,7 +66,7 @@ Stage only one source file per basename. For example, use either `stage/gcd.wasm
 - `exports[].type`, where available
 - `tests` as an empty array, or migrated from existing metadata
 - `sha256`
-- `source.contributor` as a placeholder
+- `source.contributor` and `source.language` as placeholders
 - `toolchain`
 
 You must complete the human-judgement fields before submitting:
@@ -73,13 +74,16 @@ You must complete the human-judgement fields before submitting:
 - `description`
 - `tests`
 - `source.contributor`
-- source URL/path/language/description, when known
-- `tags`
+- required normalized `source.language`, plus source URL/path/description when known
+- authored domain and special-role tags, following [tagging.md](tagging.md)
+- one measured `duration-*` tag, following [tagging.md](tagging.md)
 - `notes`
 - function import stubs, when needed
 - any generated global import stub values that need semantic meaning
 
 Do not commit placeholder values such as `TODO`, `<sha256>`, or missing tests.
+
+`scripts/tags.json` is the enforced tag registry and [tagging.md](tagging.md) is the operational authority for choosing tags. Tooling derives feature, statically detectable host, and size facets from information it can verify. Contributors assign the duration, domain, and special-role tags using the guide. Record the normalized primary language in `source.language`, run the completed tests with Node 24, and classify the observed duration without committing raw timing data.
 
 ## Tests
 
@@ -274,6 +278,8 @@ Set `source.contributor` to:
 
 Include `source.url`, `source.path`, `source.language`, or `source.description` when those fields help reviewers understand provenance.
 
+`source.language` is required and uses a normalized lowercase value such as `c`, `kotlin`, `moonbit`, `roc`, `rust`, or `wat`. Record the primary application/library language, not incidental build scripts or platform glue.
+
 ## Import Stubs
 
 `prepare` may generate placeholder stubs for simple imported globals. Review those values and replace them if the fixture needs a specific host global value.
@@ -368,6 +374,9 @@ Before opening a PR:
 - If `wat.status` is `present`, the generated `.wat` is readable and matches the `.wasm`
 - If `wat.status` is `too_large_for_corpus`, no misleading `.wat` stand-in is committed
 - Metadata has no placeholders
+- Every tag is present in `scripts/tags.json`, follows `tagging.md`, and generated tag families match structured metadata and the binary
+- `source.language` is normalized
+- The fixture has exactly one `duration-*` tag assigned using `tagging.md`
 - `./scripts/validate ...` passes
 - `./scripts/execute ...` passes
 - Source license and provenance are clear

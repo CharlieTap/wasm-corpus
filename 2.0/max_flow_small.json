@@ -108,12 +108,11 @@
   },
   "description": "Edmonds-Karp maximum flow over several fixed six-node networks.",
   "tags": [
-    "algorithm",
-    "graph",
-    "flow",
-    "branching",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Edmonds-Karp maximum flow over several fixed six-node networks. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

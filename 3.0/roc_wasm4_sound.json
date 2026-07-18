@@ -624,7 +624,7 @@
   "sha256": "290f40a4b59234fb118d94881b666a8f8f908c1258e2c1afb8156063ea25835e",
   "source": {
     "contributor": "human",
-    "language": "Roc",
+    "language": "roc",
     "path": "examples/sound.roc",
     "url": "https://github.com/lukewilliamboswell/roc-wasm4/blob/4ec6b695d66530bc9de41bc80b112038e3c1ea12/examples/sound.roc",
     "description": "Human-authored Sound tone-parameter playground from roc-wasm4 commit 4ec6b695d66530bc9de41bc80b112038e3c1ea12."
@@ -636,13 +636,14 @@
   },
   "description": "Interactive Roc WASM-4 tone playground exercising list updates, edge-triggered input, parameter bounds, numeric formatting, meter and sprite rendering, and packed tone generation.",
   "tags": [
-    "roc",
-    "wasm-4",
-    "audio",
-    "input",
-    "drawing",
-    "controls",
-    "tail-call"
+    "domain-audio",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "feature-tail-call",
+    "size-medium"
   ],
   "notes": "Upstream source is licensed under UPL-1.0. The binary preserves the upstream parameter editor and tone-packing behavior and was built from the pinned source after generating the platform host with Zig ReleaseSmall."
 }

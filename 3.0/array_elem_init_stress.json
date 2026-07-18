@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "array_elem_init_stress",
+  "path": "array_elem_init_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "array_elem_init_stress.wat"
+  },
+  "features": [
+    "gc",
+    "reference-types"
+  ],
+  "exports": [
+    {
+      "name": "bench_init_full",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bench_init_compact",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bench_new_full",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "bench_new_compact",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "repeated full-width array.init_elem copies",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_init_full",
+          "params": [
+            { "type": "i32", "value": "25000000" }
+          ],
+          "results": [
+            { "type": "i32", "value": "25000000" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated compact array.init_elem conversions",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_init_compact",
+          "params": [
+            { "type": "i32", "value": "25000000" }
+          ],
+          "results": [
+            { "type": "i32", "value": "8" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated full-width array.new_elem construction",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_new_full",
+          "params": [
+            { "type": "i32", "value": "500000" }
+          ],
+          "results": [
+            { "type": "i32", "value": "500000" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated compact array.new_elem construction",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_new_compact",
+          "params": [
+            { "type": "i32", "value": "500000" }
+          ],
+          "results": [
+            { "type": "i32", "value": "500000" }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "168f22b229d8e7057f84055b09f0ddca952462956c22417b31488d1226015a9f",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "Purpose-built array element-segment benchmark fixture for Apex runtime optimization work."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Internally amplified full-width and compact array.new_elem and array.init_elem operations.",
+  "tags": [
+    "benchmark",
+    "duration-long",
+    "feature-gc",
+    "feature-reference-types",
+    "size-extra-small",
+    "stress-test"
+  ],
+  "notes": "Small passive element segments are copied repeatedly to isolate handler overhead and full-width copy versus compact narrowing behavior."
+}

@@ -14,21 +14,17 @@
     "sign-extensions"
   ],
   "tags": [
-    "bulk-memory",
-    "c-api",
-    "database",
-    "emscripten",
-    "imported-memory",
-    "mutable-globals",
-    "npm",
-    "parser",
-    "pattern-matching",
-    "reference-types",
-    "saturated-float-to-int",
-    "sign-extensions",
-    "sql",
-    "sqlite",
-    "wasi-p1"
+    "domain-database",
+    "domain-parsing",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "host-emscripten",
+    "host-wasi-preview1",
+    "size-large"
   ],
   "imports": [
     {

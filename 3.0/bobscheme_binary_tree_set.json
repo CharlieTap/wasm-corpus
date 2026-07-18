@@ -80,7 +80,7 @@
   "sha256": "afcd8f71e28153316062803967633698470c099b8d652a9d487de5af860cc2ed",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/bintree.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/bintree.scm",
     "description": "Bob Scheme binary-tree regression program, compiled with Bob's WasmGC backend."
@@ -92,11 +92,11 @@
   },
   "description": "Bob Scheme binary-tree set fixture exercising list-backed tree construction, recursive insert/search, and left/right branch traversal.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "binary-tree",
-    "set",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

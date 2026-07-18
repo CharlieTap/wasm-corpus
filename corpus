@@ -15,27 +15,28 @@ are returned in version order: 1.0, then 2.0, then 3.0.
 
 Filters:
   --version <version>       Include fixtures from this version directory.
-                            May be repeated or comma-separated.
-  --feature <feature>       Require a feature. May be repeated or comma-separated.
-  --features <feature>      Alias for --feature.
-  --exclude-feature <feature>
-                            Exclude fixtures containing this feature.
-                            May be repeated or comma-separated.
-  --exclude-features <feature>
-                            Alias for --exclude-feature.
-  --without-feature <feature>
-                            Alias for --exclude-feature.
-  --tag <tag>               Require a tag. May be repeated or comma-separated.
-  --tags <tag>              Alias for --tag.
+  --language <languages>    Include fixtures written in any comma-separated language.
+  --feature <features>      Require all comma-separated features.
+  --exclude-feature <features>
+                            Exclude fixtures containing any comma-separated feature.
+  --tag <tags>              Require all comma-separated tags.
+  --exclude-tag <tags>      Exclude fixtures containing any comma-separated tag.
+  --size <bucket>           Include fixtures up through this size bucket:
+                            extra-small, small, medium, large, or extra-large.
+  --duration <bucket>       Include fixtures up through this duration bucket:
+                            short, medium, long, or extra-long.
+  --paths                   Print newline-delimited repository-relative .wasm paths.
+  --list-tags               Print the canonical tag registry from scripts/tags.json.
   --compact                 Print compact JSON instead of pretty JSON.
-  -h, --help                Show this help.
+  --help                    Show this help.
 
 Examples:
   ./corpus
-  ./corpus --version 2.0
-  ./corpus --feature simd --tag npm
-  ./corpus --version 2.0 --exclude-feature bulk-memory
-  ./corpus --version 1.0,2.0 --features bulk-memory,simd --compact
+  ./corpus --version 2.0 --paths
+  ./corpus --language kotlin --feature gc
+  ./corpus --exclude-feature gc --exclude-tag duration-extra-long
+  ./corpus --size large --duration medium --paths
+  ./corpus --list-tags
 `);
 }
 
@@ -50,18 +51,45 @@ function appendValues(target, rawValue, flag) {
     fail(`${flag} requires a value`);
   }
 
+  const initialLength = target.length;
   for (const value of rawValue.split(",")) {
     const trimmed = value.trim();
     if (trimmed) target.push(trimmed);
   }
+
+  if (target.length === initialLength) {
+    fail(`${flag} requires a value`);
+  }
+}
+
+const sizeBuckets = ["extra-small", "small", "medium", "large", "extra-large"];
+const durationBuckets = ["short", "medium", "long", "extra-long"];
+
+function setOrderedBucket(filters, field, rawValue, flag, acceptedValues) {
+  if (!rawValue || rawValue.startsWith("--")) {
+    fail(`${flag} requires a value`);
+  }
+  if (filters[field] !== null) {
+    fail(`${flag} may only be specified once`);
+  }
+  if (!acceptedValues.includes(rawValue)) {
+    fail(`unsupported ${flag.slice(2)} bucket: ${rawValue}`);
+  }
+  filters[field] = rawValue;
 }
 
 function parseArgs(argv) {
   const filters = {
     versions: [],
+    languages: [],
     features: [],
     excludedFeatures: [],
     tags: [],
+    excludedTags: [],
+    size: null,
+    duration: null,
+    paths: false,
+    listTags: false,
     compact: false,
   };
 
@@ -78,18 +106,36 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--paths") {
+      filters.paths = true;
+      continue;
+    }
+
+    if (arg === "--list-tags") {
+      filters.listTags = true;
+      continue;
+    }
+
     const equalsIndex = arg.indexOf("=");
     const flag = equalsIndex === -1 ? arg : arg.slice(0, equalsIndex);
     const inlineValue = equalsIndex === -1 ? null : arg.slice(equalsIndex + 1);
 
     if (flag === "--version") {
       appendValues(filters.versions, inlineValue ?? argv[++index], flag);
+    } else if (flag === "--language") {
+      appendValues(filters.languages, inlineValue ?? argv[++index], flag);
     } else if (flag === "--feature" || flag === "--features") {
       appendValues(filters.features, inlineValue ?? argv[++index], flag);
     } else if (flag === "--exclude-feature" || flag === "--exclude-features" || flag === "--without-feature") {
       appendValues(filters.excludedFeatures, inlineValue ?? argv[++index], flag);
     } else if (flag === "--tag" || flag === "--tags") {
       appendValues(filters.tags, inlineValue ?? argv[++index], flag);
+    } else if (flag === "--exclude-tag") {
+      appendValues(filters.excludedTags, inlineValue ?? argv[++index], flag);
+    } else if (flag === "--size") {
+      setOrderedBucket(filters, "size", inlineValue ?? argv[++index], flag, sizeBuckets);
+    } else if (flag === "--duration") {
+      setOrderedBucket(filters, "duration", inlineValue ?? argv[++index], flag, durationBuckets);
     } else {
       fail(`unknown argument: ${arg}`);
     }
@@ -99,6 +145,23 @@ function parseArgs(argv) {
     if (!versionDirs.includes(version)) {
       fail(`unsupported version filter: ${version}`);
     }
+  }
+
+  const hasFixtureFilters = filters.versions.length > 0
+    || filters.languages.length > 0
+    || filters.features.length > 0
+    || filters.excludedFeatures.length > 0
+    || filters.tags.length > 0
+    || filters.excludedTags.length > 0
+    || filters.size !== null
+    || filters.duration !== null;
+
+  if (filters.listTags && (hasFixtureFilters || filters.paths || filters.compact)) {
+    fail("--list-tags cannot be combined with fixture filters or output modifiers");
+  }
+
+  if (filters.paths && filters.compact) {
+    fail("--paths cannot be combined with --compact");
   }
 
   return filters;
@@ -141,8 +204,20 @@ function hasAny(actualValues, excludedValues) {
   return excludedValues.some((value) => actual.has(value));
 }
 
+function matchesOrderedBucket(actualValues, selectedBucket, buckets, prefix) {
+  if (selectedBucket === null) return true;
+  const inclusiveBuckets = buckets
+    .slice(0, buckets.indexOf(selectedBucket) + 1)
+    .map((bucket) => `${prefix}-${bucket}`);
+  return hasAny(actualValues, inclusiveBuckets);
+}
+
 function matchesFilters(fixture, filters) {
   if (filters.versions.length > 0 && !filters.versions.includes(fixture.version)) {
+    return false;
+  }
+
+  if (filters.languages.length > 0 && !filters.languages.includes(fixture.value.source?.language)) {
     return false;
   }
 
@@ -158,11 +233,46 @@ function matchesFilters(fixture, filters) {
     return false;
   }
 
+  if (hasAny(fixture.value.tags, filters.excludedTags)) {
+    return false;
+  }
+
+  if (!matchesOrderedBucket(fixture.value.tags, filters.size, sizeBuckets, "size")) {
+    return false;
+  }
+
+  if (!matchesOrderedBucket(fixture.value.tags, filters.duration, durationBuckets, "duration")) {
+    return false;
+  }
+
   return true;
+}
+
+function printTagRegistry() {
+  const registryPath = path.join(repoRoot, "scripts", "tags.json");
+  let contents;
+  try {
+    contents = fs.readFileSync(registryPath, "utf8");
+  } catch (error) {
+    throw new Error(`could not read scripts/tags.json: ${error.message}`);
+  }
+  process.stdout.write(contents);
+  if (!contents.endsWith("\n")) process.stdout.write("\n");
 }
 
 function main() {
   const filters = parseArgs(process.argv.slice(2));
+
+  if (filters.listTags) {
+    try {
+      printTagRegistry();
+    } catch (error) {
+      process.stderr.write(`error: ${error.message}\n`);
+      process.exit(1);
+    }
+    return;
+  }
+
   let fixtures;
 
   try {
@@ -172,9 +282,15 @@ function main() {
     process.exit(1);
   }
 
-  const values = fixtures
-    .filter((fixture) => matchesFilters(fixture, filters))
-    .map((fixture) => fixture.value);
+  const matches = fixtures.filter((fixture) => matchesFilters(fixture, filters));
+
+  if (filters.paths) {
+    const paths = matches.map((fixture) => path.posix.join(fixture.version, fixture.value.path));
+    if (paths.length > 0) process.stdout.write(`${paths.join("\n")}\n`);
+    return;
+  }
+
+  const values = matches.map((fixture) => fixture.value);
 
   process.stdout.write(JSON.stringify(values, null, filters.compact ? 0 : 2));
   process.stdout.write("\n");

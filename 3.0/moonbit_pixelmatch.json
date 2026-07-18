@@ -17,12 +17,16 @@
     "typed-function-references"
   ],
   "tags": [
-    "moonbit",
-    "image",
-    "pixelmatch",
-    "diff",
-    "wasm3",
-    "gc"
+    "domain-image-processing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "exports": [
     {
@@ -121,7 +125,7 @@
   "sha256": "2dcbb86eb02eb423465cf27443b68f7186f3f93ea7e674591e3253d33837519e",
   "source": {
     "contributor": "human",
-    "language": "MoonBit",
+    "language": "moonbit",
     "url": "https://github.com/mizchi/pixelmatch",
     "path": "src/fixture/fixture.mbt",
     "description": "mizchi/pixelmatch compiled with a local export harness around image comparison APIs."

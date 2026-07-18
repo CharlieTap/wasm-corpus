@@ -159,12 +159,9 @@
   },
   "description": "Tiny autoencoder encode/decode reconstruction error.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "neural-network",
-    "autoencoder"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Autoencoder. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative autoencoder behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

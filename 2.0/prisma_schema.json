@@ -15,14 +15,14 @@
     "sign-extensions"
   ],
   "tags": [
-    "formatter",
-    "language-service",
-    "npm",
-    "parser",
-    "prisma",
-    "real-world",
-    "schema",
-    "wasm-bindgen"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-extra-large"
   ],
   "imports": [
     {

@@ -109,12 +109,8 @@
   },
   "description": "Round-robin scheduler simulation returning average waiting time for fixed burst sets.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "memory",
-    "scheduling"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Round-robin scheduler simulation returning average waiting time for fixed burst sets. Tests cover short-quantum, larger-quantum, alternate, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

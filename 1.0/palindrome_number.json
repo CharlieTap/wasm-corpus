@@ -97,12 +97,9 @@
   },
   "description": "Digit reversal palindrome check for positive and negative integers.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "numeric"
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Digit reversal palindrome check for positive and negative integers. Tests cover palindrome, not-palindrome, negative, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

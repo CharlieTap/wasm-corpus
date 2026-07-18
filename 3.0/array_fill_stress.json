@@ -1,0 +1,147 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "array_fill_stress",
+  "path": "array_fill_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "array_fill_stress.wat"
+  },
+  "features": [
+    "gc",
+    "reference-types"
+  ],
+  "exports": [
+    {
+      "name": "bench_i8",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "bench_i16",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "bench_i32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "bench_i64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i64))"
+    },
+    {
+      "name": "bench_ref",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "repeated non-zero i8 array.fill",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_i8",
+          "params": [
+            { "type": "i32", "value": "10000" },
+            { "type": "i32", "value": "65536" },
+            { "type": "i32", "value": "43981" }
+          ],
+          "results": [
+            { "type": "i32", "value": "205" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated non-zero i16 array.fill",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_i16",
+          "params": [
+            { "type": "i32", "value": "10000" },
+            { "type": "i32", "value": "32768" },
+            { "type": "i32", "value": "43981" }
+          ],
+          "results": [
+            { "type": "i32", "value": "43981" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated non-zero i32 array.fill",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_i32",
+          "params": [
+            { "type": "i32", "value": "10000" },
+            { "type": "i32", "value": "16384" },
+            { "type": "i32", "value": "305419896" }
+          ],
+          "results": [
+            { "type": "i32", "value": "305419896" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated non-zero i64 array.fill",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_i64",
+          "params": [
+            { "type": "i32", "value": "10000" },
+            { "type": "i32", "value": "8192" },
+            { "type": "i64", "value": "81985529216486895" }
+          ],
+          "results": [
+            { "type": "i64", "value": "81985529216486895" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated non-null reference array.fill",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_ref",
+          "params": [
+            { "type": "i32", "value": "10000" },
+            { "type": "i32", "value": "16384" }
+          ],
+          "results": [
+            { "type": "i32", "value": "7" }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "54e08982a1dda785724e97d6b491bc9a42286681bc98034cc17cb7f4d27c1720",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "Purpose-built array.fill benchmark fixture for Apex runtime optimization work."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Internally amplified non-zero array.fill operations across scalar and reference storage widths.",
+  "tags": [
+    "benchmark",
+    "duration-long",
+    "feature-gc",
+    "feature-reference-types",
+    "size-extra-small",
+    "stress-test"
+  ],
+  "notes": "Each export allocates once, performs repeated fills in Wasm, and reads the final element so execution timing emphasizes the array.fill handler."
+}

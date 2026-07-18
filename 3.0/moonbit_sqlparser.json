@@ -16,12 +16,15 @@
     "typed-function-references"
   ],
   "tags": [
-    "moonbit",
-    "sql",
-    "parser",
-    "lexer",
-    "wasm3",
-    "gc"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-large"
   ],
   "exports": [
     {
@@ -120,7 +123,7 @@
   "sha256": "11ba7fcb2df23557b136c92d3d79c7359d121c6a9d2854c21e755c9c540bca07",
   "source": {
     "contributor": "human",
-    "language": "MoonBit",
+    "language": "moonbit",
     "url": "https://github.com/moonbit-community/sqlparser",
     "path": "src/fixture/fixture.mbt",
     "description": "moonbit-community/sqlparser compiled with a local export harness around tokenize and parse_sql."

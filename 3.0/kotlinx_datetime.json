@@ -15,13 +15,16 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "kotlinx",
-    "datetime",
-    "kotlinx-datetime"
+    "domain-parsing",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-large"
   ],
   "imports": [
     {
@@ -469,7 +472,7 @@
   "sha256": "b958bb6a0b869f3f3a4d34d0e25c697d941c93bc4640f2106d23999fc54807e7",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/Kotlin/kotlinx-datetime",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx-datetime 0.7.1 library (kotlinx-datetime, Apache-2.0), aggregating 5 scenario groups and 20 deterministic corpus calls into one library-level Wasm module."

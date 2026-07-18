@@ -9,6 +9,7 @@ on:
       - "3.0/*.json"
       - "schema/*.json"
       - "scripts/**"
+      - "corpus"
   push:
     branches:
       - main
@@ -19,6 +20,7 @@ on:
       - "3.0/*.json"
       - "schema/*.json"
       - "scripts/**"
+      - "corpus"
 
 jobs:
   validate-and-execute:

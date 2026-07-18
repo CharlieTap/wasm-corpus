@@ -1,0 +1,109 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "array_data_init_stress",
+  "path": "array_data_init_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "array_data_init_stress.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "gc",
+    "reference-types"
+  ],
+  "exports": [
+    {
+      "name": "bench",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "repeat one-byte array.init_data copies",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            { "type": "i32", "value": "20000000" },
+            { "type": "i32", "value": "1" }
+          ],
+          "results": [
+            { "type": "i32", "value": "48" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeat eight-byte array.init_data copies",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            { "type": "i32", "value": "20000000" },
+            { "type": "i32", "value": "8" }
+          ],
+          "results": [
+            { "type": "i32", "value": "55" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeat 32-byte array.init_data copies",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            { "type": "i32", "value": "12000000" },
+            { "type": "i32", "value": "32" }
+          ],
+          "results": [
+            { "type": "i32", "value": "102" }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeat 256-byte array.init_data copies",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            { "type": "i32", "value": "4000000" },
+            { "type": "i32", "value": "256" }
+          ],
+          "results": [
+            { "type": "i32", "value": "102" }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "9a86ed8d1bd1af2445b35d75f0ea8dea0bf2269a8a3ed73e686707584e012954",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "Purpose-built array.init_data benchmark fixture for Apex runtime optimization work."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Internally amplified array.init_data copies spanning call-dominated and bulk sizes.",
+  "tags": [
+    "benchmark",
+    "duration-long",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-reference-types",
+    "size-extra-small",
+    "stress-test"
+  ],
+  "notes": "The module allocates one 256-byte array per test and repeatedly copies from a passive data segment before reading the last initialized byte."
+}

@@ -873,7 +873,7 @@
   "sha256": "d1c7430130bf0e28df29502b9c2a666c6f41ec93c35a8edb2ca4df2f13bc909f",
   "source": {
     "contributor": "human",
-    "language": "Roc",
+    "language": "roc",
     "path": "examples/rocci-bird.roc",
     "url": "https://github.com/lukewilliamboswell/roc-wasm4/blob/4ec6b695d66530bc9de41bc80b112038e3c1ea12/examples/rocci-bird.roc",
     "description": "Human-authored Rocci Bird example from roc-wasm4 commit 4ec6b695d66530bc9de41bc80b112038e3c1ea12."
@@ -885,15 +885,15 @@
   },
   "description": "Rocci Bird game cart compiled from Roc for WASM-4, covering title/game/game-over models, floating-point physics, animation, procedural plants and pipes, collision reads, audio, persistence callbacks, scoring, and restart flow.",
   "tags": [
-    "roc",
-    "wasm-4",
-    "game",
-    "flappy-bird",
-    "physics",
-    "audio",
-    "collision",
-    "drawing",
-    "tail-call"
+    "domain-audio",
+    "domain-game",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-tail-call",
+    "size-medium"
   ],
   "notes": "Upstream source is licensed under UPL-1.0. The binary preserves the upstream application, artwork data, and platform behavior and was built from the pinned source after generating the platform host with Zig ReleaseSmall."
 }

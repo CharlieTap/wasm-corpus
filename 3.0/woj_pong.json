@@ -3155,12 +3155,14 @@
   },
   "description": "WOJ Pong example compiled to WasmGC, driven through initialized state, paddle input, clamping, ball movement, wall bounce, and paddle collision behavior.",
   "tags": [
-    "example",
-    "gc",
-    "mit",
-    "pong",
-    "typed-function-references",
-    "woj"
+    "domain-game",
+    "duration-short",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "notes": "Tests initialize the Pong state and drive actual game ticks. They assert paddle input movement, clamp behavior, ball position integration, bottom-wall bounce, right-paddle collision, and unchanged score counters."
 }

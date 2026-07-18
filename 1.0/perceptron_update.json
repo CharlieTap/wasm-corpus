@@ -145,12 +145,9 @@
   },
   "description": "One perceptron training update with packed signed output weights.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "machine-learning",
-    "memory"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: One perceptron training update with packed signed output weights. Tests cover negative-correction, positive-correction, already-correct, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

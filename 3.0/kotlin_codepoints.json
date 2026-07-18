@@ -129,7 +129,7 @@
   "sha256": "e0700c5dd56295f5eeb662b0345d8172e1a722ba6ed49120e021a4fdaee91ec4",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/cketti/kotlin-codepoints",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlin-codepoints 0.11.0 library (Apache-2.0), using deterministic Unicode-heavy corpus score functions."
@@ -141,12 +141,15 @@
   },
   "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlin-codepoints 0.11.0 Unicode code point library, exercising supplementary-plane iteration, indexing, construction, mutation, and invalid surrogate handling.",
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "unicode",
-    "codepoints",
-    "strings"
+    "domain-string-processing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-small"
   ],
   "notes": "Built as an optimized Kotlin/Wasm WASI library fixture. The exported score functions intentionally fold richer library results into i32 values so the corpus runner can assert behavior without requiring string return support."
 }

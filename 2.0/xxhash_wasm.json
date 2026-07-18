@@ -11,12 +11,10 @@
     "bulk-memory"
   ],
   "tags": [
-    "bulk-memory",
-    "hashing",
-    "npm",
-    "real-world",
-    "streaming",
-    "xxhash"
+    "domain-hashing",
+    "duration-short",
+    "feature-bulk-memory",
+    "size-small"
   ],
   "exports": [
     {

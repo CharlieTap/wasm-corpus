@@ -80,7 +80,7 @@
   "sha256": "8efc8c10cf449c163838ac4271c8effd8f4dbaea4400012d4e09c30518c00c58",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/lists3.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/lists3.scm",
     "description": "Bob Scheme large list regression program, compiled with Bob's WasmGC backend."
@@ -92,11 +92,11 @@
   },
   "description": "Bob Scheme large-list fixture exercising recursive allocation of hundreds of cons cells and recursive traversal to measure list length.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "list",
-    "allocation",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

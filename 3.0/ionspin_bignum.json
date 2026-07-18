@@ -17,14 +17,18 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "bignum",
-    "arbitrary-precision",
-    "ion-spin",
-    "math"
+    "domain-numerics",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-large"
   ],
   "imports": [
     {
@@ -175,7 +179,7 @@
   "sha256": "b663fc3ce72981640ee78db280b02d908826706b70572f9f65cec83004d69447",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/ionspin/kotlin-multiplatform-bignum",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored Ionspin BigNum 0.3.10 library (Apache-2.0), exposing deterministic score functions over representative arbitrary-precision operations."

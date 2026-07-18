@@ -16,12 +16,15 @@
     "typed-function-references"
   ],
   "tags": [
-    "moonbit",
-    "ini",
-    "parser",
-    "config",
-    "wasm3",
-    "gc"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "exports": [
     {
@@ -120,7 +123,7 @@
   "sha256": "3621c0e48e7a696716bbeaf3d12cfc4ded85383ac9c0ec81c4cfd958ff099dbb",
   "source": {
     "contributor": "human",
-    "language": "MoonBit",
+    "language": "moonbit",
     "url": "https://github.com/moonbit-community/ini",
     "path": "fixture/fixture.mbt",
     "description": "moonbit-community/ini compiled with a local export harness around parser and IniParseState APIs."

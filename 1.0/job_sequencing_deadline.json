@@ -97,12 +97,8 @@
   },
   "description": "Greedy job sequencing with deadlines and profits over fixed job sets.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "greedy",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Greedy job sequencing with deadlines and profits over fixed job sets. Tests cover classic, ordered, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

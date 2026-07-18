@@ -12,14 +12,11 @@
     "mutable-globals"
   ],
   "tags": [
-    "decoder",
-    "image",
-    "imported-memory",
-    "multi-value",
-    "npm",
-    "qoi",
-    "real-world",
-    "wat"
+    "domain-image-processing",
+    "duration-short",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "imports": [
     {

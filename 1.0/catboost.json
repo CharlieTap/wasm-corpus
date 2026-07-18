@@ -159,12 +159,9 @@
   },
   "description": "Ordered categorical boosting score over fixed category statistics.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "ensemble",
-    "catboost"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for CatBoost. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative boosting behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

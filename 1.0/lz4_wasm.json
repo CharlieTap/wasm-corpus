@@ -9,13 +9,9 @@
   },
   "features": [],
   "tags": [
-    "compression",
-    "decompression",
-    "lz4",
-    "npm",
-    "real-world",
-    "rust",
-    "wasm-bindgen"
+    "domain-compression",
+    "duration-short",
+    "size-medium"
   ],
   "imports": [
     {

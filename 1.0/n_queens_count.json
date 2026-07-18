@@ -97,12 +97,8 @@
   },
   "description": "Backtracking N-Queens solver for n up to 8, counting all valid boards.",
   "tags": [
-    "algorithm",
-    "backtracking",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Backtracking N-Queens solver for n up to 8, counting all valid boards. Tests cover one, four, eight, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

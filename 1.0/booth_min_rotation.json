@@ -134,10 +134,9 @@
   },
   "description": "Lexicographically minimal rotation index for packed two-bit strings.",
   "tags": [
-    "algorithm",
-    "string",
-    "branching",
-    "loop"
+    "domain-string-processing",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Lexicographically minimal rotation index for packed two-bit strings. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

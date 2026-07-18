@@ -137,11 +137,12 @@
   },
   "description": "Longest palindromic subsequence dynamic program over packed symbols.",
   "tags": [
-    "algorithm",
-    "dynamic-programming",
-    "string",
-    "branching",
-    "loop"
+    "domain-dynamic-programming",
+    "domain-string-processing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Longest palindromic subsequence dynamic program over packed symbols. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

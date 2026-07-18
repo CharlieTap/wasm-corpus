@@ -13,13 +13,13 @@
     "sign-extensions"
   ],
   "tags": [
-    "compression",
-    "image",
-    "npm",
-    "oxipng",
-    "png",
-    "real-world",
-    "wasm-bindgen"
+    "domain-compression",
+    "domain-image-processing",
+    "duration-short",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-large"
   ],
   "imports": [
     {

@@ -16,13 +16,15 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "crc32",
-    "adler32",
-    "hashing",
-    "bit-ops"
+    "domain-hashing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-small"
   ],
   "exports": [
     {
@@ -105,7 +107,7 @@
   "sha256": "f1399ede29dc4b8f96ee87e6a8d6a0f85a6a9654ede0f73da21d0f89ad6fa759",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "description": "AI-authored Kotlin source compiled with Kotlin/Wasm wasmWasi production library output to represent Kotlin compiler lowering in the corpus."
   },

@@ -137,11 +137,11 @@
   },
   "description": "Distinct substring counting over a packed two-bit alphabet.",
   "tags": [
-    "algorithm",
-    "string",
-    "branching",
-    "loop",
-    "memory"
+    "domain-string-processing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Distinct substring counting over a packed two-bit alphabet. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

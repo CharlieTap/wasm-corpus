@@ -97,12 +97,9 @@
   },
   "description": "Line sweep over fixed half-open intervals, returning maximum overlap.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "geometry",
-    "loop",
-    "memory"
+    "domain-geometry",
+    "duration-short",
+    "size-small"
   ],
   "notes": "Fixed-dataset fixture: Line sweep over fixed half-open intervals, returning maximum overlap. Tests cover staggered, touching-half-open, default, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

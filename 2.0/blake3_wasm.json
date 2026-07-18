@@ -13,13 +13,13 @@
     "simd"
   ],
   "tags": [
-    "blake3",
-    "cryptography",
-    "emscripten",
-    "hashing",
-    "npm",
-    "real-world",
-    "simd"
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-simd",
+    "size-medium"
   ],
   "imports": [
     {

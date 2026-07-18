@@ -97,11 +97,9 @@
   },
   "description": "Augmenting-path maximum bipartite matching over bounded fixture graphs.",
   "tags": [
-    "algorithm",
-    "graph",
-    "matching",
-    "branching",
-    "loop"
+    "domain-graph",
+    "duration-short",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Augmenting-path maximum bipartite matching over bounded fixture graphs. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

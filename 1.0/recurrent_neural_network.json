@@ -159,14 +159,9 @@
   },
   "description": "Simple recurrent hidden-state update over a sequence.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "neural-network",
-    "recurrent",
-    "neural",
-    "network"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Recurrent neural network. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative recurrent behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

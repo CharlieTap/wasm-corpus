@@ -134,10 +134,9 @@
   },
   "description": "Stein binary GCD over non-negative integer pairs.",
   "tags": [
-    "algorithm",
-    "number-theory",
-    "branching",
-    "loop"
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Stein binary GCD over non-negative integer pairs. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

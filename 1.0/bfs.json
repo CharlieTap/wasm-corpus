@@ -9,12 +9,8 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "graph",
-    "traversal",
-    "queue",
-    "memory",
-    "branching"
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

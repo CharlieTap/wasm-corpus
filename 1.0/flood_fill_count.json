@@ -121,12 +121,9 @@
   },
   "description": "Stack-based flood fill over selectable grids, counting cells changed from the start region.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "graph",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "size-small"
   ],
   "notes": "Fixed-dataset fixture: Stack-based flood fill over selectable grids, counting cells changed from the start region. Tests cover left-region, right-region, alternate-grid, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

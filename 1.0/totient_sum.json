@@ -118,10 +118,9 @@
   },
   "description": "Summatory Euler totient values using trial factorization.",
   "tags": [
-    "algorithm",
-    "number-theory",
-    "branching",
-    "loop"
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Summatory Euler totient values using trial factorization. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

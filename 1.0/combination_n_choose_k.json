@@ -109,12 +109,10 @@
   },
   "description": "Dynamic-programming binomial coefficient for bounded n and k.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "combinatorics",
-    "loop",
-    "memory"
+    "domain-dynamic-programming",
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Dynamic-programming binomial coefficient for bounded n and k. Tests cover edge, middle, invalid, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

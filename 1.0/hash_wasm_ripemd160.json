@@ -9,12 +9,10 @@
   },
   "features": [],
   "tags": [
-    "crypto",
-    "hash",
-    "hash-wasm",
-    "npm",
-    "real-world",
-    "ripemd160"
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "size-small"
   ],
   "exports": [
     {
@@ -245,7 +243,8 @@
     "contributor": "human",
     "path": "dist/index.esm.js embedded wasmJson for ripemd160",
     "url": "https://www.npmjs.com/package/hash-wasm/v/4.12.0",
-    "description": "The RIPEMD-160 WebAssembly binary embedded in hash-wasm 4.12.0."
+    "description": "The RIPEMD-160 WebAssembly binary embedded in hash-wasm 4.12.0.",
+    "language": "c"
   },
   "toolchain": {
     "name": "Binaryen",

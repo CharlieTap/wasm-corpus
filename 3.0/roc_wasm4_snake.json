@@ -808,7 +808,7 @@
   "sha256": "8fd0c18fed2baf95e52c7604f77f7cd867403ca6ac594518070a20e4828229f5",
   "source": {
     "contributor": "human",
-    "language": "Roc",
+    "language": "roc",
     "path": "examples/snake.roc",
     "url": "https://github.com/lukewilliamboswell/roc-wasm4/blob/4ec6b695d66530bc9de41bc80b112038e3c1ea12/examples/snake.roc",
     "description": "Human-authored Snake example from roc-wasm4 commit 4ec6b695d66530bc9de41bc80b112038e3c1ea12."
@@ -820,13 +820,13 @@
   },
   "description": "Playable Roc Snake cart for WASM-4, exercising imported memory input, deterministic PRNG state, lists, wrapped movement, fruit growth, sprite blits, rectangle drawing, and tail calls.",
   "tags": [
-    "roc",
-    "wasm-4",
-    "game",
-    "snake",
-    "input",
-    "drawing",
-    "tail-call"
+    "domain-game",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-medium"
   ],
   "notes": "Upstream source is licensed under UPL-1.0. The binary preserves the upstream application and platform behavior and was built from the pinned source after generating platform/targets/wasm32/host.wasm with Zig ReleaseSmall."
 }

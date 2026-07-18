@@ -12,11 +12,11 @@
     "mutable-globals"
   ],
   "tags": [
-    "algorithm",
-    "graph",
-    "branching",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "exports": [
     {

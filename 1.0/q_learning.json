@@ -159,12 +159,9 @@
   },
   "description": "Q-learning Bellman update over fixed transition values.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "reinforcement-learning",
-    "learning"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Q-learning. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative rl behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

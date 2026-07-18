@@ -11,13 +11,11 @@
     "sign-extensions"
   ],
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "memory",
-    "sign-extensions",
-    "string-search"
+    "domain-hashing",
+    "domain-string-processing",
+    "duration-short",
+    "feature-sign-extensions",
+    "size-small"
   ],
   "exports": [
     {

@@ -9,14 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "optimization",
-    "learning",
-    "rate",
-    "scheduling"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

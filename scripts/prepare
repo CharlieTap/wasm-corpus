@@ -11,6 +11,7 @@ const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
 const maxBinaryenRoundtripPasses = Number.parseInt(process.env.WASM_CORPUS_MAX_BINARYEN_ROUNDTRIP_PASSES || "12", 10);
+const MAX_WASM_BYTES = 250_000_000;
 let cachedBinaryenVersion = null;
 
 function usage() {
@@ -53,6 +54,47 @@ function runRequired(command, commandArgs, options = {}) {
 function truncateOutput(output, limit = 8192) {
   if (output.length <= limit) return output;
   return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
+}
+
+function loadAllowedTags() {
+  let value;
+  try {
+    value = JSON.parse(fs.readFileSync(path.join(repoRoot, "scripts", "tags.json"), "utf8"));
+  } catch (error) {
+    fail(`could not read scripts/tags.json: ${error.message}`);
+  }
+  if (!Array.isArray(value) || value.some((tag) => typeof tag !== "string")) {
+    fail("scripts/tags.json must contain an array of strings");
+  }
+  if (new Set(value).size !== value.length || JSON.stringify(value) !== JSON.stringify([...value].sort())) {
+    fail("scripts/tags.json must be sorted and contain no duplicates");
+  }
+  return value;
+}
+
+function sizeTag(bytes) {
+  if (bytes <= 500) return "size-extra-small";
+  if (bytes <= 10_000) return "size-small";
+  if (bytes <= 100_000) return "size-medium";
+  if (bytes <= 1_000_000) return "size-large";
+  if (bytes <= MAX_WASM_BYTES) return "size-extra-large";
+  fail(`binary is ${bytes} bytes; corpus binaries may not exceed ${MAX_WASM_BYTES} bytes`);
+}
+
+function inferredTags({ features, imports, wasmBytes, existingTags }) {
+  const tags = (existingTags || []).filter((tag) => (
+    !tag.startsWith("feature-") &&
+    !tag.startsWith("size-") &&
+    tag !== "host-wasi-preview1"
+  ));
+
+  tags.push(...(features || []).map((feature) => `feature-${feature}`));
+  if ((imports || []).some((item) => item.module === "wasi_snapshot_preview1")) {
+    tags.push("host-wasi-preview1");
+  }
+  tags.push(sizeTag(wasmBytes));
+
+  return [...new Set(tags)].sort();
 }
 
 function commandExists(command) {
@@ -612,24 +654,6 @@ function mergeExports(inferred, existing) {
   });
 }
 
-function inferredTags(imports, existingTags) {
-  const hasWasiP1 = imports.some((item) => item.module === "wasi_snapshot_preview1");
-  const tags = [...(existingTags || [])].filter((tag) => {
-    if (tag === "wasi:p1") return false;
-    if (hasWasiP1 && tag === "wasi") return false;
-    return true;
-  });
-  const addTag = (tag) => {
-    if (!tags.includes(tag)) tags.push(tag);
-  };
-
-  if (hasWasiP1) {
-    addTag("wasi-p1");
-  }
-
-  return tags;
-}
-
 function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath }) {
   const parsed = path.parse(wasmPath);
   const existing = readExistingJson(jsonPath);
@@ -639,7 +663,22 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
   const command = "./scripts/prepare";
   const imports = mergeImports(moduleShape.imports, previous.imports);
   const exports = mergeExports(moduleShape.exports, previous.exports);
-  const tags = inferredTags(imports, previous.tags);
+  const source = previous.source || {
+    contributor: "TODO: human or ai",
+    language: "TODO: source language",
+  };
+  const digest = sha256(wasmPath);
+  const tags = inferredTags({
+    features: classification.features || [],
+    imports,
+    wasmBytes: fs.statSync(wasmPath).size,
+    existingTags: previous.tags,
+  });
+  const allowedTags = loadAllowedTags();
+  const unknownTags = tags.filter((tag) => !allowedTags.includes(tag));
+  if (unknownTags.length > 0) {
+    fail(`${relativeFromRepo(jsonPath)} contains tags not registered in scripts/tags.json: ${unknownTags.join(", ")}`);
+  }
   const assertionFromExpected = (expected) => {
     if (!expected) return {};
     if (expected.returns) return { results: expected.returns };
@@ -673,10 +712,8 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
     ...(imports.length > 0 || previous.imports ? { imports } : {}),
     ...(exports.length > 0 || previous.exports ? { exports } : {}),
     tests,
-    sha256: sha256(wasmPath),
-    source: previous.source || {
-      contributor: "TODO: human or ai",
-    },
+    sha256: digest,
+    source,
     ...(previous.toolchain || !existing
       ? {
           toolchain: previous.toolchain || {
@@ -773,6 +810,10 @@ try {
     const prepared = path.join(work, "prepared.wasm");
     const watTmp = path.join(work, "module.wat");
     const watMetadata = prepareBinary(sourceWasm, prepared, watTmp, initialClassification.binaryen_args || [], work);
+    const preparedSize = fs.statSync(prepared).size;
+    if (preparedSize > MAX_WASM_BYTES) {
+      fail(`${stagedRelative} prepares to ${preparedSize} bytes; corpus binaries may not exceed ${MAX_WASM_BYTES} bytes`);
+    }
 
     const finalClassification = classify(prepared);
     if (!finalClassification.version) {
@@ -819,8 +860,9 @@ try {
     const paths = preparedWasmPaths.join(" ");
     process.stdout.write("\nNext steps:\n");
     process.stdout.write("1. Complete the generated JSON metadata.\n");
-    process.stdout.write(`2. Run: ./scripts/validate ${paths}\n`);
-    process.stdout.write(`3. Run: ./scripts/execute ${paths}\n`);
+    process.stdout.write(`2. Run with Node 24: ./scripts/execute ${paths}\n`);
+    process.stdout.write("3. Assign a duration tag using docs/tagging.md.\n");
+    process.stdout.write(`4. Run: ./scripts/validate ${paths}\n`);
   }
 } finally {
   fs.rmSync(tmpdir, { recursive: true, force: true });

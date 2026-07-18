@@ -9,13 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "math",
-    "matrix",
-    "memory"
+    "domain-linear-algebra",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

@@ -109,12 +109,9 @@
   },
   "description": "Single PageRank relaxation over a fixed directed graph, returning a scaled rank.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "graph",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Single PageRank relaxation over a fixed directed graph, returning a scaled rank. Tests cover initial, after-one, after-three, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

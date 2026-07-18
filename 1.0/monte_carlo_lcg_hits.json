@@ -109,12 +109,10 @@
   },
   "description": "Monte Carlo point-in-circle hit counter using deterministic pseudo-random points.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "simulation"
+    "domain-geometry",
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Monte Carlo point-in-circle hit counter using deterministic pseudo-random points. Tests cover zero, small, larger, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

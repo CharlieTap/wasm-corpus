@@ -9,11 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "numeric",
-    "bitwise",
-    "loop",
-    "branching"
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

@@ -133,12 +133,8 @@
   },
   "description": "Deterministic simulated-annealing acceptance rule with scaled temperature and pseudo-random threshold.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "optimization"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Deterministic simulated-annealing acceptance rule with scaled temperature and pseudo-random threshold. Tests cover improvement, accept-worse, reject-worse, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

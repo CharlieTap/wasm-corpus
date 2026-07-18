@@ -9,12 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "branching",
-    "compression",
-    "fixed-dataset",
-    "loop",
-    "memory"
+    "domain-compression",
+    "duration-short",
+    "size-small"
   ],
   "exports": [
     {

@@ -11,11 +11,9 @@
     "bulk-memory"
   ],
   "tags": [
-    "algorithm",
-    "sorting",
-    "branching",
-    "loop",
-    "memory"
+    "duration-short",
+    "feature-bulk-memory",
+    "size-extra-small"
   ],
   "exports": [
     {

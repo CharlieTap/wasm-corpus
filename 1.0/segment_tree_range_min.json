@@ -133,12 +133,8 @@
   },
   "description": "Iterative segment tree range-minimum query over a bounded generated array.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "data-structure",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Iterative segment tree range-minimum query over a bounded generated array. Tests cover middle, clamped, empty, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

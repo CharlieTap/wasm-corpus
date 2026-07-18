@@ -2218,12 +2218,14 @@
   },
   "description": "WOJ Game of Life example compiled to WasmGC, driven through initialized grid state, Conway cell updates, demo pattern loading, and rendering helpers.",
   "tags": [
-    "example",
-    "game-of-life",
-    "gc",
-    "mit",
-    "typed-function-references",
-    "woj"
+    "domain-game",
+    "duration-short",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "notes": "Tests now initialize the game state and exercise the public Life API: pause handling, cell mutation, Conway blinker rotation, demo pattern placement, pixel color calculation, generation counters, and population counts."
 }

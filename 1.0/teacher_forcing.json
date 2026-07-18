@@ -159,13 +159,9 @@
   },
   "description": "Teacher-forced decoder loss over fixed target tokens.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "sequence-model",
-    "teacher",
-    "forcing"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Teacher forcing. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative sequence behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

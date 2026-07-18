@@ -121,12 +121,8 @@
   },
   "description": "Quickselect over bounded generated arrays, selecting the kth smallest element without fully sorting.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "selection"
+    "duration-short",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Quickselect over bounded generated arrays, selecting the kth smallest element without fully sorting. Tests cover first, middle, last, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

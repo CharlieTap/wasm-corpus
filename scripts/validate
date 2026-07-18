@@ -10,14 +10,16 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
+const MAX_WASM_BYTES = 250_000_000;
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm...]
 
 Validates corpus fixture metadata against the JSON Schema, checks each module
 against ./scripts/classify for version directory and feature metadata, runs
-Binaryen over each wasm file and its sibling wat file, then checks that the
-binary does not shrink suspiciously after optimization.
+canonical tag invariants, runs Binaryen over each wasm file and its sibling wat
+file, then checks that the binary does not shrink suspiciously after
+optimization.
 `);
 }
 
@@ -130,6 +132,55 @@ function truncateOutput(output, limit = 8192) {
   return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
 }
 
+function loadAllowedTags() {
+  let tags;
+  try {
+    tags = JSON.parse(fs.readFileSync(path.join(repoRoot, "scripts", "tags.json"), "utf8"));
+  } catch (error) {
+    throw new Error(`could not read scripts/tags.json: ${error.message}`);
+  }
+  if (!Array.isArray(tags) || tags.some((tag) => typeof tag !== "string")) {
+    throw new Error("scripts/tags.json must contain an array of strings");
+  }
+  if (new Set(tags).size !== tags.length) {
+    throw new Error("scripts/tags.json must not contain duplicates");
+  }
+  if (JSON.stringify(tags) !== JSON.stringify([...tags].sort())) {
+    throw new Error("scripts/tags.json must be sorted");
+  }
+  if (tags.some((tag) => !/^[a-z0-9][a-z0-9._-]*$/.test(tag))) {
+    throw new Error("scripts/tags.json contains an invalid tag");
+  }
+  return tags;
+}
+
+function exactFamily(tags, prefix) {
+  return (tags || []).filter((tag) => tag.startsWith(prefix)).sort();
+}
+
+function sameStrings(left, right) {
+  return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort());
+}
+
+function featureTags(features) {
+  return (features || []).map((feature) => `feature-${feature}`).sort();
+}
+
+function detectedHostTags(imports) {
+  return (imports || []).some((item) => item.module === "wasi_snapshot_preview1")
+    ? ["host-wasi-preview1"]
+    : [];
+}
+
+function sizeTag(bytes) {
+  if (bytes <= 500) return "size-extra-small";
+  if (bytes <= 10_000) return "size-small";
+  if (bytes <= 100_000) return "size-medium";
+  if (bytes <= 1_000_000) return "size-large";
+  if (bytes <= MAX_WASM_BYTES) return "size-extra-large";
+  throw new Error(`binary is ${bytes} bytes; corpus binaries may not exceed ${MAX_WASM_BYTES} bytes`);
+}
+
 function collectFixtureJsonFiles() {
   const fixtures = [];
   for (const dir of ["1.0", "2.0", "3.0"]) {
@@ -233,6 +284,57 @@ function validateFixtureForWasm(wasmPath, fixturePath, fixture) {
   }
 }
 
+function validateTagRegistry() {
+  const allowedTags = loadAllowedTags();
+  return new Set(allowedTags);
+}
+
+function requireExactFamily(fixturePath, actual, expected, family) {
+  if (!sameStrings(actual, expected)) {
+    throw new Error(
+      `${fixturePath} ${family} tags must exactly match generated metadata\n` +
+      `       expected: ${expected.join(", ") || "(none)"}\n` +
+      `       actual:   ${actual.join(", ") || "(none)"}`,
+    );
+  }
+}
+
+function validateFixtureTags(wasmPath, fixturePath, fixture, allowedTags) {
+  const relativeFixture = relativeFromRepo(fixturePath);
+  const tags = fixture.tags || [];
+  const unknown = tags.filter((tag) => !allowedTags.has(tag));
+  if (unknown.length > 0) {
+    throw new Error(`${relativeFixture} contains unknown tag(s): ${unknown.join(", ")}\n       consult docs/tagging.md and scripts/tags.json`);
+  }
+  if (JSON.stringify(tags) !== JSON.stringify([...tags].sort())) {
+    throw new Error(`${relativeFixture} tags must be sorted`);
+  }
+  if (exactFamily(tags, "domain-").length > 3) {
+    throw new Error(`${relativeFixture} may declare at most three domain tags`);
+  }
+
+  requireExactFamily(relativeFixture, exactFamily(tags, "feature-"), featureTags(fixture.features), "feature");
+
+  const detectedHosts = detectedHostTags(fixture.imports);
+  const actualHosts = exactFamily(tags, "host-");
+  for (const host of detectedHosts) {
+    if (!actualHosts.includes(host)) {
+      throw new Error(`${relativeFixture} is missing detected host tag ${host}`);
+    }
+  }
+  if (actualHosts.includes("host-wasi-preview1") && !detectedHosts.includes("host-wasi-preview1")) {
+    throw new Error(`${relativeFixture} declares host-wasi-preview1 without a wasi_snapshot_preview1 import`);
+  }
+
+  const expectedSize = sizeTag(fileSize(wasmPath));
+  requireExactFamily(relativeFixture, exactFamily(tags, "size-"), [expectedSize], "size");
+
+  const durations = exactFamily(tags, "duration-");
+  if (durations.length !== 1) {
+    throw new Error(`${relativeFixture} must declare exactly one duration tag following docs/tagging.md`);
+  }
+}
+
 function validateClassifiedVersion(wasmPath, classification) {
   const relativeWasm = relativeFromRepo(wasmPath);
   const versionDir = relativeWasm.split("/")[0];
@@ -328,7 +430,7 @@ function validateWatReadability(watPath) {
   }
 }
 
-function validateOne(wasmPath, workDir, binaryen) {
+function validateOne(wasmPath, workDir, binaryen, allowedTags) {
   if (!wasmPath.endsWith(".wasm")) {
     throw new Error(`expected a .wasm file, got: ${wasmPath}`);
   }
@@ -339,6 +441,7 @@ function validateOne(wasmPath, workDir, binaryen) {
 
   const { path: fixturePath, value: fixture } = readFixture(wasmPath);
   validateFixtureForWasm(wasmPath, fixturePath, fixture);
+  validateFixtureTags(wasmPath, fixturePath, fixture, allowedTags);
 
   const classification = classify(wasmPath);
   validateClassifiedVersion(wasmPath, classification);
@@ -387,6 +490,13 @@ if (missing.length > 0) {
 
 validateFixtureMetadata();
 
+let allowedTags;
+try {
+  allowedTags = validateTagRegistry();
+} catch (error) {
+  fail(error.message);
+}
+
 const binaryen = binaryenVersion();
 const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-validate."));
 let status = 0;
@@ -397,7 +507,7 @@ try {
       const wasmPath = path.resolve(input);
       const workDir = path.join(tmpdir, String(index + 1));
       fs.mkdirSync(workDir, { recursive: true });
-      validateOne(wasmPath, workDir, binaryen);
+      validateOne(wasmPath, workDir, binaryen, allowedTags);
     } catch (error) {
       process.stderr.write(`error: ${error.message}\n`);
       status = 1;

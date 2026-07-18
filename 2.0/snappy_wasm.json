@@ -13,12 +13,12 @@
     "sign-extensions"
   ],
   "tags": [
-    "compression",
-    "decompression",
-    "npm",
-    "real-world",
-    "snappy",
-    "wasm-bindgen"
+    "domain-compression",
+    "duration-short",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-medium"
   ],
   "imports": [
     {

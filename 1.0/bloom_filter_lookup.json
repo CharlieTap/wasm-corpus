@@ -97,12 +97,9 @@
   },
   "description": "Bloom filter insert and lookup with two hashes over selected integer keys.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "memory",
-    "probabilistic"
+    "domain-hashing",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Bloom filter insert and lookup with two hashes over selected integer keys. Tests cover present, absent-clear, false-positive-or-hit, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

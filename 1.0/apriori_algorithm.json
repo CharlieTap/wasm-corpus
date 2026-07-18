@@ -159,12 +159,9 @@
   },
   "description": "Apriori frequent-itemset support counting over fixed transactions.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "itemset-mining",
-    "apriori"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Apriori algorithm. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative itemset behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

@@ -13,14 +13,12 @@
     "sign-extensions"
   ],
   "tags": [
-    "brotli",
-    "compression",
-    "decompression",
-    "large",
-    "npm",
-    "real-world",
-    "rust",
-    "wasm-bindgen"
+    "domain-compression",
+    "duration-medium",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-extra-large"
   ],
   "imports": [
     {

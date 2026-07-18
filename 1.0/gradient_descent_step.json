@@ -9,10 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "ml",
-    "branching",
-    "loop"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

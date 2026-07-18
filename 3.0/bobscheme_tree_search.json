@@ -80,7 +80,7 @@
   "sha256": "404e008f8fb21d046671f9f5833e926b6f0936e716537c290b4b0e3185f638c7",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/search1.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/search1.scm",
     "description": "Bob Scheme tree-search regression program based on PAIP chapter 6.4, compiled with Bob's WasmGC backend."
@@ -92,11 +92,11 @@
   },
   "description": "Bob Scheme tree-search fixture exercising PAIP-style depth-first traversal, list append, generated successors, and recursive goal search.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "depth-first-search",
-    "paip",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

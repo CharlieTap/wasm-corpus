@@ -133,12 +133,9 @@
   },
   "description": "Bresenham line rasterization count and checksum for multiple slopes.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "geometry",
-    "loop",
-    "memory"
+    "domain-geometry",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Bresenham line rasterization count and checksum for multiple slopes. Tests cover shallow, steep, reverse, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

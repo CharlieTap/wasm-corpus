@@ -133,12 +133,9 @@
   },
   "description": "Floyd tortoise-and-hare cycle detection over f(x)=(a*x+b) mod m, returning cycle length.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "graph",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Floyd tortoise-and-hare cycle detection over f(x)=(a*x+b) mod m, returning cycle length. Tests cover full-cycle, fixed-point, two-cycle, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

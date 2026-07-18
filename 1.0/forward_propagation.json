@@ -159,13 +159,9 @@
   },
   "description": "Two-layer network forward pass over fixed weights.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "neural-network",
-    "forward",
-    "propagation"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Forward propagation. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative neural behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

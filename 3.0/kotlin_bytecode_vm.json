@@ -15,12 +15,13 @@
     "reference-types"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "bytecode-vm",
-    "interpreter",
-    "stack-machine"
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "size-small"
   ],
   "exports": [
     {
@@ -103,7 +104,7 @@
   "sha256": "e1e9274d09c083c6c0c945097661e6eefcab364711a11610846c943bfd0e70c6",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "description": "AI-authored Kotlin source compiled with Kotlin/Wasm wasmWasi production library output to represent Kotlin compiler lowering in the corpus."
   },

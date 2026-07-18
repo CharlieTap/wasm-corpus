@@ -109,12 +109,9 @@
   },
   "description": "Tiny random-forest majority vote across three threshold trees.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "machine-learning",
-    "memory"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Tiny random-forest majority vote across three threshold trees. Tests cover all-negative, two-positive, one-positive, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

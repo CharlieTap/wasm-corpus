@@ -95,7 +95,7 @@
   "sha256": "e9509339145391d3904171bc6c86a373da7ca0966ef6b8ddbe96ecdeb0759a79",
   "source": {
     "contributor": "human",
-    "language": "MoonBit",
+    "language": "moonbit",
     "url": "https://github.com/gmlewis/moonbit-md5",
     "path": "fixture/fixture.mbt",
     "description": "gmlewis/moonbit-md5 compiled with a local export harness based on upstream golden test vectors."
@@ -106,12 +106,16 @@
     "command": "./scripts/prepare"
   },
   "tags": [
-    "moonbit",
-    "md5",
-    "hashing",
-    "crypto",
-    "wasm3",
-    "gc"
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-small"
   ],
   "notes": "The fixture harness checks canonical MD5 golden vectors internally and returns i32 pass/fail values."
 }

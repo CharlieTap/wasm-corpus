@@ -15,17 +15,15 @@
     "sign-extensions"
   ],
   "tags": [
-    "c-api",
-    "compiler",
-    "interpreter",
-    "javascript",
-    "large",
-    "npm",
-    "parser",
-    "quickjs",
-    "real-world",
-    "runtime",
-    "wasi-p1"
+    "domain-compilation",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "host-wasi-preview1",
+    "size-extra-large"
   ],
   "imports": [
     {

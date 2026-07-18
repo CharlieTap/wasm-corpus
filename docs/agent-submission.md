@@ -13,12 +13,13 @@ This guide intentionally focuses on fixture quality and the local preparation wo
 - Only add a fixture when the metadata tests can exercise representative behavior in the binary. A module that merely validates, instantiates, or exposes one trivial utility export is not enough if the claimed value is a larger runtime, library, compiler, or algorithm.
 - Do not add binaries with unclear licensing, unclear origin, network-dependent behavior, browser-only JS glue requirements, WASI APIs beyond Preview 1, or complex host APIs that cannot be represented by the fixture metadata import stubs.
 - Do not add programs from `WebAssembly/testsuite` or equivalent conformance suites. This corpus should complement conformance suites rather than duplicate them.
-- Every submitted binary must follow [SUBMISSION.md](SUBMISSION.md) and be executable by Node through `./scripts/execute`.
+- Every submitted binary must follow [submission.md](submission.md) and be executable by Node through `./scripts/execute`.
+- Every tag must follow [tagging.md](tagging.md). Repository tooling derives feature, detectable host, and size facets; assign duration, domain, and special-role tags using the guide.
 - Never finalize or validate fixture metadata with placeholder provenance or missing tests.
 
 ## Required Local Tools
 
-Use the required tools listed in [SUBMISSION.md](SUBMISSION.md).
+Use the required tools listed in [submission.md](submission.md).
 
 ## Candidate Discovery
 
@@ -103,6 +104,7 @@ Before staging anything for the corpus, answer these questions:
 - Is the module independent of conformance suites such as `WebAssembly/testsuite`?
 - Is the exact binary, fixture basename, or same claimed program already present in the corpus?
 - What version and features does `./scripts/classify /tmp/candidate.wasm` report?
+- Which canonical domains, if any, are meaningfully exercised under [tagging.md](tagging.md), and does the workload truly meet the strict `benchmark` or `stress-test` criteria?
 - Can `prepare` place the fixture into a supported `1.0/`, `2.0/`, or `3.0/` directory?
 - Which schema-supported `features` are required?
 - Does it export at least one deterministic function that Node can call?
@@ -175,11 +177,11 @@ Reject the candidate if Node cannot instantiate and execute it because it needs 
 
 ## Add And Validate The Fixture
 
-Follow [SUBMISSION.md](SUBMISSION.md) for staging, running `prepare`, completing metadata, validating, and executing the fixture. This agent guide intentionally does not duplicate the core submission flow.
+Follow [submission.md](submission.md) for staging, running `prepare`, completing metadata, classifying duration, validating, and executing the fixture. Read [tagging.md](tagging.md) before editing `tags`; this agent guide intentionally does not duplicate the core submission flow or canonical tag criteria.
 
 ## PR Description Guidance
 
-When asked to open a PR or draft PR text, read and use [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) as the starting point. Agents do not get the same GitHub UI pre-fill that human contributors see, so copy the template structure intentionally rather than writing a free-form summary.
+When asked to open a PR or draft PR text, read and use [.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md) as the starting point. Agents do not get the same GitHub UI pre-fill that human contributors see, so copy the template structure intentionally rather than writing a free-form summary.
 
 Keep the final PR body reviewer-focused:
 
@@ -192,8 +194,10 @@ Keep the final PR body reviewer-focused:
 
 ## Final Review Checklist
 
-- The final checklist in [SUBMISSION.md](SUBMISSION.md) is complete.
+- The final checklist in [submission.md](submission.md) is complete.
 - The prepared `.wasm`, `.json`, and generated `.wat` file, when present, all share the same basename.
 - The fixture metadata has no placeholders and includes clear source provenance.
+- `source.language` is normalized and every tag is accepted by `scripts/tags.json` and justified by `docs/tagging.md`.
+- The fixture has exactly one `duration-*` tag assigned using [tagging.md](tagging.md).
 - Tests exercise representative behavior rather than only trivial exports or version helpers.
 - Local `validate` and `execute` commands pass for the prepared fixture.

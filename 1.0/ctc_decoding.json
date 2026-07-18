@@ -159,12 +159,9 @@
   },
   "description": "CTC collapse-and-blank decoding checksum.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "sequence-model",
-    "decoding"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for CTC decoding. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative sequence behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

@@ -80,7 +80,7 @@
   "sha256": "9ddc6aa20ca41c73e7ab201aeaf8603b5effe370ef72f5b960d8b4437eafee0a",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/queue.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/queue.scm",
     "description": "Bob Scheme mutable queue regression program from SICP 3.3.2, compiled with Bob's WasmGC backend."
@@ -92,12 +92,11 @@
   },
   "description": "Bob Scheme mutable queue fixture exercising cons-cell mutation through set-car!/set-cdr!, queue insert/delete paths, and structural printing.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "queue",
-    "mutation",
-    "sicp",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

@@ -97,12 +97,8 @@
   },
   "description": "Bucket sort over a fixed bounded integer dataset selected by mode, returning the sorted checksum.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "memory",
-    "sorting"
+    "duration-short",
+    "size-small"
   ],
   "notes": "Fixed-dataset fixture: Bucket sort over a fixed bounded integer dataset selected by mode, returning the sorted checksum. Tests cover duplicates, wide-range, all-equal, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

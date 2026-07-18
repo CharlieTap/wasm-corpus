@@ -159,14 +159,9 @@
   },
   "description": "Bernoulli Naive Bayes binary-feature log-score proxy.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "classification",
-    "bernoulli",
-    "naive",
-    "bayes"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Bernoulli Naive Bayes. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative bayes behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

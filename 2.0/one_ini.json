@@ -15,12 +15,14 @@
     "sign-extensions"
   ],
   "tags": [
-    "editorconfig",
-    "ini",
-    "npm",
-    "parser",
-    "real-world",
-    "wasm-bindgen"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-medium"
   ],
   "imports": [
     {

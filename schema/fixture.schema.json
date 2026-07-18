@@ -11,7 +11,8 @@
     "features",
     "tests",
     "sha256",
-    "source"
+    "source",
+    "tags"
   ],
   "properties": {
     "$schema": {
@@ -1190,7 +1191,18 @@
           ]
         },
         "language": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "assemblyscript",
+            "c",
+            "go",
+            "kotlin",
+            "moonbit",
+            "roc",
+            "rust",
+            "scheme",
+            "wat"
+          ]
         },
         "path": {
           "type": "string"
@@ -1203,7 +1215,8 @@
         }
       },
       "required": [
-        "contributor"
+        "contributor",
+        "language"
       ]
     },
     "toolchain": {

@@ -99,13 +99,10 @@
   },
   "description": "Least-squares linear regression slope over selected fixed samples, scaled by 100.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "loop",
-    "machine-learning",
-    "memory",
-    "sign-extensions"
+    "domain-machine-learning",
+    "duration-short",
+    "feature-sign-extensions",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Least-squares linear regression slope over selected fixed samples, scaled by 100. Tests cover positive, negative, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

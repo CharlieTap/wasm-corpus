@@ -137,10 +137,12 @@
   },
   "description": "Catalan number dynamic programming under a caller-provided modulus.",
   "tags": [
-    "algorithm",
-    "dynamic-programming",
-    "branching",
-    "loop"
+    "domain-dynamic-programming",
+    "domain-numerics",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Catalan number dynamic programming under a caller-provided modulus. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

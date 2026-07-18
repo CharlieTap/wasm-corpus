@@ -9,10 +9,9 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "graph",
-    "branching",
-    "loop"
+    "domain-graph",
+    "duration-short",
+    "size-extra-small"
   ],
   "exports": [
     {

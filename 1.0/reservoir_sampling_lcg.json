@@ -109,12 +109,8 @@
   },
   "description": "Reservoir sampling of one item driven by a deterministic LCG stream.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "sampling"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Reservoir sampling of one item driven by a deterministic LCG stream. Tests cover short, longer, invalid, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

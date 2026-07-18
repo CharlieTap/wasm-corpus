@@ -2135,12 +2135,14 @@
   },
   "description": "WOJ Snake example compiled to WasmGC, driven through seeded initialization, movement, food consumption, growth, scoring, and wall game-over behavior.",
   "tags": [
-    "example",
-    "gc",
-    "mit",
-    "snake",
-    "typed-function-references",
-    "woj"
+    "domain-game",
+    "duration-short",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "notes": "Tests drive the actual Snake game state: deterministic food placement, movement, turning, food consumption, growth, scoring, wall collision, game-over persistence, and the upstream embedded self-test."
 }

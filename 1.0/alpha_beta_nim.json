@@ -97,12 +97,8 @@
   },
   "description": "Alpha-beta pruned minimax for one-pile Nim with three possible moves.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "game",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Alpha-beta pruned minimax for one-pile Nim with three possible moves. Tests cover losing, winning, terminal, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

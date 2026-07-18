@@ -159,14 +159,10 @@
   },
   "description": "LDA between-class over within-class scatter score.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "linear-algebra",
-    "linear",
-    "discriminant",
-    "analysis"
+    "domain-linear-algebra",
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Linear Discriminant Analysis. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative matrix behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

@@ -133,12 +133,9 @@
   },
   "description": "Decision-stump classifier over one feature threshold with branch-specific labels.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "machine-learning",
-    "memory"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Decision-stump classifier over one feature threshold with branch-specific labels. Tests cover left, right, boundary, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

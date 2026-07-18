@@ -159,13 +159,9 @@
   },
   "description": "Softmax-style multiclass argmax over three linear logits.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "classification",
-    "softmax",
-    "regression"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Softmax regression. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative softmax behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

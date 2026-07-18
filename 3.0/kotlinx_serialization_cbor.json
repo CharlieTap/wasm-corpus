@@ -16,15 +16,17 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "kotlinx",
-    "serialization",
-    "cbor",
-    "binary-format",
-    "kotlinx-serialization-cbor"
+    "domain-serialization",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
   ],
   "imports": [
     {
@@ -390,7 +392,7 @@
   "sha256": "e8f91baf4e8b701ccefbbf575107b4a178321c893bf8f794ad560002cda2e4ef",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/Kotlin/kotlinx.serialization",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx.serialization-cbor 1.11.0 library (kotlinx.serialization, Apache-2.0), aggregating 4 scenario groups and 16 deterministic corpus calls into one library-level Wasm module."

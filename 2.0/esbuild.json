@@ -16,13 +16,15 @@
     "sign-extensions"
   ],
   "tags": [
-    "bundler",
-    "cli",
-    "go",
-    "large",
-    "npm",
-    "real-world",
-    "wasi-p1"
+    "domain-compilation",
+    "duration-long",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "host-wasi-preview1",
+    "size-extra-large"
   ],
   "imports": [
     {

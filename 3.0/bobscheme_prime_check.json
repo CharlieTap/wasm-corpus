@@ -80,7 +80,7 @@
   "sha256": "7fb7ca8c50c9311cd365899aa46977ebba9e5adf0804fd92a7073ce94765c2d0",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "examples/longloop.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/examples/longloop.scm",
     "description": "Bob Scheme example program longloop.scm, compiled with Bob's WasmGC backend."
@@ -92,11 +92,12 @@
   },
   "description": "Bob Scheme prime-check fixture exercising recursive divisor search, modulo arithmetic, boolean output, and several composite/prime branches.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "primality",
-    "recursion",
-    "wasmgc"
+    "domain-numerics",
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

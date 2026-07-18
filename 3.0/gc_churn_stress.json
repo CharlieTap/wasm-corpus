@@ -1,0 +1,75 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gc_churn_stress",
+  "path": "gc_churn_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "gc_churn_stress.wat"
+  },
+  "description": "Synthetic Wasm GC stress fixture with varied struct and array allocation, mutable field writes, field reads, fixed ref arrays, i32/i64 element traffic, large allocation bursts, and deliberate live-set turnover.",
+  "features": [
+    "gc",
+    "mutable-globals",
+    "reference-types",
+    "typed-function-references"
+  ],
+  "exports": [
+    {
+      "name": "churn",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "allocate many differently shaped short-lived GC structs and arrays with periodic large allocation bursts",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "churn",
+          "params": [
+            {
+              "type": "i32",
+              "value": "800"
+            },
+            {
+              "type": "i32",
+              "value": "6000"
+            },
+            {
+              "type": "i32",
+              "value": "96"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "67c28caff10b92215bdb746a4465efc11b4c411fd71137e2d6a274ddeb6f42ab",
+  "source": {
+    "contributor": "human",
+    "language": "wat",
+    "description": "Purpose-built Apex Wasm GC allocation and collection stress fixture."
+  },
+  "toolchain": {
+    "name": "wasm-tools",
+    "version": "wasm-tools 1.239.0",
+    "command": "wasm-tools parse"
+  },
+  "tags": [
+    "benchmark",
+    "duration-extra-long",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-small",
+    "stress-test"
+  ],
+  "notes": "The fixture deliberately creates high object churn and periodic large arrays while retaining a small live set through mutable globals."
+}

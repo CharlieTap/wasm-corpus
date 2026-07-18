@@ -15,14 +15,15 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "kotlinx",
-    "collections",
-    "persistent-data-structures",
-    "kotlinx-collections-immutable"
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
   ],
   "imports": [
     {
@@ -470,7 +471,7 @@
   "sha256": "0bac5e7bae1829f832415b073d9d369d3b3f06dc37ac43df353bf2a1c657ef0c",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/Kotlin/kotlinx.collections.immutable",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx.collections.immutable 0.4.0 library (kotlinx.collections.immutable, Apache-2.0), aggregating 5 scenario groups and 20 deterministic corpus calls into one library-level Wasm module."

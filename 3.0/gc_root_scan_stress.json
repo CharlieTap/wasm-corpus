@@ -1,0 +1,106 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gc_root_scan_stress",
+  "description": "Repeated collections over long table, compact-array, and full-array roots with null-heavy and repeated-reference populations.",
+  "path": "gc_root_scan_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "gc_root_scan_stress.wat"
+  },
+  "features": [
+    "gc",
+    "reference-types"
+  ],
+  "tags": [
+    "benchmark",
+    "duration-long",
+    "feature-gc",
+    "feature-reference-types",
+    "size-extra-small",
+    "stress-test"
+  ],
+  "exports": [
+    {
+      "name": "table_roots",
+      "kind": "table",
+      "type": "(table 65536 (ref null 0))"
+    },
+    {
+      "name": "bench",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "repeated collections with long null-heavy table and array roots",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1000000"
+            },
+            {
+              "type": "i32",
+              "value": "65536"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "196864"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "repeated collections with long arrays of repeated live references",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1000000"
+            },
+            {
+              "type": "i32",
+              "value": "65536"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "196864"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "11b4806e011586b7b86a1c60827f5102ad3ccf13e819791d16f5c8bc3e578247",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "Purpose-built GC root scanning benchmark fixture for Apex runtime optimization work."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "notes": "Large root containers remain globally reachable while short-lived byte arrays create collection pressure; the two tests contrast candidate rejection with dense repeated references."
+}

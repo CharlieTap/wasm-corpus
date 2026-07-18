@@ -159,13 +159,9 @@
   },
   "description": "Batch normalization over a fixed activation vector.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "neural-network",
-    "batch",
-    "normalization"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Batch normalization. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative normalization behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

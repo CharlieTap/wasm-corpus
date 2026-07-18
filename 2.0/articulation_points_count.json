@@ -108,11 +108,11 @@
   },
   "description": "Tarjan articulation-point counting over fixed undirected graph cases.",
   "tags": [
-    "algorithm",
-    "graph",
-    "branching",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Tarjan articulation-point counting over fixed undirected graph cases. Tests cover 3 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

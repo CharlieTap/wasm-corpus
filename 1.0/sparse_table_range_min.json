@@ -133,12 +133,8 @@
   },
   "description": "Sparse-table range-minimum query over fixed generated data.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "data-structure",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Sparse-table range-minimum query over fixed generated data. Tests cover middle, single, clamped, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

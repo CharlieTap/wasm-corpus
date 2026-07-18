@@ -1,0 +1,156 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bulk_copy_stress",
+  "path": "bulk_copy_stress.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bulk_copy_stress.wat"
+  },
+  "features": [
+    "bulk-memory"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 4)"
+    },
+    {
+      "name": "bench_nonoverlap",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bench_overlap_forward",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "bench_overlap_backward",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise long non-overlapping memory.copy operations",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_nonoverlap",
+          "params": [
+            {
+              "type": "i32",
+              "value": "20000"
+            },
+            {
+              "type": "i32",
+              "value": "65536"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "305419896"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exercise short non-overlapping memory.copy operations and handler overhead",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_nonoverlap",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1000000"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "305419896"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exercise overlapping memory.copy with destination above source",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_overlap_forward",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10000"
+            },
+            {
+              "type": "i32",
+              "value": "65535"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "120"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exercise overlapping memory.copy with destination below source",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "bench_overlap_backward",
+          "params": [
+            {
+              "type": "i32",
+              "value": "10000"
+            },
+            {
+              "type": "i32",
+              "value": "65535"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "1309d9307c81afca92c8d8f70a0e0a78ac7b178c039ce551d5f63f23b90d17bb",
+  "source": {
+    "contributor": "ai",
+    "language": "wat",
+    "description": "Purpose-built memory.copy benchmark fixture for Apex runtime optimization work."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 125",
+    "command": "./scripts/prepare"
+  },
+  "description": "Repeated long, short, and overlapping memory.copy operations with observable checksums.",
+  "tags": [
+    "benchmark",
+    "duration-medium",
+    "feature-bulk-memory",
+    "size-extra-small",
+    "stress-test"
+  ],
+  "notes": "The exported loops amplify memory.copy execution inside Wasm so corpus execute timing is dominated by the runtime handler rather than fixture setup."
+}

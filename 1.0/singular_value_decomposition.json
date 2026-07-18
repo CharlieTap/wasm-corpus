@@ -159,14 +159,10 @@
   },
   "description": "SVD power-iteration singular value estimate.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "linear-algebra",
-    "singular",
-    "value",
-    "decomposition"
+    "domain-linear-algebra",
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Singular Value Decomposition. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative matrix behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

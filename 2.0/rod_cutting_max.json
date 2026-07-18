@@ -137,10 +137,11 @@
   },
   "description": "Rod-cutting dynamic program over a generated bounded price table.",
   "tags": [
-    "algorithm",
-    "dynamic-programming",
-    "branching",
-    "loop"
+    "domain-dynamic-programming",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Rod-cutting dynamic program over a generated bounded price table. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

@@ -16,14 +16,16 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "kotlinx",
-    "io",
-    "buffer",
-    "utf8"
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
   ],
   "imports": [
     {
@@ -158,7 +160,7 @@
   "sha256": "4933c05a947821f52dbd1b717fb8266b798f4eb0ca2d1bfe7bc1ab2f3e68abf7",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/Kotlin/kotlinx-io",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx-io 0.9.0 core library (Apache-2.0), exposing deterministic Buffer read/write/transfer score functions."

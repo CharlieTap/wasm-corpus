@@ -80,7 +80,7 @@
   "sha256": "0d354968f7eae757770a1e18500f263e6dc0a1a02feffbf3d2e0492d9a8e2e6a",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "examples/simple_func.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/examples/simple_func.scm",
     "description": "Bob Scheme example program simple_func.scm, compiled with Bob's WasmGC backend."
@@ -92,11 +92,11 @@
   },
   "description": "Bob Scheme closure fixture exercising lexical capture, higher-order function calls, integer arithmetic, and dotted-pair printing.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "closure",
-    "pair",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

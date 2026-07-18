@@ -159,12 +159,9 @@
   },
   "description": "Lasso regression objective with an L1 penalty over fixed coefficients.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "regression",
-    "lasso"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Lasso regression. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative regularized behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

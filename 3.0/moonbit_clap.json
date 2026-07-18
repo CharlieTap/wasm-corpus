@@ -95,7 +95,7 @@
   "sha256": "c04f21032ae19d2edd43c2dd854b62ada273ddd5ef3821a64aca71dae64fc735",
   "source": {
     "contributor": "human",
-    "language": "MoonBit",
+    "language": "moonbit",
     "url": "https://github.com/TheWaWaR/clap.mbt",
     "path": "src/fixture/fixture.mbt",
     "description": "TheWaWaR/clap.mbt compiled with a small local export harness around parser APIs."
@@ -106,11 +106,15 @@
     "command": "./scripts/prepare"
   },
   "tags": [
-    "moonbit",
-    "cli-parser",
-    "argument-parser",
-    "wasm3",
-    "gc"
+    "domain-parsing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-multi-value",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-typed-function-references",
+    "size-medium"
   ],
   "notes": "The exported harness functions parse fixed command-line scenarios so the corpus can assert primitive i32 results while exercising the upstream parser internals."
 }

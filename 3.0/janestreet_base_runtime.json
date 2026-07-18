@@ -15,13 +15,13 @@
     "tail-call"
   ],
   "tags": [
-    "gc",
-    "i31",
-    "janestreet",
-    "mutable-globals",
-    "ocaml",
-    "runtime",
-    "tail-call"
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "imports": [
     {

@@ -1,10 +1,10 @@
 # wasm-corpus
 
-A versioned corpus of WebAssembly binaries for runtimes, tools, and bindings to test against.
+A diverse and comprehensive corpus of WebAssembly fixtures for runtimes, tools, or just those who are curious.
 
 ## Layout
 
-The repository is organised by WebAssembly core version:
+The repository organises fixtures by WebAssembly core version:
 
 ```text
 .
@@ -16,44 +16,80 @@ The repository is organised by WebAssembly core version:
 │   └── ...
 ├── 3.0/
 │   └── ...
-├── stage/
-│   └── .gitkeep
-├── scripts/
-│   ├── classify
-│   ├── execute
-│   ├── prepare
-│   └── validate
-├── corpus
-└── schema/
-    └── fixture.schema.json
 ```
 
-Each version directory contains:
+Each fixture consists of 3 files:
 
-- `*.wasm`: binary modules available to consumers.
-- `*.wat`: readable text format for the matching module, committed when it fits within the corpus readability limit.
-- `*.json`: fixture metadata for the matching module. The basename must match the `.wasm` file, such as `gcd.json` for `gcd.wasm`.
+- `*.wasm`: binary artifacts available to consumers.
+- `*.wat`: readable text format for the matching artifact.
+- `*.json`: fixture metadata and testsuite for the matching artifact.
 
-The directory version describes the core WebAssembly version family the binary belongs to. The `features` field records notable or required features and proposal extensions so consumers can filter more precisely. For example, a `3.0` binary that uses GC should list `"gc"` in `features`.
+## CLI
 
-Fixture JSON files include runnable `tests`: small step sequences that can call exported functions, grow/read/write exported memory, inspect tables and globals, or provide declared host import profiles for command-style modules. The repository runner uses these tests as smoke checks and as executable examples of each module's ABI.
-
-The repository smoke runner uses Node.js 24 or newer so `3.0` fixtures that require features such as Wasm GC can be validated and executed in CI. Consumers should still treat version and feature filters as the compatibility contract for their own runtimes.
-
-The `stage/` directory is the authoring drop zone. Put candidate `.wasm` or `.wat` files there and run `./scripts/prepare`; prepared outputs are written into the correct version directory automatically.
-
-Use `./corpus` to print fixture metadata as one JSON array. With no filters it returns every fixture in version order, and filters can narrow by version, include or exclude features, or tags:
+The corpus includes a CLI for searching for fixtures that match specific criteria. With no filters, it returns the
+metadata for every fixture as a JSON array:
 
 ```sh
 ./corpus
-./corpus --version 2.0
-./corpus --feature simd --tag npm
-./corpus --version 2.0 --exclude-feature bulk-memory
 ```
+
+You can filter by version, source language, WebAssembly features, tags, binary size, and test duration. See the
+[CLI reference](docs/cli.md) for a full breakdown of the available options.
+
+## Testing
+
+The corpus is primarily designed to serve as a correctness gate for WebAssembly runtimes. Each fixture includes one or
+more test suites made up of portable commands and expected results, allowing consumers to build runners for their own
+runtimes.
+
+See the [testing guide](docs/testing.md) for the test format and command semantics.
+
+## Examples
+
+The corpus is useful in a number of different ways, here's some examples of things you can do:
+
+"I need a quick correctness check for my agent dev loop"
+
+```sh
+./corpus --duration short
+```
+
+"I'm interested in learning about games in Wasm"
+
+```sh
+./corpus --tag domain-game
+```
+
+"I want to understand my runtimes performance when consuming large binaries"
+
+```sh
+./corpus --size large
+```
+
+"Give me only Wasm 3.0 fixtures but exclude certain features"
+
+```sh
+./corpus --version 3.0 --exclude-feature gc
+```
+
+"I want fixtures that target WASI Preview 1"
+
+```sh
+./corpus --tag host-wasi-preview1
+```
+
+"I need benchmarks to understand the performance of a Wasm environment"
+
+```sh
+./corpus --tag benchmark
+```
+
+See the [tagging guide](docs/tagging.md) for the full list of available tags and how they can be used to curate your
+searches.
 
 ## Submitting Fixtures
 
-See [SUBMISSION.md](SUBMISSION.md) for the fixture submission workflow, metadata guidance, required tools, validation, and execution.
+See [submission.md](docs/submission.md) for the fixture submission workflow, metadata guidance, required tools, validation, and execution.
 
 ## License
 

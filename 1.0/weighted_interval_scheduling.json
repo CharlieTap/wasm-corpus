@@ -97,12 +97,9 @@
   },
   "description": "Dynamic-programming weighted interval scheduling over fixed jobs.",
   "tags": [
-    "algorithm",
-    "branching",
-    "dynamic-programming",
-    "fixed-dataset",
-    "loop",
-    "memory"
+    "domain-dynamic-programming",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Fixed-dataset fixture: Dynamic-programming weighted interval scheduling over fixed jobs. Tests cover classic, alternate, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

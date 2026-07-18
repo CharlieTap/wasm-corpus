@@ -11,11 +11,10 @@
     "bulk-memory"
   ],
   "tags": [
-    "algorithm",
-    "graph",
-    "branching",
-    "loop",
-    "memory"
+    "domain-graph",
+    "duration-short",
+    "feature-bulk-memory",
+    "size-extra-small"
   ],
   "exports": [
     {

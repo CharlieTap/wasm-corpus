@@ -9,10 +9,8 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "sorting",
-    "branching",
-    "loop"
+    "duration-short",
+    "size-small"
   ],
   "exports": [
     {

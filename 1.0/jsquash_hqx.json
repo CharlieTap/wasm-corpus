@@ -9,12 +9,9 @@
   },
   "features": [],
   "tags": [
-    "hqx",
-    "image",
-    "npm",
-    "real-world",
-    "resize",
-    "scaling"
+    "domain-image-processing",
+    "duration-long",
+    "size-large"
   ],
   "exports": [
     {

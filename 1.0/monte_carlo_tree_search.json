@@ -159,14 +159,8 @@
   },
   "description": "MCTS UCB child selection over fixed visit/reward counts.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "game-search",
-    "monte",
-    "carlo",
-    "tree"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Monte Carlo Tree Search. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative mcts behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

@@ -80,7 +80,7 @@
   "sha256": "920f317a2a7c7b12d24ef6ef7ed680f55d74dd670b95fd5e13442436f1b2b081",
   "source": {
     "contributor": "human",
-    "language": "Scheme",
+    "language": "scheme",
     "path": "tests_full/testcases/closure3.scm",
     "url": "https://github.com/eliben/bobscheme/blob/9a3c7d91d8edd0698a4b04a8e15db6fb0d561645/tests_full/testcases/closure3.scm",
     "description": "Bob Scheme closure account regression program, compiled with Bob's WasmGC backend."
@@ -92,12 +92,11 @@
   },
   "description": "Bob Scheme closure-account fixture exercising nested closures, mutable captured state, symbol dispatch, deposits, withdrawals, and failed-balance path.",
   "tags": [
-    "scheme",
-    "bobscheme",
-    "closure",
-    "mutation",
-    "account",
-    "wasmgc"
+    "duration-short",
+    "feature-gc",
+    "feature-reference-types",
+    "feature-tail-call",
+    "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."
 }

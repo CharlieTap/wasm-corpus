@@ -137,12 +137,11 @@
   },
   "description": "Linear-probing hash table insertion and mixed lookup probe counter.",
   "tags": [
-    "algorithm",
-    "data-structure",
-    "hash-table",
-    "branching",
-    "loop",
-    "memory"
+    "domain-hashing",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "size-small"
   ],
   "notes": "Bounded-general fixture: Linear-probing hash table insertion and mixed lookup probe counter. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."
 }

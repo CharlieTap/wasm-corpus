@@ -9,12 +9,8 @@
   },
   "features": [],
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "selection"
+    "duration-short",
+    "size-small"
   ],
   "exports": [
     {

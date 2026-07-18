@@ -159,14 +159,9 @@
   },
   "description": "Small 1D convolution and pooling pass.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "neural-network",
-    "convolutional",
-    "neural",
-    "network"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Convolutional neural network. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative convolution behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

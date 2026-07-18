@@ -97,12 +97,8 @@
   },
   "description": "Iterative Tower of Hanoi move count with parity-sensitive peg selection for bounded disk counts.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "branching",
-    "loop",
-    "memory",
-    "recursion"
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture: Iterative Tower of Hanoi move count with parity-sensitive peg selection for bounded disk counts. Tests cover zero, three, ten, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

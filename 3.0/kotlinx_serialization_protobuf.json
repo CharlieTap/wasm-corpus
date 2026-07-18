@@ -16,15 +16,17 @@
     "typed-function-references"
   ],
   "tags": [
-    "kotlin",
-    "wasm3",
-    "gc",
-    "wasi-p1",
-    "kotlinx",
-    "serialization",
-    "protobuf",
-    "binary-format",
-    "kotlinx-serialization-protobuf"
+    "domain-serialization",
+    "duration-short",
+    "feature-bulk-memory",
+    "feature-exception-handling",
+    "feature-gc",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "feature-typed-function-references",
+    "host-wasi-preview1",
+    "size-medium"
   ],
   "imports": [
     {
@@ -390,7 +392,7 @@
   "sha256": "4ba05175c48b10341fe044ea04b20a5cc7376ca1d3a2fde80463a24cc8f0afa0",
   "source": {
     "contributor": "ai",
-    "language": "Kotlin",
+    "language": "kotlin",
     "path": "src/wasmWasiMain/kotlin/Main.kt",
     "url": "https://github.com/Kotlin/kotlinx.serialization",
     "description": "AI-authored Kotlin/Wasm harness compiled against the human-authored kotlinx.serialization-protobuf 1.11.0 library (kotlinx.serialization, Apache-2.0), aggregating 4 scenario groups and 16 deterministic corpus calls into one library-level Wasm module."

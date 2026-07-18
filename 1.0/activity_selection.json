@@ -97,12 +97,8 @@
   },
   "description": "Greedy activity selection sorted by finish time over fixed activity sets.",
   "tags": [
-    "algorithm",
-    "branching",
-    "fixed-dataset",
-    "greedy",
-    "loop",
-    "memory"
+    "duration-short",
+    "size-small"
   ],
   "notes": "Fixed-dataset fixture: Greedy activity selection sorted by finish time over fixed activity sets. Tests cover classic, overlap-heavy, fallback, giving reviewers multiple branches and edge conditions rather than a single happy path."
 }

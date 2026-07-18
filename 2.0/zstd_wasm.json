@@ -13,13 +13,12 @@
     "sign-extensions"
   ],
   "tags": [
-    "compression",
-    "decompression",
-    "emscripten",
-    "npm",
-    "real-world",
-    "zstandard",
-    "zstd"
+    "domain-compression",
+    "duration-short",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-sign-extensions",
+    "size-large"
   ],
   "imports": [
     {

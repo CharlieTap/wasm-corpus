@@ -159,12 +159,9 @@
   },
   "description": "Elastic Net objective combining L1 and L2 penalties over fixed coefficients.",
   "tags": [
-    "algorithm",
-    "bounded-general",
-    "machine-learning",
-    "wat",
-    "regression",
-    "elastic"
+    "domain-machine-learning",
+    "duration-short",
+    "size-extra-small"
   ],
   "notes": "Bounded-general fixture for Elastic Net. The implementation uses fixed in-module data and mode-selected branches/loops to exercise representative regularized behavior; tests cover all three modes plus negative and wider input cases. It is intended as runtime corpus coverage rather than a production ML implementation."
 }

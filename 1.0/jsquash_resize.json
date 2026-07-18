@@ -9,11 +9,9 @@
   },
   "features": [],
   "tags": [
-    "image",
-    "npm",
-    "real-world",
-    "resampling",
-    "resize"
+    "domain-image-processing",
+    "duration-short",
+    "size-medium"
   ],
   "exports": [
     {
