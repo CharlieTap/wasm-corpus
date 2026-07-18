@@ -25,6 +25,7 @@
   "feature-bulk-memory",
   "feature-exception-handling",
   "feature-gc",
+  "feature-memory64",
   "feature-multi-value",
   "feature-mutable-globals",
   "feature-reference-types",

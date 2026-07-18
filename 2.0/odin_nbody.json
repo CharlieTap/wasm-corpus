@@ -1,0 +1,224 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "odin_nbody",
+  "path": "odin_nbody.wasm",
+  "wat": {
+    "status": "present",
+    "path": "odin_nbody.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "benchmark",
+    "domain-numerics",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "host-wasi-preview1",
+    "size-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_dir_name",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_pread",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_pwrite",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_filestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_sync",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 17)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "_end",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "report initial energy without advancing the simulation",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "odin_nbody",
+            "0"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the benchmark with zero integration steps",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "-0.169075164\n-0.169075164\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises WASI argument parsing, five-body initialization, momentum correction, vector arithmetic, pairwise energy calculation, formatting, and the zero-iteration boundary."
+    },
+    {
+      "description": "advance the five-body solar system for 1,000 steps",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "odin_nbody",
+            "1000"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run pairwise gravity and position updates",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "-0.169075164\n-0.169087605\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises nested body-pair loops, fixed-size array and vector operations, floating-point square roots, velocity mutation, position integration, and final energy calculation."
+    }
+  ],
+  "sha256": "c0a6334bb848e698352000cd4622e1dcfd28ae8bd28093262be453721c0ee8aa",
+  "source": {
+    "contributor": "human",
+    "language": "odin",
+    "path": "bench/algorithm/nbody/1.odin",
+    "url": "https://github.com/hanabi1224/Programming-Language-Benchmarks/blob/ad18b203dd1769724f4eea94fc3ac1e99f6593e0/bench/algorithm/nbody/1.odin",
+    "description": "Odin n-body benchmark redistributed by Programming-Language-Benchmarks under its nested BSD-3-Clause benchmark license."
+  },
+  "toolchain": {
+    "name": "Odin + WASI SDK linker + Binaryen",
+    "version": "Odin dev-2026-07-nightly:819fdc7; wasi-sdk 33; wasm-opt version 125",
+    "command": "PATH=<wasi-sdk>/bin:$PATH odin build bench/algorithm/nbody/1.odin -file -target:wasi_wasm32 -o:speed -out:stage/odin_nbody.wasm; ./scripts/prepare"
+  },
+  "description": "Odin n-body benchmark simulating the Sun and four gas giants with vectorized pairwise gravitational updates and energy calculations.",
+  "notes": "The exact upstream Odin source is compiled unchanged. Its nested n-body benchmark license is BSD-3-Clause; the containing Programming-Language-Benchmarks repository is MIT-licensed."
+}

@@ -1,0 +1,263 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "zig_lu_decomposition",
+  "path": "zig_lu_decomposition.wasm",
+  "wat": {
+    "status": "present",
+    "path": "zig_lu_decomposition.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-linear-algebra",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 16)"
+    },
+    {
+      "name": "lu_inv_f32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "lu_solve_f32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "lu_factor_f32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "lu_inv_f64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "lu_solve_f64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "lu_factor_f64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "factor, invert, and solve a nonsingular f64 matrix",
+      "steps": [
+        {
+          "type": "memory.write",
+          "description": "write the row-major matrix [[4, 7], [2, 6]]",
+          "offset": 0,
+          "bytes": {
+            "encoding": "hex",
+            "value": "00000000000010400000000000001c4000000000000000400000000000001840"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "perform in-place LU factorization",
+          "function": "lu_factor_f64",
+          "params": [
+            { "type": "i32", "value": "0" },
+            { "type": "i32", "value": "128" },
+            { "type": "i32", "value": "2" }
+          ],
+          "results": [
+            { "type": "i32", "value": "1" }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the packed lower and upper triangular factors",
+          "offset": 0,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00000000000010400000000000001c40000000000000e03f0000000000000440"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert that no row swap was required",
+          "offset": 128,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "0000000001000000"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "derive the inverse from the packed factorization",
+          "function": "lu_inv_f64",
+          "params": [
+            { "type": "i32", "value": "0" },
+            { "type": "i32", "value": "128" },
+            { "type": "i32", "value": "256" },
+            { "type": "i32", "value": "2" }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the four inverse coefficients",
+          "offset": 256,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "343333333333e33f676666666666e6bf9a9999999999c9bf9a9999999999d93f"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "description": "write the right-hand side vector [4, 7]",
+          "offset": 512,
+          "bytes": {
+            "encoding": "hex",
+            "value": "00000000000010400000000000001c40"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "solve the linear system from the same factorization",
+          "function": "lu_solve_f64",
+          "params": [
+            { "type": "i32", "value": "0" },
+            { "type": "i32", "value": "128" },
+            { "type": "i32", "value": "512" },
+            { "type": "i32", "value": "640" },
+            { "type": "i32", "value": "2" }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the solution vector [-2.5, 2]",
+          "offset": 640,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "00000000000004c00000000000000040"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "exercise f32 pivoting and solve through the swapped rows",
+      "steps": [
+        {
+          "type": "memory.write",
+          "description": "write a matrix whose zero leading element requires pivoting",
+          "offset": 1024,
+          "bytes": {
+            "encoding": "hex",
+            "value": "00000000000000400000803f00004040"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "factor the matrix and record the row swap",
+          "function": "lu_factor_f32",
+          "params": [
+            { "type": "i32", "value": "1024" },
+            { "type": "i32", "value": "1152" },
+            { "type": "i32", "value": "2" }
+          ],
+          "results": [
+            { "type": "i32", "value": "-1" }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the f32 packed factorization",
+          "offset": 1024,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "0000803f000040400000000000000040"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the pivot vector [1, 0]",
+          "offset": 1152,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "0100000000000000"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "description": "write the f32 right-hand side vector [4, 7]",
+          "offset": 1280,
+          "bytes": {
+            "encoding": "hex",
+            "value": "000080400000e040"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "solve using the pivoted factorization",
+          "function": "lu_solve_f32",
+          "params": [
+            { "type": "i32", "value": "1024" },
+            { "type": "i32", "value": "1152" },
+            { "type": "i32", "value": "1280" },
+            { "type": "i32", "value": "1408" },
+            { "type": "i32", "value": "2" }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the solution vector [1, 2]",
+          "offset": 1408,
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "0000803f00000040"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "c6b0062b278bc38400883d88d653c10e9b81685e43df18468947e853a034a739",
+  "source": {
+    "contributor": "human",
+    "language": "zig",
+    "path": "src/common/wasm/zig/lu.zig",
+    "url": "https://github.com/dupontcyborg/numpy-ts/blob/8e199326460a45abed46899bb717eae7bc09e828/src/common/wasm/zig/lu.zig",
+    "description": "MIT-licensed LU decomposition kernel used by numpy-ts for f32 and f64 factorization, solving, and matrix inversion."
+  },
+  "toolchain": {
+    "name": "Zig + Binaryen",
+    "version": "Zig 0.16.0-dev.1397+a4b8e4429; wasm-opt version 125",
+    "command": "zig build-exe src/common/wasm/zig/lu.zig -target wasm32-freestanding -fno-entry --export-memory -rdynamic -O ReleaseSmall -femit-bin=stage/zig_lu_decomposition.wasm; ./scripts/prepare"
+  },
+  "description": "Zig LU-decomposition kernels for f32 and f64 matrix factorization, linear-system solving, and inversion.",
+  "notes": "The fixture uses the exact upstream lu.zig source and its simd.zig dependency without wrappers or source changes. The repository discloses AI use elsewhere, but identifies its WebAssembly microkernel architecture and optimized implementations as manually designed and mostly hand-written."
+}

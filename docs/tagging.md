@@ -95,6 +95,7 @@ from the source language or description.
 | `bulk-memory` | `feature-bulk-memory` |
 | `exception-handling` | `feature-exception-handling` |
 | `gc` | `feature-gc` |
+| `memory64` | `feature-memory64` |
 | `multi-value` | `feature-multi-value` |
 | `mutable-globals` | `feature-mutable-globals` |
 | `reference-types` | `feature-reference-types` |
@@ -168,6 +169,7 @@ This is the exact, sorted content of `scripts/tags.json`.
   "feature-bulk-memory",
   "feature-exception-handling",
   "feature-gc",
+  "feature-memory64",
   "feature-multi-value",
   "feature-mutable-globals",
   "feature-reference-types",

@@ -1,0 +1,253 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "v_integer_algorithms",
+  "path": "v_integer_algorithms.wasm",
+  "wat": {
+    "status": "present",
+    "path": "v_integer_algorithms.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-numerics",
+    "duration-short",
+    "size-extra-small"
+  ],
+  "exports": [
+    {
+      "name": "main.gcd",
+      "kind": "function",
+      "type": "(func (param i64 i64) (result i64))"
+    },
+    {
+      "name": "main.powi",
+      "kind": "function",
+      "type": "(func (param i64 i64) (result i64))"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 1)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "exercise Euclidean GCD signs, loop exits, and zero boundaries",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "reduce two positive values through repeated modulo",
+          "function": "main.gcd",
+          "params": [
+            {
+              "type": "i64",
+              "value": "48"
+            },
+            {
+              "type": "i64",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "normalize a negative first operand",
+          "function": "main.gcd",
+          "params": [
+            {
+              "type": "i64",
+              "value": "-48"
+            },
+            {
+              "type": "i64",
+              "value": "18"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "6"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "return the nonzero operand when the first is zero",
+          "function": "main.gcd",
+          "params": [
+            {
+              "type": "i64",
+              "value": "0"
+            },
+            {
+              "type": "i64",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "9"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "take the zero-divisor loop exit",
+          "function": "main.gcd",
+          "params": [
+            {
+              "type": "i64",
+              "value": "7"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exercise exponentiation by squaring and negative-exponent branches",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "raise two to the tenth power",
+          "function": "main.powi",
+          "params": [
+            {
+              "type": "i64",
+              "value": "2"
+            },
+            {
+              "type": "i64",
+              "value": "10"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "1024"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "exercise odd exponent bits",
+          "function": "main.powi",
+          "params": [
+            {
+              "type": "i64",
+              "value": "3"
+            },
+            {
+              "type": "i64",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "243"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "truncate a fractional negative power",
+          "function": "main.powi",
+          "params": [
+            {
+              "type": "i64",
+              "value": "2"
+            },
+            {
+              "type": "i64",
+              "value": "-3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report division by zero for zero to a negative power",
+          "function": "main.powi",
+          "params": [
+            {
+              "type": "i64",
+              "value": "0"
+            },
+            {
+              "type": "i64",
+              "value": "-1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "preserve negative one for an odd negative exponent",
+          "function": "main.powi",
+          "params": [
+            {
+              "type": "i64",
+              "value": "-1"
+            },
+            {
+              "type": "i64",
+              "value": "-3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "c567dc65e7ed5f31021961f7c2da93c9ca253d27092ccb69decdb23a14d0f4c3",
+  "source": {
+    "contributor": "human",
+    "language": "v",
+    "path": "examples/wasm/functions.v",
+    "url": "https://github.com/vlang/v/blob/7647ce1c6fad63b5578bc07883139906de74b2f8/examples/wasm/functions.v",
+    "description": "Official MIT-licensed V WebAssembly example implementing GCD and integer exponentiation."
+  },
+  "toolchain": {
+    "name": "V native WebAssembly backend + Binaryen",
+    "version": "V 0.5.2 (7647ce1c6fad63b5578bc07883139906de74b2f8); wasm-opt version 125",
+    "command": "v -b wasm -no-builtin examples/wasm/functions.v -o stage/v_integer_algorithms.wasm; ./scripts/prepare"
+  },
+  "description": "V native-WebAssembly example implementing signed Euclidean GCD and exponentiation by squaring with negative-exponent handling.",
+  "notes": "The exact human-authored upstream source and V compiler are MIT-licensed. The binary is produced by V's native WebAssembly backend without C transpilation or an embedded interpreter."
+}

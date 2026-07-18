@@ -1,0 +1,268 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "haskell_binarytrees",
+  "path": "haskell_binarytrees.wasm",
+  "wat": {
+    "status": "present",
+    "path": "haskell_binarytrees.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "mutable-globals",
+    "reference-types",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "simd"
+  ],
+  "tags": [
+    "benchmark",
+    "duration-medium",
+    "feature-bulk-memory",
+    "feature-mutable-globals",
+    "feature-reference-types",
+    "feature-saturated-float-to-int",
+    "feature-sign-extensions",
+    "feature-simd",
+    "host-wasi-preview1",
+    "size-extra-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_set_flags",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_filestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_filestat_set_size",
+      "kind": "function",
+      "type": "(func (param i32 i64) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_dir_name",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_create_directory",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_filestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_open",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i64 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "poll_oneoff",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 8)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "allocate and check binary trees through depth six",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "haskell_binarytrees",
+            "6"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the depth-six benchmark",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "stretch tree of depth 7\t check: 255\n64\t trees of depth 4\t check: 1984\n16\t trees of depth 6\t check: 2032\nlong lived tree of depth 6\t check: 127\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Exercises argument parsing, recursive algebraic data construction, repeated allocation and traversal, strict check accumulation, and long-lived tree retention."
+    },
+    {
+      "description": "allocate and check binary trees through depth eight",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "haskell_binarytrees",
+            "8"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "run the deeper allocation workload",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "stretch tree of depth 9\t check: 1023\n256\t trees of depth 4\t check: 7936\n64\t trees of depth 6\t check: 8128\n16\t trees of depth 8\t check: 8176\nlong lived tree of depth 8\t check: 511\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Increases allocation and recursive traversal work while adding the depth-eight loop branch and verifying every aggregate check."
+    }
+  ],
+  "sha256": "6b20969490e6fd48a834e9854cc256a9032626bbaae647835611ba9bfc636713",
+  "source": {
+    "contributor": "human",
+    "language": "haskell",
+    "path": "bench/algorithm/binarytrees/1.hs",
+    "url": "https://github.com/hanabi1224/Programming-Language-Benchmarks/blob/ad18b203dd1769724f4eea94fc3ac1e99f6593e0/bench/algorithm/binarytrees/1.hs",
+    "description": "Haskell binary-trees benchmark redistributed by Programming-Language-Benchmarks under its nested BSD-3-Clause benchmark license."
+  },
+  "toolchain": {
+    "name": "GHC WebAssembly/WASI + Binaryen",
+    "version": "GHC 9.14.1.20260330 wasm32-wasi via ghc-wasm-meta ec050b490a8499a1d1d1a3c093b8e760a20d4ebf; wasm-opt version 125",
+    "command": "wasm32-wasi-ghc -O2 -XBangPatterns bench/algorithm/binarytrees/1.hs -o stage/haskell_binarytrees.wasm; ./scripts/prepare"
+  },
+  "description": "Haskell binary-tree benchmark compiled directly by GHC to WASI, repeatedly allocating, traversing, and checking short-lived and long-lived trees.",
+  "notes": "The exact upstream Haskell source is compiled unchanged. Its nested binary-trees benchmark license is BSD-3-Clause; the containing Programming-Language-Benchmarks repository is MIT-licensed. The pinned GHC bindist SHA-256 is 767f9fb219aa4394654a73cab324f8b68550075e4786ffbfc1cf107f4a501625, and the WASI SDK SHA-256 is fcd80b74af20c8f4f2f9783852620db8e80ed7cf3fd162e760018819fa7de2ba. The module is standalone WASI Preview 1 with no JavaScript glue or Haskell interpreter."
+}
