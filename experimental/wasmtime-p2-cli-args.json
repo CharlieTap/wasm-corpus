@@ -1,0 +1,72 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wasmtime-p2-cli-args",
+  "path": "wasmtime-p2-cli-args.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wasmtime-p2-cli-args.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "duration-medium",
+    "host-wasi-preview2",
+    "size-medium"
+  ],
+  "tests": [
+    {
+      "description": "accepts empty, spaced, and Unicode command arguments",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "p2_cli_args.component",
+            "hello",
+            "this",
+            "",
+            "is an argument",
+            "with 🚩 emoji"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "47d19f6f071a0f5b73fa73cf3b649254423382c3c7ca37290d7bb3892981b2bb",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "crates/test-programs/src/bin/p2_cli_args.rs",
+    "url": "https://github.com/bytecodealliance/wasmtime/blob/83166ba31317afbe1574186798f4db17cd641ab4/crates/test-programs/src/bin/p2_cli_args.rs",
+    "description": "Wasmtime's Apache-2.0 WITH LLVM-exception licensed WASI Preview 2 CLI argument test."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.93.0; wasm-tools 1.248.0; Wasmtime adapter 45.0.1",
+    "command": "cargo build --target wasm32-wasip1 --package test-programs --bin p2_cli_args; wasm-tools component new p2_cli_args.wasm --adapt wasi_snapshot_preview1=wasi_snapshot_preview1.command.wasm; ./scripts/prepare"
+  },
+  "description": "Wasmtime's real WASI Preview 2 command argument test as a component."
+}

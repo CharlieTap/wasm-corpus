@@ -148,7 +148,6 @@
   "tags": [
     "benchmark",
     "duration-medium",
-    "feature-bulk-memory",
     "size-extra-small",
     "stress-test"
   ],

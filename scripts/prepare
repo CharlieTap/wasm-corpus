@@ -5,22 +5,26 @@ const crypto = require("crypto");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { spawnSync } = require("child_process");
+const { Binaryen } = require("../lib/binaryen.ts");
+const { classifyWasm } = require("../lib/classifier.ts");
+const { detectWasiPreview } = require("../lib/wasi-host-detector.ts");
+const { WasmTools } = require("../lib/wasm-tools.ts");
 
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
 const maxBinaryenRoundtripPasses = Number.parseInt(process.env.WASM_CORPUS_MAX_BINARYEN_ROUNDTRIP_PASSES || "12", 10);
 const MAX_WASM_BYTES = 250_000_000;
-let cachedBinaryenVersion = null;
+const wasmTools = new WasmTools();
+const binaryen = new Binaryen();
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/prepare
 
 Finds every .wasm or .wat file directly inside stage/, classifies each one,
-uses the classifier-provided Binaryen flags to prepare it, then writes the
+uses the classified features to prepare it, then writes the
 optimized .wasm, matching .wat, and fixture JSON into the correct 1.0/, 2.0/,
-or 3.0/ corpus directory.
+3.0/, or experimental/ corpus directory.
 `);
 }
 
@@ -33,27 +37,12 @@ function fail(message) {
   process.exit(1);
 }
 
-function run(command, commandArgs, options = {}) {
-  return spawnSync(command, commandArgs, {
-    cwd: repoRoot,
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-    ...options,
-  });
-}
-
-function runRequired(command, commandArgs, options = {}) {
-  const result = run(command, commandArgs, options);
-  if (result.status !== 0) {
-    const output = truncateOutput(`${result.stderr || ""}${result.stdout || ""}`.trim());
-    fail(`${command} ${commandArgs.join(" ")} failed${output ? `\n${output}` : ""}`);
+function useTool(operation) {
+  try {
+    return operation();
+  } catch (error) {
+    fail(error instanceof Error ? error.message : String(error));
   }
-  return result;
-}
-
-function truncateOutput(output, limit = 8192) {
-  if (output.length <= limit) return output;
-  return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
 }
 
 function loadAllowedTags() {
@@ -81,24 +70,16 @@ function sizeTag(bytes) {
   fail(`binary is ${bytes} bytes; corpus binaries may not exceed ${MAX_WASM_BYTES} bytes`);
 }
 
-function inferredTags({ features, imports, wasmBytes, existingTags }) {
+function inferredTags({ hostTags, wasmBytes, existingTags }) {
   const tags = (existingTags || []).filter((tag) => (
-    !tag.startsWith("feature-") &&
     !tag.startsWith("size-") &&
-    tag !== "host-wasi-preview1"
+    !tag.startsWith("host-wasi-preview")
   ));
 
-  tags.push(...(features || []).map((feature) => `feature-${feature}`));
-  if ((imports || []).some((item) => item.module === "wasi_snapshot_preview1")) {
-    tags.push("host-wasi-preview1");
-  }
+  tags.push(...(hostTags || []));
   tags.push(sizeTag(wasmBytes));
 
   return [...new Set(tags)].sort();
-}
-
-function commandExists(command) {
-  return run("sh", ["-c", `command -v "$1" >/dev/null 2>&1`, "sh", command]).status === 0;
 }
 
 function toPosix(relativePath) {
@@ -127,10 +108,11 @@ function sha256(filePath) {
 }
 
 function binaryenVersion() {
-  if (cachedBinaryenVersion != null) return cachedBinaryenVersion;
-  const result = run("wasm-opt", ["--version"]);
-  cachedBinaryenVersion = `${result.stdout || ""}${result.stderr || ""}`.trim();
-  return cachedBinaryenVersion;
+  return useTool(() => binaryen.version());
+}
+
+function wasmToolsVersion() {
+  return useTool(() => wasmTools.version());
 }
 
 function filesEqual(left, right) {
@@ -415,8 +397,8 @@ function tagTypeFromNode(tagNode, types) {
 }
 
 function inferWasmAbi(wasmPath) {
-  const printed = runRequired("wasm-tools", ["print", "--skeleton", wasmPath]);
-  const root = parseWat(printed.stdout).find((node) => Array.isArray(node) && node[0] === "module");
+  const printed = useTool(() => wasmTools.printSkeleton(wasmPath));
+  const root = parseWat(printed).find((node) => Array.isArray(node) && node[0] === "module");
   if (!root) return { imports: [], exports: [] };
 
   const types = [];
@@ -501,7 +483,7 @@ function inferWasmAbi(wasmPath) {
   return { imports, exports };
 }
 
-function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
+function prepareBinary(input, output, outputWat, features, tmpdir) {
   const strippedInput = path.join(tmpdir, "stripped-input.wasm");
   stripWasmCustomSections(input, strippedInput);
   let current = strippedInput;
@@ -514,11 +496,29 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     const strippedRoundtrip = path.join(tmpdir, `roundtrip-stripped-${pass}.wasm`);
     const checked = path.join(tmpdir, `checked-${pass}.wasm`);
 
-    runRequired("wasm-opt", [current, ...binaryenArgs, "-O1", "-o", candidate]);
-    runRequired("wasm-dis", [candidate, ...binaryenArgs, "-o", candidateWat]);
-    runRequired("wasm-as", [candidateWat, ...binaryenArgs, "-o", roundtrip]);
+    useTool(() => binaryen.optimize({
+      inputPath: current,
+      outputPath: candidate,
+      features,
+      optimizationLevel: "O1",
+    }));
+    useTool(() => binaryen.disassemble({
+      inputPath: candidate,
+      outputPath: candidateWat,
+      features,
+    }));
+    useTool(() => binaryen.assemble({
+      inputPath: candidateWat,
+      outputPath: roundtrip,
+      features,
+    }));
     stripWasmCustomSections(roundtrip, strippedRoundtrip);
-    runRequired("wasm-opt", [strippedRoundtrip, ...binaryenArgs, "-O1", "-o", checked]);
+    useTool(() => binaryen.optimize({
+      inputPath: strippedRoundtrip,
+      outputPath: checked,
+      features,
+      optimizationLevel: "O1",
+    }));
 
     let prepared = candidate;
     if (filesEqual(checked, current)) {
@@ -526,7 +526,7 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
     }
 
     if (prepared === current || filesEqual(candidate, checked)) {
-      runRequired("wasm-tools", ["print", prepared, "-o", readableWat]);
+      useTool(() => wasmTools.print(prepared, readableWat));
       const watSize = fs.statSync(readableWat).size;
       if (watSize > maxWatDisassemblyBytes) {
         fs.copyFileSync(prepared, output);
@@ -552,27 +552,48 @@ function prepareBinary(input, output, outputWat, binaryenArgs, tmpdir) {
   fail(`Binaryen output did not stabilize after ${maxBinaryenRoundtripPasses} passes`);
 }
 
+function prepareComponent(input, output, outputWat) {
+  stripWasmCustomSections(input, output);
+  const initialValidation = useTool(() => wasmTools.validate(output, "all"));
+  if (!initialValidation.valid) {
+    fail(`wasm-tools could not validate ${relativeFromRepo(output)}${initialValidation.diagnostic ? `\n${initialValidation.diagnostic}` : ""}`);
+  }
+  useTool(() => wasmTools.print(output, outputWat));
+  const watSize = fs.statSync(outputWat).size;
+  if (watSize > maxWatDisassemblyBytes) {
+    fs.rmSync(outputWat, { force: true });
+    return {
+      status: "too_large_for_corpus",
+      generated_size: watSize,
+      limit: maxWatDisassemblyBytes,
+      tool: "wasm-tools print",
+    };
+  }
+  // Component binaries can contain custom sections nested inside core modules.
+  // `wasm-tools strip` only removes sections at the outer level, while the
+  // readable text format intentionally omits nested custom sections. Reparse
+  // the printed component so the committed binary and WAT are canonical peers.
+  useTool(() => wasmTools.parse(outputWat, output));
+  const finalValidation = useTool(() => wasmTools.validate(output, "all"));
+  if (!finalValidation.valid) {
+    fail(`wasm-tools could not validate reparsed ${relativeFromRepo(output)}${finalValidation.diagnostic ? `\n${finalValidation.diagnostic}` : ""}`);
+  }
+  return {
+    status: "present",
+    path: path.basename(outputWat),
+  };
+}
+
 function stripWasmCustomSections(input, output) {
-  runRequired("wasm-tools", ["strip", "--all", input, "-o", output]);
+  useTool(() => wasmTools.stripCustomSections(input, output));
 }
 
 function classify(wasmPath) {
-  const classifier = path.join(repoRoot, "scripts", "classify");
-  const result = run(process.execPath, [classifier, wasmPath]);
-  if (result.status !== 0) {
-    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
-    fail(`scripts/classify failed for ${relativeFromRepo(wasmPath)}${output ? `\n${output}` : ""}`);
-  }
-
-  try {
-    return JSON.parse(result.stdout);
-  } catch (error) {
-    fail(`scripts/classify returned invalid JSON: ${error.message}`);
-  }
+  return useTool(() => classifyWasm(wasmPath, { wasmTools }));
 }
 
 function compileWat(stagedWat, outputWasm) {
-  runRequired("wasm-tools", ["parse", stagedWat, "-o", outputWasm]);
+  useTool(() => wasmTools.parse(stagedWat, outputWasm));
 }
 
 function inspectModule(wasmPath) {
@@ -613,6 +634,20 @@ function inspectModule(wasmPath) {
     warn(`Node could not inspect imports/exports for ${relativeFromRepo(wasmPath)}: ${error.message}`);
     return inferred;
   }
+}
+
+function detectedHostTags(wasmPath, imports, classification) {
+  const input = classification.kind === "component"
+    ? {
+        kind: "component",
+        world: useTool(() => wasmTools.componentWorld(wasmPath)),
+      }
+    : {
+        kind: "module",
+        imports,
+      };
+  const preview = detectWasiPreview(input);
+  return preview === null ? [] : [`host-wasi-${preview}`];
 }
 
 function readExistingJson(jsonPath) {
@@ -669,8 +704,7 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
   };
   const digest = sha256(wasmPath);
   const tags = inferredTags({
-    features: classification.features || [],
-    imports,
+    hostTags: detectedHostTags(wasmPath, imports, classification),
     wasmBytes: fs.statSync(wasmPath).size,
     existingTags: previous.tags,
   });
@@ -707,7 +741,7 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
     ...(previous.description ? { description: previous.description } : {}),
     path: path.basename(wasmPath),
     wat,
-    features: classification.features || [],
+    features: [...classification.features].sort(),
     ...(tags.length > 0 ? { tags } : {}),
     ...(imports.length > 0 || previous.imports ? { imports } : {}),
     ...(exports.length > 0 || previous.exports ? { exports } : {}),
@@ -717,8 +751,8 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
     ...(previous.toolchain || !existing
       ? {
           toolchain: previous.toolchain || {
-            name: "Binaryen",
-            version: binaryenVersion(),
+            name: classification.kind === "component" ? "wasm-tools" : "Binaryen",
+            version: classification.kind === "component" ? wasmToolsVersion() : binaryenVersion(),
             command,
           },
         }
@@ -768,13 +802,8 @@ if (args.length === 0) {
   process.exit(0);
 }
 
-const missing = ["wasm-opt", "wasm-dis", "wasm-as", "wasm-tools"].filter((command) => !commandExists(command));
-if (missing.length > 0) {
-  warn("Binaryen and wasm-tools are required to prepare corpus binaries.");
-  warn(`Missing command(s): ${missing.join(" ")}`);
-  warn("Install Binaryen and wasm-tools, then rerun this script. On macOS: brew install binaryen wasm-tools");
-  process.exit(1);
-}
+wasmToolsVersion();
+binaryenVersion();
 
 const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-prepare."));
 const preparedWasmPaths = [];
@@ -803,24 +832,28 @@ try {
     }
 
     const initialClassification = classify(sourceWasm);
-    if (!initialClassification.version) {
+    const isComponent = initialClassification.kind === "component";
+    if (!initialClassification.version && !isComponent) {
       fail(`${stagedRelative} uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
     }
 
     const prepared = path.join(work, "prepared.wasm");
     const watTmp = path.join(work, "module.wat");
-    const watMetadata = prepareBinary(sourceWasm, prepared, watTmp, initialClassification.binaryen_args || [], work);
+    const watMetadata = isComponent
+      ? prepareComponent(sourceWasm, prepared, watTmp)
+      : prepareBinary(sourceWasm, prepared, watTmp, initialClassification.features, work);
     const preparedSize = fs.statSync(prepared).size;
     if (preparedSize > MAX_WASM_BYTES) {
       fail(`${stagedRelative} prepares to ${preparedSize} bytes; corpus binaries may not exceed ${MAX_WASM_BYTES} bytes`);
     }
 
     const finalClassification = classify(prepared);
-    if (!finalClassification.version) {
+    const finalIsComponent = finalClassification.kind === "component";
+    if (!finalClassification.version && !finalIsComponent) {
       fail(`${stagedRelative} prepared output uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
     }
 
-    const targetDir = path.join(repoRoot, finalClassification.version);
+    const targetDir = path.join(repoRoot, finalIsComponent ? "experimental" : finalClassification.version);
     fs.mkdirSync(targetDir, { recursive: true });
 
     const wasm = path.join(targetDir, `${parsed.name}.wasm`);

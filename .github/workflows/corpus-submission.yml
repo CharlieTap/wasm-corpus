@@ -7,8 +7,14 @@ on:
       - "1.0/*.json"
       - "2.0/*.json"
       - "3.0/*.json"
+      - "experimental/*.json"
+      - "lib/**"
+      - "package-lock.json"
+      - "package.json"
       - "schema/*.json"
       - "scripts/**"
+      - "tsconfig.json"
+      - "runners/**"
       - "corpus"
   push:
     branches:
@@ -18,26 +24,28 @@ on:
       - "1.0/*.json"
       - "2.0/*.json"
       - "3.0/*.json"
+      - "experimental/*.json"
+      - "lib/**"
+      - "package-lock.json"
+      - "package.json"
       - "schema/*.json"
       - "scripts/**"
+      - "tsconfig.json"
+      - "runners/**"
       - "corpus"
 
 jobs:
   validate-and-execute:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       BINARYEN_VERSION: "125"
+      WASM_TOOLS_VERSION: "1.248.0"
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
 
       - name: Cache Binaryen
         id: cache-binaryen
@@ -56,24 +64,44 @@ jobs:
       - name: Add Binaryen to PATH
         run: echo "$HOME/.cache/wasm-corpus/binaryen-${BINARYEN_VERSION}/bin" >> "$GITHUB_PATH"
 
-      - name: Check Binaryen
-        run: wasm-opt --version
-
       - name: Cache wasm-tools
         id: cache-wasm-tools
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin/wasm-tools
-          key: wasm-tools-${{ runner.os }}-1.239.0
+          key: wasm-tools-${{ runner.os }}-${{ env.WASM_TOOLS_VERSION }}
 
       - name: Install wasm-tools
         if: steps.cache-wasm-tools.outputs.cache-hit != 'true'
-        run: cargo install wasm-tools --version 1.239.0 --locked
+        run: cargo install wasm-tools --version "${WASM_TOOLS_VERSION}" --locked
 
-      - name: Check wasm-tools
-        run: wasm-tools --version
+      - name: Cache Node tooling
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Find WASM files to validate
+      - name: Install Node tooling
+        run: npm ci
+
+      - name: Type-check Node tooling
+        run: npm run typecheck
+
+      - name: Test Node tooling
+        run: npm test
+
+      - name: Cache Wasmtime runner
+        id: cache-wasmtime-runner
+        uses: actions/cache@v4
+        with:
+          path: runners/wasmtime/target/release/wasm-corpus-wasmtime-runner
+          key: wasmtime-runner-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('runners/wasmtime/Cargo.lock', 'runners/wasmtime/Cargo.toml', 'runners/wasmtime/src/**') }}
+
+      - name: Build Wasmtime runner
+        if: steps.cache-wasmtime-runner.outputs.cache-hit != 'true'
+        run: cargo build --release --locked --manifest-path runners/wasmtime/Cargo.toml
+
+      - name: Derive changed Wasm fixtures
         id: wasm-files
         shell: bash
         run: |
@@ -98,13 +126,13 @@ jobs:
 
           while IFS= read -r file; do
             case "$file" in
-              scripts/*|schema/*)
+              lib/*|package-lock.json|package.json|scripts/*|schema/*|runners/*|tsconfig.json|corpus)
                 validate_all=true
                 ;;
               *.wasm)
                 printf '%s\n' "$file" >> wasm-files.unsorted
                 ;;
-              [123].0/*.json)
+              [123].0/*.json|experimental/*.json)
                 wasm="${file%.json}.wasm"
                 if [[ -f "$wasm" ]]; then
                   printf '%s\n' "$wasm" >> wasm-files.unsorted
@@ -114,7 +142,7 @@ jobs:
           done < changed-files.txt
 
           if [[ "$validate_all" == "true" ]]; then
-            find 1.0 2.0 3.0 -maxdepth 1 -name '*.wasm' | sort > wasm-files.txt
+            find 1.0 2.0 3.0 experimental -maxdepth 1 -name '*.wasm' | sort > wasm-files.txt
           else
             sort -u wasm-files.unsorted > wasm-files.txt
           fi
@@ -127,14 +155,14 @@ jobs:
             echo "No WASM files need validation."
           fi
 
-      - name: Validate WASM files
+      - name: Validate Wasm fixtures
         if: steps.wasm-files.outputs.has_files == 'true'
         shell: bash
         run: |
           mapfile -t files < wasm-files.txt
           ./scripts/validate "${files[@]}"
 
-      - name: Execute WASM smoke tests
+      - name: Execute Wasm fixtures
         if: steps.wasm-files.outputs.has_files == 'true'
         shell: bash
         run: |

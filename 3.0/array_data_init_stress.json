@@ -26,11 +26,20 @@
           "type": "function.invoke",
           "function": "bench",
           "params": [
-            { "type": "i32", "value": "20000000" },
-            { "type": "i32", "value": "1" }
+            {
+              "type": "i32",
+              "value": "20000000"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
           ],
           "results": [
-            { "type": "i32", "value": "48" }
+            {
+              "type": "i32",
+              "value": "48"
+            }
           ]
         }
       ]
@@ -42,11 +51,20 @@
           "type": "function.invoke",
           "function": "bench",
           "params": [
-            { "type": "i32", "value": "20000000" },
-            { "type": "i32", "value": "8" }
+            {
+              "type": "i32",
+              "value": "20000000"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            }
           ],
           "results": [
-            { "type": "i32", "value": "55" }
+            {
+              "type": "i32",
+              "value": "55"
+            }
           ]
         }
       ]
@@ -58,11 +76,20 @@
           "type": "function.invoke",
           "function": "bench",
           "params": [
-            { "type": "i32", "value": "12000000" },
-            { "type": "i32", "value": "32" }
+            {
+              "type": "i32",
+              "value": "12000000"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
           ],
           "results": [
-            { "type": "i32", "value": "102" }
+            {
+              "type": "i32",
+              "value": "102"
+            }
           ]
         }
       ]
@@ -74,11 +101,20 @@
           "type": "function.invoke",
           "function": "bench",
           "params": [
-            { "type": "i32", "value": "4000000" },
-            { "type": "i32", "value": "256" }
+            {
+              "type": "i32",
+              "value": "4000000"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            }
           ],
           "results": [
-            { "type": "i32", "value": "102" }
+            {
+              "type": "i32",
+              "value": "102"
+            }
           ]
         }
       ]
@@ -99,9 +135,6 @@
   "tags": [
     "benchmark",
     "duration-long",
-    "feature-bulk-memory",
-    "feature-gc",
-    "feature-reference-types",
     "size-extra-small",
     "stress-test"
   ],

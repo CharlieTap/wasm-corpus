@@ -5,16 +5,16 @@ const fs = require("fs");
 const path = require("path");
 
 const repoRoot = __dirname;
-const versionDirs = ["1.0", "2.0", "3.0"];
+const versionDirs = ["1.0", "2.0", "3.0", "experimental"];
 
 function usage(stream = process.stderr) {
   stream.write(`Usage: ./corpus [filters]
 
 Prints corpus fixture metadata as one JSON array. With no filters, all fixtures
-are returned in version order: 1.0, then 2.0, then 3.0.
+are returned in directory order: 1.0, 2.0, 3.0, then experimental.
 
 Filters:
-  --version <version>       Include fixtures from this version directory.
+  --version <version>       Include fixtures from this directory, including experimental.
   --language <languages>    Include fixtures written in any comma-separated language.
   --feature <features>      Require all comma-separated features.
   --exclude-feature <features>

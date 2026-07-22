@@ -10,7 +10,6 @@ kebab-case strings and must be sorted in fixture metadata.
 | Role | Chosen from the fixture's purpose | Zero, one, or both |
 | Domain | Chosen from behavior exercised by the tests | Zero to three |
 | Duration | Measured from the complete fixture test suite | Exactly one |
-| WebAssembly feature | Generated from `features` | One per feature |
 | Host | Detected where possible; otherwise reviewed | Zero or more |
 | Binary size | Generated from the committed `.wasm` file | Exactly one |
 
@@ -84,27 +83,6 @@ Measure with Node 24 on an Apple M4 Max:
 These are rough workload groups for this reference machine, not performance
 guarantees on other machines or runtimes.
 
-## WebAssembly features
-
-For every value in `features`, add the matching `feature-<value>` tag.
-`prepare` and `validate` handle this automatically. Do not infer features
-from the source language or description.
-
-| Feature | Tag |
-| --- | --- |
-| `bulk-memory` | `feature-bulk-memory` |
-| `exception-handling` | `feature-exception-handling` |
-| `gc` | `feature-gc` |
-| `memory64` | `feature-memory64` |
-| `multi-value` | `feature-multi-value` |
-| `mutable-globals` | `feature-mutable-globals` |
-| `reference-types` | `feature-reference-types` |
-| `saturated-float-to-int` | `feature-saturated-float-to-int` |
-| `sign-extensions` | `feature-sign-extensions` |
-| `simd` | `feature-simd` |
-| `tail-call` | `feature-tail-call` |
-| `typed-function-references` | `feature-typed-function-references` |
-
 ## Hosts
 
 Host tags describe the host contract required to run the fixture. They do not
@@ -114,12 +92,12 @@ describe the compiler that produced it.
 | --- | --- |
 | `host-emscripten` | The fixture requires an Emscripten-compatible host ABI or glue behavior. |
 | `host-wasi-preview1` | The fixture requires WASI Preview 1, usually through `wasi_snapshot_preview1` imports. |
-| `host-wasi-preview2` | The component requires WASI Preview 2 interfaces. |
-| `host-wasi-preview3` | The component requires WASI Preview 3 interfaces. |
+| `host-wasi-preview2` | The component runs with a WASI Preview 2 host. |
+| `host-wasi-preview3` | The component runs with a WASI Preview 3 host. |
 
-Use every required host tag. `prepare` and `validate` detect Preview 1 where
-possible. Review other host requirements from the fixture's embedding
-contract.
+Use one WASI host tag. When a Preview 3 component also contains compatibility
+imports from an older preview, use only `host-wasi-preview3`. `prepare` and
+`validate` select the highest required preview automatically.
 
 ## Binary sizes
 
@@ -166,18 +144,6 @@ This is the exact, sorted content of `scripts/tags.json`.
   "duration-long",
   "duration-medium",
   "duration-short",
-  "feature-bulk-memory",
-  "feature-exception-handling",
-  "feature-gc",
-  "feature-memory64",
-  "feature-multi-value",
-  "feature-mutable-globals",
-  "feature-reference-types",
-  "feature-saturated-float-to-int",
-  "feature-sign-extensions",
-  "feature-simd",
-  "feature-tail-call",
-  "feature-typed-function-references",
   "host-emscripten",
   "host-wasi-preview1",
   "host-wasi-preview2",

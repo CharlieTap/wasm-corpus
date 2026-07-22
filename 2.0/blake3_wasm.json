@@ -8,17 +8,12 @@
     "path": "blake3_wasm.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "simd"
   ],
   "tags": [
     "domain-cryptography",
     "domain-hashing",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-simd",
     "size-medium"
   ],
   "imports": [

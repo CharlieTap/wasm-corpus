@@ -9,17 +9,10 @@
   "features": [
     "bulk-memory",
     "memory64",
-    "mutable-globals",
-    "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "duration-medium",
-    "feature-bulk-memory",
-    "feature-memory64",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "host-wasi-preview1",
     "size-medium"
   ],

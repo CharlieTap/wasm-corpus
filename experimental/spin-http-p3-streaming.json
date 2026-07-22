@@ -1,0 +1,304 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "spin-http-p3-streaming",
+  "path": "spin-http-p3-streaming.wasm",
+  "wat": {
+    "status": "present",
+    "path": "spin-http-p3-streaming.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-hashing",
+    "duration-extra-long",
+    "host-wasi-preview3",
+    "size-large"
+  ],
+  "tests": [
+    {
+      "description": "streams a chunked request body directly into the response",
+      "host": {
+        "wasi_preview_3": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/echo",
+          "headers": [
+            {
+              "name": "content-type",
+              "value": "application/octet-stream"
+            }
+          ],
+          "body_chunks": [
+            {
+              "encoding": "utf8",
+              "value": "first chunk / "
+            },
+            {
+              "encoding": "utf8",
+              "value": "second chunk / "
+            },
+            {
+              "encoding": "utf8",
+              "value": "third chunk / "
+            },
+            {
+              "encoding": "utf8",
+              "value": "final chunk"
+            }
+          ],
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "application/octet-stream"
+              }
+            ],
+            "body": {
+              "encoding": "utf8",
+              "value": "first chunk / second chunk / third chunk / final chunk"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "hashes four deterministic outbound HTTP responses concurrently",
+      "host": {
+        "wasi_preview_3": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "GET",
+          "path": "/hash-all",
+          "headers": [
+            {
+              "name": "url",
+              "value": "http://fixture.local/a"
+            },
+            {
+              "name": "url",
+              "value": "http://fixture.local/b"
+            },
+            {
+              "name": "url",
+              "value": "http://fixture.local/c"
+            },
+            {
+              "name": "url",
+              "value": "http://fixture.local/d"
+            }
+          ],
+          "outbound": [
+            {
+              "method": "GET",
+              "url": "http://fixture.local/a",
+              "response": {
+                "status": 200,
+                "body": {
+                  "encoding": "utf8",
+                  "value": "’Twas brillig, and the slithy toves"
+                }
+              }
+            },
+            {
+              "method": "GET",
+              "url": "http://fixture.local/b",
+              "response": {
+                "status": 200,
+                "body": {
+                  "encoding": "utf8",
+                  "value": "Did gyre and gimble in the wabe:"
+                }
+              }
+            },
+            {
+              "method": "GET",
+              "url": "http://fixture.local/c",
+              "response": {
+                "status": 200,
+                "body": {
+                  "encoding": "utf8",
+                  "value": "All mimsy were the borogoves,"
+                }
+              }
+            },
+            {
+              "method": "GET",
+              "url": "http://fixture.local/d",
+              "response": {
+                "status": 200,
+                "body": {
+                  "encoding": "utf8",
+                  "value": "And the mome raths outgrabe."
+                }
+              }
+            }
+          ],
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "text/plain"
+              }
+            ],
+            "body_contains": [
+              {
+                "encoding": "utf8",
+                "value": "http://fixture.local/a: d225c23d89be70b7bd060a27d4e73679d0dc03a1a29121106604411a4a4af727\n"
+              },
+              {
+                "encoding": "utf8",
+                "value": "http://fixture.local/b: 0c4a0fe77bda6b405668f0ee09f0758ce958e22a7152c9e0a40928a6dcc39964\n"
+              },
+              {
+                "encoding": "utf8",
+                "value": "http://fixture.local/c: 59cd64d8a163b823a2ae78a1ad087159485c1234c34da672c180ef2fdc1d5c74\n"
+              },
+              {
+                "encoding": "utf8",
+                "value": "http://fixture.local/d: 79d1065f6fc74aa4ea105f323ff1fa3e1a58829c0399c5a53c714130953e1203\n"
+              }
+            ],
+            "body_line_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "description": "pipes a chunked request through an outbound HTTP exchange and back",
+      "host": {
+        "wasi_preview_3": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/double-echo",
+          "headers": [
+            {
+              "name": "content-type",
+              "value": "text/plain"
+            },
+            {
+              "name": "url",
+              "value": "http://fixture.local/echo"
+            }
+          ],
+          "body_chunks": [
+            {
+              "encoding": "utf8",
+              "value": "streamed "
+            },
+            {
+              "encoding": "utf8",
+              "value": "through "
+            },
+            {
+              "encoding": "utf8",
+              "value": "the guest"
+            }
+          ],
+          "outbound": [
+            {
+              "method": "POST",
+              "url": "http://fixture.local/echo",
+              "response": {
+                "status": 200,
+                "headers": [
+                  {
+                    "name": "content-type",
+                    "value": "text/plain"
+                  }
+                ],
+                "echo_request_body": true
+              }
+            }
+          ],
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "text/plain"
+              }
+            ],
+            "body": {
+              "encoding": "utf8",
+              "value": "streamed through the guest"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "uses the Preview 3 monotonic clock while producing a delayed response stream",
+      "host": {
+        "wasi_preview_3": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "GET",
+          "path": "/slow",
+          "timeout_ms": 5000,
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "text/plain"
+              }
+            ],
+            "body": {
+              "encoding": "utf8",
+              "value": "1\n2\n3\n"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "returns method-not-allowed for an unsupported route and method combination",
+      "host": {
+        "wasi_preview_3": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "GET",
+          "path": "/echo",
+          "response": {
+            "status": 405,
+            "body": {
+              "encoding": "utf8",
+              "value": ""
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "3f64abe402415bfcf7ffaf0b3a8bf22f976cb7ebada4b8df54689ad0ea79a90c",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "tests/test-components/components/integration-wasi-http-p3-streaming/src/lib.rs",
+    "url": "https://github.com/spinframework/spin/blob/56b3631440bddd7a75da045d5048ea6ac4521280/tests/test-components/components/integration-wasi-http-p3-streaming/src/lib.rs",
+    "description": "Spin's Apache-2.0 WITH LLVM-exception licensed asynchronous WASI HTTP Preview 3 streaming integration component at commit 56b3631440bddd7a75da045d5048ea6ac4521280."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.93.0; wasm-tools 1.248.0; Spin Preview 2 reactor adapter at 56b3631440bddd7a75da045d5048ea6ac4521280",
+    "command": "cargo build --release --locked --target wasm32-wasip1 -p integration-wasi-http-p3-streaming; wasm-tools component new target/wasm32-wasip1/release/integration_wasi_http_p3_streaming.wasm --adapt wasi_snapshot_preview1=0.2.0.reactor.wasm --output spin-http-p3-streaming.wasm; ./scripts/prepare"
+  },
+  "description": "Spin's asynchronous WASI HTTP Preview 3 service for streaming, concurrent hashing, outbound piping, and delayed responses."
+}

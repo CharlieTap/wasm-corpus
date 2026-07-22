@@ -11,16 +11,10 @@
     "bulk-memory",
     "exception-handling",
     "gc",
-    "mutable-globals",
     "reference-types"
   ],
   "tags": [
     "duration-short",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
     "size-small"
   ],
   "exports": [

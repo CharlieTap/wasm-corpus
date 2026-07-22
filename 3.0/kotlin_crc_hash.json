@@ -11,19 +11,12 @@
     "bulk-memory",
     "exception-handling",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
   "tags": [
     "domain-hashing",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-small"
   ],
   "exports": [

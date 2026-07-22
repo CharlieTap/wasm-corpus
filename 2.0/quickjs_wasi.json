@@ -10,18 +10,12 @@
   "features": [
     "bulk-memory",
     "mutable-globals",
-    "reference-types",
     "saturated-float-to-int",
     "sign-extensions"
   ],
   "tags": [
     "domain-compilation",
     "duration-medium",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-saturated-float-to-int",
-    "feature-sign-extensions",
     "host-wasi-preview1",
     "size-extra-large"
   ],

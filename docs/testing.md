@@ -7,6 +7,9 @@ corpus. The included Node runner is used to verify that fixture tests work as
 expected.
 
 The exact format is defined by the [fixture schema](../schema/fixture.schema.json).
+Numbered core Wasm fixtures run with Node 24. Components in `experimental/`
+run with the pinned Wasmtime runner; `./scripts/execute` selects this
+automatically.
 
 ## Selecting fixtures
 
@@ -21,9 +24,9 @@ Parse the array, then use each fixture's `path`, tests, imports, and other
 metadata to run it. The selected corpus version identifies the directory that
 contains the `.wasm` file.
 
-## Verifying fixtures with Node
+## Verifying fixtures
 
-Run one or more fixtures with the included Node 24 runner:
+Run one or more fixtures through the repository dispatcher:
 
 ```sh
 ./scripts/execute 1.0/gcd.wasm
@@ -53,6 +56,9 @@ times:
 | `type` | What it does | Main fields |
 | --- | --- | --- |
 | `function.invoke` | Calls an exported function. | `function`, `params`, `results`, optional `trap` and `host_effects` |
+| `command.run` | Runs a WASI command entry point. | `host_effects`, optional `trap` and `timeout_ms` |
+| `component.invoke` | Calls a typed component export. | `function`, `params`, `results`, optional `trap`, `host_effects`, and `timeout_ms` |
+| `http.request` | Sends an incoming request to a WASI HTTP component. | `method`, `path`, `response`, optional request data, outbound replies, and `timeout_ms` |
 | `memory.write` | Writes bytes or one numeric value to memory. | `memory`, `offset`, and either `bytes` or `value` |
 | `memory.grow` | Grows memory by a number of 64 KiB pages. | `memory`, `pages`, optional `assert` and `capture` |
 | `memory.read` | Reads and checks bytes or a numeric value. | `memory`, `offset`, optional `length`, and either `assert` or `capture` |
@@ -74,6 +80,25 @@ check an exit code, stdout, stderr, or captured host-import output.
 
 The schema includes `timeout_ms` on function calls, but the Node runner does
 not currently enforce it.
+
+### Components
+
+`component.invoke` uses recursive typed values. It supports scalar WIT values
+plus lists, records, tuples, variants, enums, options, results, flags, and
+resources. Integers are decimal strings. Results can use `capture`, and later
+parameters can use `var`, just like core values. Interface functions use
+`package:namespace/interface#function`; root exports use only the function name.
+
+`command.run` invokes `_start` for Preview 1 core modules and `wasi:cli/run`
+for Preview 2 or Preview 3 components. `host_effects` checks the exit code and
+captured stdout or stderr.
+
+`http.request` invokes a Preview 2 or Preview 3 incoming HTTP handler. Requests
+can contain headers and either one body or an ordered list of body chunks.
+Response assertions cover the status, headers, body, SHA-256 digest,
+substrings, and line count. An `outbound` entry supplies a deterministic reply
+for an exact method and URL; undeclared outbound requests are denied. A reply
+can also echo the outbound request body to test streaming behavior.
 
 ### Memory commands
 
@@ -142,6 +167,10 @@ support them if needed.
 For WASI Preview 1, a test can provide command arguments, environment variables,
 preopened directories, and stdin. Calling `_start` runs the command and allows
 `host_effects` to check its exit code, stdout, and stderr.
+
+Preview 2 and Preview 3 use the same portable host fields. The included
+Wasmtime runner captures output, denies network access, and grants only the
+declared preopened directories.
 
 ## Implementing a runner
 

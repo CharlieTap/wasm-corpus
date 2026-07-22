@@ -8,14 +8,13 @@
     "path": "gc_root_scan_stress.wat"
   },
   "features": [
+    "bulk-memory",
     "gc",
     "reference-types"
   ],
   "tags": [
     "benchmark",
     "duration-long",
-    "feature-gc",
-    "feature-reference-types",
     "size-extra-small",
     "stress-test"
   ],

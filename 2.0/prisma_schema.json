@@ -10,18 +10,12 @@
   "features": [
     "bulk-memory",
     "multi-value",
-    "mutable-globals",
     "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "domain-parsing",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-multi-value",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "size-extra-large"
   ],
   "imports": [

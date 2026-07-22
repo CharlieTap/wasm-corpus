@@ -8,16 +8,11 @@
     "path": "brotli_wasm.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "domain-compression",
     "duration-medium",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "size-extra-large"
   ],
   "imports": [

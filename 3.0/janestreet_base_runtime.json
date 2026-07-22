@@ -16,11 +16,6 @@
   ],
   "tags": [
     "duration-short",
-    "feature-bulk-memory",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-tail-call",
     "size-small"
   ],
   "imports": [

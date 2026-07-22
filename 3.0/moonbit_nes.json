@@ -11,7 +11,6 @@
     "bulk-memory",
     "gc",
     "multi-value",
-    "mutable-globals",
     "reference-types",
     "saturated-float-to-int",
     "typed-function-references"
@@ -144,13 +143,6 @@
   "tags": [
     "domain-emulation",
     "duration-medium",
-    "feature-bulk-memory",
-    "feature-gc",
-    "feature-multi-value",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-saturated-float-to-int",
-    "feature-typed-function-references",
     "size-medium"
   ],
   "notes": "The test copies the upstream nestest ROM into exported memory, invokes the diagnostic entrypoint, and captures the spectest.print_char callback to assert the ROM parser, mapper setup, and first CPU trace lines rather than checking a single framebuffer pixel."

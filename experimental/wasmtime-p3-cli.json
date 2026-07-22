@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wasmtime-p3-cli",
+  "description": "Wasmtime's real asynchronous WASI Preview 3 command component.",
+  "path": "wasmtime-p3-cli.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wasmtime-p3-cli.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "duration-medium",
+    "host-wasi-preview3",
+    "size-large"
+  ],
+  "tests": [
+    {
+      "description": "runs the asynchronous Preview 3 CLI world with arguments, environment, and captured output",
+      "host": {
+        "wasi_preview_3": {
+          "command_args": [
+            "p3_cli.component",
+            "."
+          ],
+          "system_env": {
+            "LANG": "C"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "hello stdout\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "hello stderr\n"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "08c685b90737535f8926bd38b244b7bfb2b9c581fa5f3c92d10d8ecfd04c75ba",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "crates/test-programs/src/bin/p3_cli.rs",
+    "url": "https://github.com/bytecodealliance/wasmtime/blob/90fed3c6adf53f112c4dea56851728557bb73799/crates/test-programs/src/bin/p3_cli.rs",
+    "description": "Wasmtime's Apache-2.0 WITH LLVM-exception licensed asynchronous WASI Preview 3 CLI test."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.94.0; wasm-tools 1.248.0; Wasmtime adapter 47.0.2",
+    "command": "cargo build --target wasm32-wasip1 --package test-programs --bin p3_cli; wasm-tools component new p3_cli.wasm --adapt wasi_snapshot_preview1=wasi_snapshot_preview1.reactor.wasm; ./scripts/prepare"
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "dicom-anonymizer-p2",
+  "path": "dicom-anonymizer-p2.wasm",
+  "wat": {
+    "status": "present",
+    "path": "dicom-anonymizer-p2.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-cryptography",
+    "domain-parsing",
+    "domain-serialization",
+    "duration-long",
+    "host-wasi-preview2",
+    "size-extra-large"
+  ],
+  "tests": [
+    {
+      "description": "rejects empty and malformed anonymization requests",
+      "host": {
+        "wasi_preview_2": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/anonymize",
+          "response": {
+            "status": 400,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "encoding": "utf8",
+              "value": "{\"error\":\"invalid_request\",\"message\":\"Request body is empty\"}"
+            }
+          }
+        },
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/anonymize/custom",
+          "body": {
+            "encoding": "utf8",
+            "value": "not json"
+          },
+          "response": {
+            "status": 400,
+            "body_contains": [
+              {
+                "encoding": "utf8",
+                "value": "\"error\":\"invalid_json\""
+              }
+            ]
+          }
+        },
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/anonymize/custom",
+          "body": {
+            "encoding": "utf8",
+            "value": "{\"dicom_data\":\"%%%\",\"config\":null}"
+          },
+          "response": {
+            "status": 400,
+            "body_contains": [
+              {
+                "encoding": "utf8",
+                "value": "\"error\":\"invalid_base64\""
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "parses, anonymizes, and serializes a DICOM object using the default profile",
+      "host": {
+        "wasi_preview_2": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/anonymize",
+          "headers": [
+            {
+              "name": "content-type",
+              "value": "application/dicom"
+            }
+          ],
+          "body": {
+            "encoding": "base64",
+            "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABESUNNAgAAAFVMBABGAAAAAgABAE9CAAACAAAAAAECAAIAVUkGADEuMi4zAAIAAwBVSQYAMi4zLjQAAgAQAFVJFAAxLjIuODQwLjEwMDA4LjEuMi4xABAAEABQTggASm9obiBEb2UQACAATE8GADEyMzQ1IDMAEBBMTxQAcHJpdmF0ZSBwYXRpZW50IG5vdGU="
+          },
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "application/dicom"
+              }
+            ],
+            "body_sha256": "341e825ab3848fe46fd21fd8f139ac1e7d7058087a1ba87c024d5d1d278b3810",
+            "body_contains": [
+              {
+                "encoding": "utf8",
+                "value": "DICM"
+              },
+              {
+                "encoding": "utf8",
+                "value": "6652061665"
+              },
+              {
+                "encoding": "utf8",
+                "value": "6662505961"
+              }
+            ],
+            "body_not_contains": [
+              {
+                "encoding": "utf8",
+                "value": "John Doe"
+              },
+              {
+                "encoding": "utf8",
+                "value": "private patient note"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "description": "applies custom replacement and retention rules to the same DICOM object",
+      "host": {
+        "wasi_preview_2": {}
+      },
+      "steps": [
+        {
+          "type": "http.request",
+          "method": "POST",
+          "path": "/anonymize/custom",
+          "headers": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "encoding": "base64",
+            "value": "eyJkaWNvbV9kYXRhIjoiQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFCRVNVTk5BZ0FBQUZWTUJBQkdBQUFBQWdBQkFFOUNBQUFDQUFBQUFBRUNBQUlBVlVrR0FERXVNaTR6QUFJQUF3QlZTUVlBTWk0ekxqUUFBZ0FRQUZWSkZBQXhMakl1T0RRd0xqRXdNREE0TGpFdU1pNHhBQkFBRUFCUVRnZ0FTbTlvYmlCRWIyVVFBQ0FBVEU4R0FERXlNelExSURNQUVCQk1UeFFBY0hKcGRtRjBaU0J3WVhScFpXNTBJRzV2ZEdVPSIsImNvbmZpZyI6eyJyZW1vdmVfcHJpdmF0ZV90YWdzIjpmYWxzZSwidGFnX2FjdGlvbnMiOnsiMDAxMDAwMTAiOnsiYWN0aW9uIjoicmVwbGFjZSIsInZhbHVlIjoiSmFuZSBEb2UifSwiMDAxMDAwMjAiOnsiYWN0aW9uIjoia2VlcCJ9fX19"
+          },
+          "response": {
+            "status": 200,
+            "headers": [
+              {
+                "name": "content-type",
+                "value": "application/dicom"
+              }
+            ],
+            "body_contains": [
+              {
+                "encoding": "utf8",
+                "value": "Jane Doe"
+              },
+              {
+                "encoding": "utf8",
+                "value": "12345"
+              },
+              {
+                "encoding": "utf8",
+                "value": "private patient note"
+              }
+            ],
+            "body_not_contains": [
+              {
+                "encoding": "utf8",
+                "value": "John Doe"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "a0ff6c6322cc7543af6beb95d99d34b88e8fae3a3d80487b36dee33bff809714",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "dicom-anonymizer-spin/src/lib.rs",
+    "url": "https://github.com/carecoders/dicom-anonymization/blob/e558bba588a8774e0ee68afc13785c0706c1e22d/dicom-anonymizer-spin/src/lib.rs",
+    "description": "The MIT OR Apache-2.0 licensed DICOM anonymization HTTP component at commit e558bba588a8774e0ee68afc13785c0706c1e22d."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.93.0; wasm-tools 1.248.0; Spin Preview 2 reactor adapter at 56b3631440bddd7a75da045d5048ea6ac4521280",
+    "command": "cargo build --release --target wasm32-wasip1 -p dicom-anonymizer-spin; wasm-tools component new target/wasm32-wasip1/release/dicom_anonymizer_spin.wasm --adapt wasi_snapshot_preview1=0.2.0.reactor.wasm --output dicom-anonymizer-p2.wasm; ./scripts/prepare"
+  },
+  "description": "A real DICOM medical-file anonymization service exposed through WASI HTTP Preview 2."
+}

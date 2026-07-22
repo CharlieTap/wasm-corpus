@@ -8,17 +8,12 @@
   },
   "features": [
     "bulk-memory",
-    "mutable-globals",
     "saturated-float-to-int",
     "sign-extensions"
   ],
   "tags": [
     "domain-game",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-saturated-float-to-int",
-    "feature-sign-extensions",
     "size-medium"
   ],
   "imports": [

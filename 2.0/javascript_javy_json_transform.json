@@ -8,8 +8,6 @@
   },
   "features": [
     "bulk-memory",
-    "mutable-globals",
-    "reference-types",
     "saturated-float-to-int",
     "sign-extensions",
     "simd"
@@ -18,12 +16,6 @@
     "domain-parsing",
     "domain-serialization",
     "duration-long",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-saturated-float-to-int",
-    "feature-sign-extensions",
-    "feature-simd",
     "host-wasi-preview1",
     "size-extra-large"
   ],

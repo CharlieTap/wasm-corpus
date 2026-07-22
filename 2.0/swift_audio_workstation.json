@@ -8,16 +8,11 @@
     "path": "swift_audio_workstation.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "saturated-float-to-int"
   ],
   "tags": [
     "domain-audio",
     "duration-medium",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-saturated-float-to-int",
     "size-medium"
   ],
   "imports": [

@@ -11,7 +11,6 @@
     "exception-handling",
     "gc",
     "multi-value",
-    "mutable-globals",
     "reference-types",
     "tail-call",
     "typed-function-references"
@@ -19,14 +18,6 @@
   "tags": [
     "benchmark",
     "duration-medium",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-multi-value",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-tail-call",
-    "feature-typed-function-references",
     "host-wasi-preview1",
     "size-medium"
   ],

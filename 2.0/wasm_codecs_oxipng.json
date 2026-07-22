@@ -8,17 +8,12 @@
     "path": "wasm_codecs_oxipng.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "domain-compression",
     "domain-image-processing",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "size-large"
   ],
   "imports": [

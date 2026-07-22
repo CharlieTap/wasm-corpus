@@ -451,6 +451,15 @@
           "$ref": "#/$defs/invokeStep"
         },
         {
+          "$ref": "#/$defs/commandRunStep"
+        },
+        {
+          "$ref": "#/$defs/componentInvokeStep"
+        },
+        {
+          "$ref": "#/$defs/httpRequestStep"
+        },
+        {
           "$ref": "#/$defs/memoryWriteStep"
         },
         {
@@ -479,10 +488,46 @@
       "properties": {
         "wasi_preview_1": {
           "$ref": "#/$defs/wasiPreview1Host"
+        },
+        "wasi_preview_2": {
+          "$ref": "#/$defs/wasiComponentHost"
+        },
+        "wasi_preview_3": {
+          "$ref": "#/$defs/wasiComponentHost"
         }
       }
     },
     "wasiPreview1Host": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "command_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "system_env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "preopened_directories": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "stdin": {
+          "$ref": "#/$defs/bytes"
+        }
+      }
+    },
+    "wasiComponentHost": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -557,6 +602,176 @@
         "notes": {
           "type": "string"
         }
+      }
+    },
+    "commandRunStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "host_effects"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "command.run"
+        },
+        "host_effects": {
+          "$ref": "#/$defs/hostEffectsAssertion"
+        },
+        "trap": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "componentInvokeStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "function",
+        "params",
+        "results"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "const": "component.invoke"
+        },
+        "function": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/componentValueExpression"
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/componentResultValue"
+          }
+        },
+        "trap": {
+          "type": "string"
+        },
+        "host_effects": {
+          "$ref": "#/$defs/hostEffectsAssertion"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "httpRequestStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "method", "path", "response"],
+      "properties": {
+        "description": { "type": "string" },
+        "type": { "const": "http.request" },
+        "method": { "type": "string", "minLength": 1 },
+        "scheme": { "type": "string", "minLength": 1, "default": "http" },
+        "authority": { "type": "string", "minLength": 1, "default": "localhost" },
+        "path": { "type": "string", "pattern": "^/" },
+        "headers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/httpHeader" },
+          "default": []
+        },
+        "body": { "$ref": "#/$defs/bytes" },
+        "body_chunks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bytes" },
+          "minItems": 1
+        },
+        "outbound": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/httpOutbound" },
+          "default": []
+        },
+        "response": { "$ref": "#/$defs/httpResponseAssertion" },
+        "timeout_ms": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "string" }
+      },
+      "not": { "required": ["body", "body_chunks"] }
+    },
+    "httpHeader": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "value": { "type": "string" }
+      }
+    },
+    "httpOutbound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "url", "response"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "pattern": "^https?://" },
+        "response": { "$ref": "#/$defs/httpStubResponse" }
+      }
+    },
+    "httpStubResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "headers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/httpHeader" },
+          "default": []
+        },
+        "body": { "$ref": "#/$defs/bytes" },
+        "echo_request_body": { "type": "boolean", "default": false }
+      },
+      "not": { "required": ["body", "echo_request_body"] }
+    },
+    "httpResponseAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "headers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/httpHeader" },
+          "default": []
+        },
+        "body": { "$ref": "#/$defs/bytes" },
+        "body_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "body_contains": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bytes" },
+          "default": []
+        },
+        "body_not_contains": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bytes" },
+          "default": []
+        },
+        "body_line_count": { "type": "integer", "minimum": 0 }
       }
     },
     "memoryWriteStep": {
@@ -1054,6 +1269,239 @@
         },
         {
           "$ref": "#/$defs/variableValue"
+        }
+      ]
+    },
+    "componentValueType": {
+      "type": "string",
+      "enum": [
+        "bool",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "s8",
+        "s16",
+        "s32",
+        "s64",
+        "float32",
+        "float64",
+        "char",
+        "string",
+        "list",
+        "record",
+        "tuple",
+        "variant",
+        "enum",
+        "option",
+        "result",
+        "flags",
+        "resource"
+      ]
+    },
+    "componentScalarValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "bool" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": {
+              "enum": ["u8", "u16", "u32", "u64", "s8", "s16", "s32", "s64"]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^-?[0-9]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "enum": ["float32", "float64"] },
+            "value": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "char" },
+            "value": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "string" },
+            "value": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "enum" },
+            "value": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "flags" },
+            "value": {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "componentSequenceValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "enum": ["list", "tuple"] },
+        "value": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentLiteralValue" }
+        }
+      }
+    },
+    "componentRecordValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "const": "record" },
+        "value": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/componentLiteralValue" }
+        }
+      }
+    },
+    "componentVariantValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "case", "value"],
+      "properties": {
+        "type": { "const": "variant" },
+        "case": { "type": "string" },
+        "value": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/componentLiteralValue" }
+          ]
+        }
+      }
+    },
+    "componentOptionValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "const": "option" },
+        "value": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/componentLiteralValue" }
+          ]
+        }
+      }
+    },
+    "componentResultLiteralValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "case", "value"],
+      "properties": {
+        "type": { "const": "result" },
+        "case": { "enum": ["ok", "err"] },
+        "value": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/componentLiteralValue" }
+          ]
+        }
+      }
+    },
+    "componentLiteralValue": {
+      "oneOf": [
+        { "$ref": "#/$defs/componentScalarValue" },
+        { "$ref": "#/$defs/componentSequenceValue" },
+        { "$ref": "#/$defs/componentRecordValue" },
+        { "$ref": "#/$defs/componentVariantValue" },
+        { "$ref": "#/$defs/componentOptionValue" },
+        { "$ref": "#/$defs/componentResultLiteralValue" }
+      ]
+    },
+    "componentVariableValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "var"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/componentValueType"
+        },
+        "var": {
+          "$ref": "#/$defs/variableName"
+        }
+      }
+    },
+    "componentCapturedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "capture"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/componentValueType"
+        },
+        "capture": {
+          "$ref": "#/$defs/variableName"
+        }
+      }
+    },
+    "componentValueExpression": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/componentLiteralValue"
+        },
+        {
+          "$ref": "#/$defs/componentVariableValue"
+        }
+      ]
+    },
+    "componentResultValue": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/componentLiteralValue"
+        },
+        {
+          "$ref": "#/$defs/componentCapturedValue"
         }
       ]
     },

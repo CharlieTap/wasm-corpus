@@ -8,16 +8,11 @@
     "path": "markdown_wasm.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "domain-parsing",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "size-medium"
   ],
   "imports": [

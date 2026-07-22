@@ -6,17 +6,23 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
+const { Binaryen, binaryenArgsForFeatures } = require("../lib/binaryen.ts");
+const { classifyWasm } = require("../lib/classifier.ts");
+const { detectWasiPreview } = require("../lib/wasi-host-detector.ts");
+const { WasmTools } = require("../lib/wasm-tools.ts");
 
 const repoRoot = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const maxWatDisassemblyBytes = Number.parseInt(process.env.WASM_CORPUS_MAX_WAT_DISASSEMBLY_BYTES || `${64 * 1024 * 1024}`, 10);
 const MAX_WASM_BYTES = 250_000_000;
+const wasmTools = new WasmTools();
+const binaryenClient = new Binaryen();
 
 function usage() {
   process.stderr.write(`Usage: ./scripts/validate <path/to/module.wasm> [path/to/another.wasm...]
 
-Validates corpus fixture metadata against the JSON Schema, checks each module
-against ./scripts/classify for version directory and feature metadata, runs
+Validates corpus fixture metadata against the JSON Schema, classifies each
+module for version directory and feature metadata, runs
 canonical tag invariants, runs Binaryen over each wasm file and its sibling wat
 file, then checks that the binary does not shrink suspiciously after
 optimization.
@@ -112,24 +118,9 @@ function filesEqual(left, right) {
 }
 
 function binaryenVersion() {
-  const result = run("wasm-opt", ["--version"]);
-  const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
+  const output = binaryenClient.version();
   const match = output.match(/version\s+([0-9]+)/);
   return match ? match[1] : output;
-}
-
-function runRequired(command, commandArgs, errorMessage) {
-  const result = run(command, commandArgs);
-  if (result.status !== 0) {
-    const output = truncateOutput(`${result.stderr || ""}${result.stdout || ""}`.trim());
-    throw new Error(`${errorMessage}${output ? `\n${output}` : ""}`);
-  }
-  return result;
-}
-
-function truncateOutput(output, limit = 8192) {
-  if (output.length <= limit) return output;
-  return `${output.slice(0, limit)}\n... truncated ${output.length - limit} character(s) ...`;
 }
 
 function loadAllowedTags() {
@@ -162,14 +153,18 @@ function sameStrings(left, right) {
   return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort());
 }
 
-function featureTags(features) {
-  return (features || []).map((feature) => `feature-${feature}`).sort();
-}
-
-function detectedHostTags(imports) {
-  return (imports || []).some((item) => item.module === "wasi_snapshot_preview1")
-    ? ["host-wasi-preview1"]
-    : [];
+function detectedHostTags(wasmPath, imports, classification) {
+  const input = classification.kind === "component"
+    ? {
+        kind: "component",
+        world: wasmTools.componentWorld(wasmPath),
+      }
+    : {
+        kind: "module",
+        imports: imports || [],
+      };
+  const preview = detectWasiPreview(input);
+  return preview === null ? [] : [`host-wasi-${preview}`];
 }
 
 function sizeTag(bytes) {
@@ -183,7 +178,7 @@ function sizeTag(bytes) {
 
 function collectFixtureJsonFiles() {
   const fixtures = [];
-  for (const dir of ["1.0", "2.0", "3.0"]) {
+  for (const dir of ["1.0", "2.0", "3.0", "experimental"]) {
     const absoluteDir = path.join(repoRoot, dir);
     if (!fs.existsSync(absoluteDir)) continue;
 
@@ -239,18 +234,23 @@ function readFixture(wasmPath) {
 }
 
 function classify(wasmPath) {
-  const classifier = path.join(repoRoot, "scripts", "classify");
-  const result = run(process.execPath, [classifier, wasmPath]);
-  if (result.status !== 0) {
-    const output = `${result.stdout || ""}${result.stderr || ""}`.trim();
-    throw new Error(`scripts/classify failed for ${relativeFromRepo(wasmPath)}${output ? `\n${output}` : ""}`);
-  }
+  return classifyWasm(wasmPath, { wasmTools });
+}
 
-  try {
-    return JSON.parse(result.stdout);
-  } catch (error) {
-    throw new Error(`scripts/classify returned invalid JSON for ${relativeFromRepo(wasmPath)}: ${error.message}`);
-  }
+function classifierOutput(classification) {
+  return {
+    version: classification.version,
+    features: [...classification.features].sort(),
+    binaryen_args: binaryenArgsForFeatures(classification.features),
+    evidence: Object.fromEntries(
+      [...classification.evidence.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([feature, item]) => [
+          feature,
+          [`${item.validatorFeature}: ${item.reason}`],
+        ]),
+    ),
+  };
 }
 
 function validateFixtureForWasm(wasmPath, fixturePath, fixture) {
@@ -299,7 +299,7 @@ function requireExactFamily(fixturePath, actual, expected, family) {
   }
 }
 
-function validateFixtureTags(wasmPath, fixturePath, fixture, allowedTags) {
+function validateFixtureTags(wasmPath, fixturePath, fixture, classification, allowedTags) {
   const relativeFixture = relativeFromRepo(fixturePath);
   const tags = fixture.tags || [];
   const unknown = tags.filter((tag) => !allowedTags.has(tag));
@@ -313,17 +313,17 @@ function validateFixtureTags(wasmPath, fixturePath, fixture, allowedTags) {
     throw new Error(`${relativeFixture} may declare at most three domain tags`);
   }
 
-  requireExactFamily(relativeFixture, exactFamily(tags, "feature-"), featureTags(fixture.features), "feature");
-
-  const detectedHosts = detectedHostTags(fixture.imports);
+  const detectedHosts = detectedHostTags(wasmPath, fixture.imports, classification);
   const actualHosts = exactFamily(tags, "host-");
   for (const host of detectedHosts) {
     if (!actualHosts.includes(host)) {
       throw new Error(`${relativeFixture} is missing detected host tag ${host}`);
     }
   }
-  if (actualHosts.includes("host-wasi-preview1") && !detectedHosts.includes("host-wasi-preview1")) {
-    throw new Error(`${relativeFixture} declares host-wasi-preview1 without a wasi_snapshot_preview1 import`);
+  for (const host of actualHosts) {
+    if (host.startsWith("host-wasi-preview") && !detectedHosts.includes(host)) {
+      throw new Error(`${relativeFixture} declares ${host} but it was not detected in the artifact`);
+    }
   }
 
   const expectedSize = sizeTag(fileSize(wasmPath));
@@ -339,55 +339,89 @@ function validateClassifiedVersion(wasmPath, classification) {
   const relativeWasm = relativeFromRepo(wasmPath);
   const versionDir = relativeWasm.split("/")[0];
 
+  if (versionDir === "experimental") {
+    if (classification.kind !== "component") {
+      throw new Error(`${relativeWasm} must be a Component Model artifact to live in experimental/`);
+    }
+    if (classification.version) {
+      throw new Error(`${relativeWasm} classifies as stable core WebAssembly ${classification.version}, not experimental`);
+    }
+    return;
+  }
+
   if (!["1.0", "2.0", "3.0"].includes(versionDir)) {
     throw new Error(`${relativeWasm} must be inside 1.0/, 2.0/, or 3.0/`);
   }
 
   if (!classification.version) {
-    throw new Error(`${relativeWasm} uses features newer than the supported 1.0/2.0/3.0 corpus directories\n       classifier output: ${JSON.stringify(classification)}`);
+    throw new Error(`${relativeWasm} uses features newer than the supported 1.0/2.0/3.0 corpus directories\n       classifier output: ${JSON.stringify(classifierOutput(classification))}`);
   }
 
   if (versionDir !== classification.version) {
-    throw new Error(`${relativeWasm} belongs in ${classification.version}/ based on ./scripts/classify, not ${versionDir}/\n       corpus entries must use the lowest version directory that can represent the module\n       classifier output: ${JSON.stringify(classification)}`);
+    throw new Error(`${relativeWasm} belongs in ${classification.version}/ based on ./scripts/classify, not ${versionDir}/\n       corpus entries must use the lowest version directory that can represent the module\n       classifier output: ${JSON.stringify(classifierOutput(classification))}`);
   }
 }
 
 function validateClassifiedFeatures(wasmPath, fixture, classification) {
   const declared = new Set(fixture.features || []);
-  const missing = (classification.features || []).filter((feature) => !declared.has(feature));
+  const detected = new Set(classification.features || []);
+  const missing = [...detected].filter((feature) => !declared.has(feature));
+  const unexpected = [...declared].filter((feature) => !detected.has(feature));
 
-  if (missing.length > 0) {
-    throw new Error(`${relativeFromRepo(wasmPath)} metadata is missing classifier-detected feature(s): ${missing.join(", ")}\n       declared features: ${(fixture.features || []).join(", ") || "(none)"}\n       classifier output: ${JSON.stringify(classification)}`);
+  if (missing.length > 0 || unexpected.length > 0) {
+    throw new Error(`${relativeFromRepo(wasmPath)} metadata features do not match the classifier${missing.length > 0 ? `\n       missing: ${missing.join(", ")}` : ""}${unexpected.length > 0 ? `\n       unexpected: ${unexpected.join(", ")}` : ""}\n       declared features: ${(fixture.features || []).join(", ") || "(none)"}\n       classifier output: ${JSON.stringify(classifierOutput(classification))}`);
   }
 }
 
-function optimizeWithBinaryen({ wasmPath, workDir, binaryen, binaryenFlags }) {
+function optimizeWithBinaryen({ wasmPath, workDir, binaryenVersion, features }) {
   const stripped = path.join(workDir, "stripped.wasm");
   const optimized = path.join(workDir, "optimized.wasm");
-  stripWasmCustomSections(wasmPath, stripped, `wasm-tools could not strip custom sections from ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
-  runRequired("wasm-opt", [stripped, ...binaryenFlags, "-O1", "-o", optimized], `Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
+  stripWasmCustomSections(wasmPath, stripped);
+  try {
+    binaryenClient.optimize({
+      inputPath: stripped,
+      outputPath: optimized,
+      features,
+      optimizationLevel: "O1",
+    });
+  } catch (error) {
+    throw new Error(`Binaryen could not optimize ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryenVersion}\n       ${error.message}`, { cause: error });
+  }
   return optimized;
 }
 
-function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags, optimized }) {
+function validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryenVersion, features, optimized }) {
   const disassembled = path.join(workDir, "module.wat");
   const watWasm = path.join(workDir, "wat.wasm");
   const watStripped = path.join(workDir, "wat-stripped.wasm");
   const watOptimized = path.join(workDir, "wat-optimized.wasm");
 
-  runRequired("wasm-dis", [optimized, ...binaryenFlags, "-o", disassembled], `Binaryen could not disassemble optimized output for ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}`);
-  runRequired("wasm-tools", ["parse", watPath, "-o", watWasm], `wasm-tools could not assemble sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
-  stripWasmCustomSections(watWasm, watStripped, `wasm-tools could not strip custom sections from sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
-  runRequired("wasm-opt", [watStripped, ...binaryenFlags, "-O1", "-o", watOptimized], `Binaryen could not optimize sibling wat file ${relativeFromRepo(watPath)}\n       Binaryen version used: ${binaryen}`);
+  try {
+    binaryenClient.disassemble({
+      inputPath: optimized,
+      outputPath: disassembled,
+      features,
+    });
+    wasmTools.parse(watPath, watWasm);
+    stripWasmCustomSections(watWasm, watStripped);
+    binaryenClient.optimize({
+      inputPath: watStripped,
+      outputPath: watOptimized,
+      features,
+      optimizationLevel: "O1",
+    });
+  } catch (error) {
+    throw new Error(`could not verify the Binaryen roundtrip for ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryenVersion}\n       ${error.message}`, { cause: error });
+  }
 
   if (!filesEqual(optimized, watOptimized)) {
-    throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
+    throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to the same optimized module as ${relativeFromRepo(wasmPath)}\n       Binaryen version used: ${binaryenVersion}\n       ${prepareAdvice(wasmPath)} to refresh both files`);
   }
 
 }
 
-function stripWasmCustomSections(input, output, message) {
-  runRequired("wasm-tools", ["strip", "--all", input, "-o", output], message);
+function stripWasmCustomSections(input, output) {
+  wasmTools.stripCustomSections(input, output);
 }
 
 function validateShrinkage(wasmPath, optimizedPath, binaryen) {
@@ -430,7 +464,25 @@ function validateWatReadability(watPath) {
   }
 }
 
-function validateOne(wasmPath, workDir, binaryen, allowedTags) {
+function validateComponent({ wasmPath, watPath, workDir }) {
+  const validation = wasmTools.validate(wasmPath, "all");
+  if (!validation.valid) {
+    throw new Error(`wasm-tools could not validate component ${relativeFromRepo(wasmPath)}${validation.diagnostic ? `\n       ${validation.diagnostic}` : ""}`);
+  }
+
+  if (!watPath) return;
+  const watWasm = path.join(workDir, "component-from-wat.wasm");
+  const strippedWasm = path.join(workDir, "component-stripped.wasm");
+  const strippedWatWasm = path.join(workDir, "component-from-wat-stripped.wasm");
+  wasmTools.parse(watPath, watWasm);
+  stripWasmCustomSections(wasmPath, strippedWasm);
+  stripWasmCustomSections(watWasm, strippedWatWasm);
+  if (!filesEqual(strippedWasm, strippedWatWasm)) {
+    throw new Error(`${relativeFromRepo(watPath)} does not roundtrip to ${relativeFromRepo(wasmPath)}`);
+  }
+}
+
+function validateOne(wasmPath, workDir, binaryenVersion, allowedTags) {
   if (!wasmPath.endsWith(".wasm")) {
     throw new Error(`expected a .wasm file, got: ${wasmPath}`);
   }
@@ -441,34 +493,56 @@ function validateOne(wasmPath, workDir, binaryen, allowedTags) {
 
   const { path: fixturePath, value: fixture } = readFixture(wasmPath);
   validateFixtureForWasm(wasmPath, fixturePath, fixture);
-  validateFixtureTags(wasmPath, fixturePath, fixture, allowedTags);
 
   const classification = classify(wasmPath);
+  validateFixtureTags(wasmPath, fixturePath, fixture, classification, allowedTags);
   validateClassifiedVersion(wasmPath, classification);
   validateClassifiedFeatures(wasmPath, fixture, classification);
 
-  const binaryenFlags = classification.binaryen_args || [];
-  const optimized = optimizeWithBinaryen({ wasmPath, workDir, binaryen, binaryenFlags });
   const watPath = fixture.wat.status === "present"
     ? path.join(path.dirname(wasmPath), fixture.wat.path)
     : null;
 
   if (fixture.wat.status === "present") {
     if (!fs.existsSync(watPath)) {
-      throw new Error(`missing matching wat file: ${watPath}\n       Binaryen version used: ${binaryen}\n       ${prepareAdvice(wasmPath)} to generate it`);
+      throw new Error(`missing matching wat file: ${watPath}\n       Binaryen version used: ${binaryenVersion}\n       ${prepareAdvice(wasmPath)} to generate it`);
     }
     validateWatReadability(watPath);
-    validateBinaryenRoundtrip({ wasmPath, watPath, workDir, binaryen, binaryenFlags, optimized });
   } else {
     const siblingWat = wasmPath.replace(/\.wasm$/, ".wat");
     if (fs.existsSync(siblingWat)) {
       throw new Error(`${relativeFromRepo(siblingWat)} exists but ${relativeFromRepo(fixturePath)} marks WAT as too_large_for_corpus`);
     }
   }
-  const shrinkage = validateShrinkage(wasmPath, optimized, binaryen);
+
+  if (classification.kind === "component") {
+    validateComponent({ wasmPath, watPath, workDir });
+    process.stdout.write(
+      `Validated ${relativeFromRepo(wasmPath)} with wasm-tools (${classification.features.size} feature(s); ${fileSize(wasmPath)} bytes)\n`,
+    );
+    return;
+  }
+
+  const optimized = optimizeWithBinaryen({
+    wasmPath,
+    workDir,
+    binaryenVersion,
+    features: classification.features,
+  });
+  if (watPath) {
+    validateBinaryenRoundtrip({
+      wasmPath,
+      watPath,
+      workDir,
+      binaryenVersion,
+      features: classification.features,
+      optimized,
+    });
+  }
+  const shrinkage = validateShrinkage(wasmPath, optimized, binaryenVersion);
 
   process.stdout.write(
-    `Validated ${relativeFromRepo(wasmPath)} with Binaryen ${binaryen} and classifier ${classification.version} (${classification.features.length} feature(s); optimized size ${shrinkage.optimizedSize} bytes, reduction ${shrinkage.reductionBytes} bytes / ${shrinkage.reductionPercent}%)\n`,
+    `Validated ${relativeFromRepo(wasmPath)} with Binaryen ${binaryenVersion} and classifier ${classification.version} (${classification.features.size} feature(s); optimized size ${shrinkage.optimizedSize} bytes, reduction ${shrinkage.reductionBytes} bytes / ${shrinkage.reductionPercent}%)\n`,
   );
 }
 
@@ -477,14 +551,13 @@ if (args.length < 1) {
   process.exit(1);
 }
 
-const missing = ["wasm-opt", "wasm-dis", "wasm-as", "wasm-tools", "npx", "node"].filter(
+const missing = ["npx"].filter(
   (command) => !commandExists(command),
 );
 
 if (missing.length > 0) {
-  warn("Binaryen, wasm-tools, Node.js, and npx are required to validate corpus binaries.");
+  warn("npx is required to validate corpus metadata.");
   warn(`Missing command(s): ${missing.join(" ")}`);
-  warn("Install Binaryen and wasm-tools, then rerun this script. On macOS: brew install binaryen wasm-tools");
   process.exit(1);
 }
 
@@ -497,7 +570,13 @@ try {
   fail(error.message);
 }
 
-const binaryen = binaryenVersion();
+let binaryen;
+try {
+  wasmTools.version();
+  binaryen = binaryenVersion();
+} catch (error) {
+  fail(error instanceof Error ? error.message : String(error));
+}
 const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-validate."));
 let status = 0;
 

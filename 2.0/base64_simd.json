@@ -9,8 +9,6 @@
   },
   "features": [
     "bulk-memory",
-    "mutable-globals",
-    "reference-types",
     "simd"
   ],
   "exports": [
@@ -62,10 +60,6 @@
   ],
   "tags": [
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-simd",
     "size-medium"
   ],
   "sha256": "2b3ca4fbf7ab8de532d9babd9c9eb55cf0fdcadd2226f9fc7932ad81e64b0b18",
