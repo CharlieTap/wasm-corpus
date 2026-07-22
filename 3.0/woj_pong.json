@@ -7,9 +7,8 @@
     "path": "woj_pong.wat"
   },
   "features": [
-    "exception-handling",
+    "bulk-memory",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -3157,11 +3156,6 @@
   "tags": [
     "domain-game",
     "duration-short",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-medium"
   ],
   "notes": "Tests initialize the Pong state and drive actual game ticks. They assert paddle input movement, clamp behavior, ball position integration, bottom-wall bounce, right-paddle collision, and unchanged score counters."

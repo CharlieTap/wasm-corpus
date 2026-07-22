@@ -9,7 +9,6 @@
   "description": "Synthetic Wasm GC stress fixture with varied struct and array allocation, mutable field writes, field reads, fixed ref arrays, i32/i64 element traffic, large allocation bursts, and deliberate live-set turnover.",
   "features": [
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -64,10 +63,6 @@
   "tags": [
     "benchmark",
     "duration-extra-long",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-small",
     "stress-test"
   ],

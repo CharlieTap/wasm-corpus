@@ -8,16 +8,11 @@
     "path": "snappy_wasm.wat"
   },
   "features": [
-    "mutable-globals",
-    "reference-types",
     "sign-extensions"
   ],
   "tags": [
     "domain-compression",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
     "size-medium"
   ],
   "imports": [

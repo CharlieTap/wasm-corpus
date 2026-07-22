@@ -13,9 +13,12 @@ wasm-opt --version
 wasm-dis --version
 wasm-as --version
 wasm-tools --version
+cargo --version
 ```
 
-Use Node.js 24 or newer when validating and executing the corpus. WebAssembly 3.0 fixtures can use features such as Wasm GC that are not accepted by the Node 20 runtime shipped as the default on some GitHub-hosted runner images. Use Binaryen 125 or newer so `wasm-opt` can parse final Wasm GC opcodes.
+Use Node.js 24 or newer and Binaryen 125 or newer. Experimental components
+also require wasm-tools 1.248.0 and Rust 1.94.0 or newer to build the Wasmtime
+runner.
 
 On macOS:
 
@@ -28,7 +31,7 @@ brew install binaryen wasm-tools
 1. Place one or more candidate `.wasm` or `.wat` files directly in `stage/`
 2. Run `./scripts/prepare`
 3. Edit the generated JSON metadata
-4. Run the fixture with Node 24, complete representative tests, and assign its duration tag using [tagging.md](tagging.md)
+4. Run the fixture with `./scripts/execute`, complete representative tests, and assign its duration tag using [tagging.md](tagging.md)
 5. Run the `validate` step printed by `prepare`
 6. Commit the prepared `.wasm`, `.json`, and `.wat` when a WAT was generated
 
@@ -42,7 +45,11 @@ cp /tmp/gcd.wasm stage/gcd.wasm
 ./scripts/execute 1.0/gcd.wasm
 ```
 
-`prepare` scans every `.wasm` or `.wat` file directly inside `stage/`. For staged WAT, it first compiles the text format to a temporary binary. It then classifies the module, applies the required Binaryen flags, writes the optimized `.wasm`, matching `.json`, and a readable `.wat` when it fits into the inferred `1.0/`, `2.0/`, or `3.0/` directory, then removes the staged source file. The committed `.wat` is generated with `wasm-tools print` for readability. If that readable WAT disassembly is larger than 64 MiB, `prepare` records `wat.status: "too_large_for_corpus"` in the JSON and skips committing a misleading text stand-in. If `stage/` is empty, `prepare` exits successfully with a no-op message.
+`prepare` scans every `.wasm` or `.wat` file directly inside `stage/`. Core
+modules go to the inferred `1.0/`, `2.0/`, or `3.0/` directory and are prepared
+with Binaryen. Components go to `experimental/` and are normalized with
+wasm-tools. Both paths generate metadata and readable WAT when it is at most
+64 MiB. If `stage/` is empty, `prepare` exits successfully.
 
 Stage only one source file per basename. For example, use either `stage/gcd.wasm` or `stage/gcd.wat`, not both, because both prepare to the same `gcd.wasm`, `gcd.json`, and possibly `gcd.wat` outputs.
 
@@ -55,7 +62,7 @@ Stage only one source file per basename. For example, use either `stage/gcd.wasm
 - `path`
 - `wat`
 - `features`
-- generated `feature-*`, statically detectable `host-*`, and `size-*` tags
+- statically detectable `host-*` and generated `size-*` tags
 - `imports[].module`
 - `imports[].name`
 - `imports[].kind`
@@ -83,7 +90,7 @@ You must complete the human-judgement fields before submitting:
 
 Do not commit placeholder values such as `TODO`, `<sha256>`, or missing tests.
 
-`scripts/tags.json` is the enforced tag registry and [tagging.md](tagging.md) is the operational authority for choosing tags. Tooling derives feature, statically detectable host, and size facets from information it can verify. Contributors assign the duration, domain, and special-role tags using the guide. Record the normalized primary language in `source.language`, run the completed tests with Node 24, and classify the observed duration without committing raw timing data.
+`scripts/tags.json` is the enforced tag registry and [tagging.md](tagging.md) is the operational authority for choosing tags. Tooling derives feature, statically detectable host, and size facets from information it can verify. Contributors assign the duration, domain, and special-role tags using the guide. Record the normalized primary language in `source.language`, run the completed tests with `./scripts/execute`, and classify the observed duration without committing raw timing data.
 
 ## Tests
 
@@ -139,6 +146,9 @@ Each test runs a sequence of steps against one module instance. Tests use a fres
 Supported steps:
 
 - `function.invoke`: call an exported function by `function` name with typed `params`; use `results` to assert or capture result values, or `trap` to assert a trap message. `params` and `results` are required on every invoke step; use empty arrays when there are no parameters or results. When a host-profile command module exports `_start`, invoke `_start` with empty Wasm params/results and use `host_effects` for effects such as `proc_exit`, stdout, and stderr.
+- `command.run`: run the declared WASI command entry point and check its host effects.
+- `component.invoke`: call a typed component export with recursive WIT values.
+- `http.request`: send an incoming request to a WASI Preview 2 or Preview 3 HTTP component and assert its response. Use `body_chunks` to preserve streaming boundaries and `outbound` to declare deterministic replies for guest HTTP requests; undeclared network access is denied.
 - `memory.write`: write `hex`, `base64`, `utf8`, or a little-endian numeric `value` into an exported memory or an imported memory addressed as `module.name`, such as `env.memory`.
 - `memory.grow`: grow an exported memory or an imported memory addressed as `module.name` by `pages` WebAssembly pages. Use this when the module's host contract expects the embedder to pre-size memory before writing inputs or reading fixed output buffers. The optional `assert` checks the previous page count as an `i32` value, and `capture` stores the previous page count for later numeric fields.
 - `memory.read`: read bytes or a little-endian numeric value from an exported memory or an imported memory addressed as `module.name`; use `assert` to check the read value or `capture` to store it for later steps. `length` can be omitted for byte assertions when it should equal the asserted byte length, and for numeric values because their type implies the byte width.
@@ -186,7 +196,10 @@ For modules that import `wasi_snapshot_preview1`, declare a test-level `host.was
 }
 ```
 
-`host.wasi_preview_1` support is intentionally limited to the `wasi_snapshot_preview1` import module. It does not cover WASI Preview 2, the component model, WASIX, browser JavaScript glue, or arbitrary host APIs.
+Components declare `host.wasi_preview_2` or `host.wasi_preview_3` and use the
+same portable arguments, environment, preopen, and stdin fields. They run from
+`experimental/` through `command.run`, `component.invoke`, or `http.request`.
+WASIX, browser JavaScript glue, and arbitrary host APIs remain unsupported.
 
 `function.invoke` steps can capture result values for later steps:
 
@@ -349,7 +362,7 @@ Function import stubs can also capture simple callback output when that is the b
 
 ## Values
 
-Value entries are constrained to types the Node smoke-test runner can represent:
+Core value entries are constrained to types the Node runner can represent:
 
 - `i32`
 - `i64`

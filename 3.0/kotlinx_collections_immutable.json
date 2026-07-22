@@ -10,18 +10,11 @@
     "bulk-memory",
     "exception-handling",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
   "tags": [
     "duration-short",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "host-wasi-preview1",
     "size-medium"
   ],

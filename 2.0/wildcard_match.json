@@ -7,8 +7,7 @@
     "path": "wildcard_match.wat"
   },
   "features": [
-    "bulk-memory",
-    "mutable-globals"
+    "bulk-memory"
   ],
   "exports": [
     {
@@ -172,8 +171,6 @@
     "domain-dynamic-programming",
     "domain-string-processing",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
     "size-small"
   ],
   "notes": "Bounded-general fixture: Glob-style wildcard matcher with literal, question-mark, and star states. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."

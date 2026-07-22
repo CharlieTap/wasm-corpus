@@ -8,14 +8,11 @@
     "path": "qoi_wasm.wat"
   },
   "features": [
-    "multi-value",
-    "mutable-globals"
+    "multi-value"
   ],
   "tags": [
     "domain-image-processing",
     "duration-short",
-    "feature-multi-value",
-    "feature-mutable-globals",
     "size-small"
   ],
   "imports": [

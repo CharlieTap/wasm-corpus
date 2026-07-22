@@ -93,9 +93,6 @@
   "description": "Bob Scheme binary-tree set fixture exercising list-backed tree construction, recursive insert/search, and left/right branch traversal.",
   "tags": [
     "duration-short",
-    "feature-gc",
-    "feature-reference-types",
-    "feature-tail-call",
     "size-small"
   ],
   "notes": "Bob is a real Scheme implementation whose WasmCompiler lowers Scheme expressions to core WebAssembly with GC-backed pairs, booleans, symbols, closures, environments, and function tables. The fixture asserts the program transcript through imported host print callbacks rather than a JavaScript launcher."

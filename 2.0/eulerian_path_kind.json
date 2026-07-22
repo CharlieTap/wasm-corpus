@@ -7,8 +7,7 @@
     "path": "eulerian_path_kind.wat"
   },
   "features": [
-    "bulk-memory",
-    "mutable-globals"
+    "bulk-memory"
   ],
   "exports": [
     {
@@ -139,8 +138,6 @@
   "tags": [
     "domain-graph",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
     "size-small"
   ],
   "notes": "Bounded-general fixture: Eulerian trail/circuit classifier using degree parity and disjoint-set connectivity. Tests cover 4 cases across base, branch, and edge conditions so reviewers can spot constant-return stubs."

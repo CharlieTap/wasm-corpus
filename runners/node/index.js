@@ -1,0 +1,1118 @@
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+const { spawnSync } = require("child_process");
+const { performance } = require("perf_hooks");
+const v8 = require("node:v8");
+
+v8.setFlagsFromString("--experimental-wasm-exnref");
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function toPosixPath(file) {
+  return file.split(path.sep).join("/");
+}
+
+function readJson(file) {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function createTimings() {
+  return {
+    compile: 0,
+    instantiate: 0,
+    execute: 0,
+  };
+}
+
+function formatMs(value) {
+  return value.toFixed(3);
+}
+
+function fixtureName(entry, wasmPath) {
+  return entry.name || path.parse(wasmPath).name;
+}
+
+function fixtureMetadataPath(wasmPath) {
+  const parsed = path.parse(wasmPath);
+  return path.join(parsed.dir, `${parsed.name}.json`);
+}
+
+function findFixtureEntry(wasmPath) {
+  const fixturePath = fixtureMetadataPath(wasmPath);
+  if (!fs.existsSync(fixturePath)) {
+    fail(`could not find fixture metadata ${fixturePath} for ${wasmPath}`);
+  }
+
+  const entry = readJson(fixturePath);
+  const fixtureDir = path.dirname(fixturePath);
+  const relativeWasm = toPosixPath(path.relative(fixtureDir, wasmPath));
+
+  if (entry.path !== relativeWasm) {
+    fail(`fixture metadata path mismatch for ${wasmPath}: expected ${relativeWasm}, got ${entry.path}`);
+  }
+
+  return { fixturePath, fixtureDir, entry };
+}
+
+function intFromString(value, bits) {
+  return BigInt.asIntN(bits, BigInt(value ?? 0));
+}
+
+function uintFromString(value, bits) {
+  return BigInt.asUintN(bits, BigInt(value ?? 0));
+}
+
+function f32FromBits(value) {
+  const buffer = new ArrayBuffer(4);
+  const view = new DataView(buffer);
+  view.setUint32(0, Number(uintFromString(value, 32)), true);
+  return view.getFloat32(0, true);
+}
+
+function f64FromBits(value) {
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  view.setBigUint64(0, uintFromString(value, 64), true);
+  return view.getFloat64(0, true);
+}
+
+function f32Bits(value) {
+  const buffer = new ArrayBuffer(4);
+  const view = new DataView(buffer);
+  view.setFloat32(0, value, true);
+  return BigInt(view.getUint32(0, true));
+}
+
+function f64Bits(value) {
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  view.setFloat64(0, value, true);
+  return view.getBigUint64(0, true);
+}
+
+function resolveVariable(vars, name, context) {
+  if (!vars.has(name)) {
+    fail(`${context}: unknown variable ${name}`);
+  }
+  return vars.get(name);
+}
+
+function decodeValue(value, vars = new Map(), context = "value") {
+  if (value && typeof value.var === "string") {
+    return resolveVariable(vars, value.var, context);
+  }
+
+  switch (value.type) {
+    case "i32":
+      return Number(intFromString(value.value, 32));
+    case "i64":
+      return intFromString(value.value, 64);
+    case "f32":
+      return f32FromBits(value.value);
+    case "f64":
+      return f64FromBits(value.value);
+    case "externref":
+    case "funcref":
+      if (value.value === null) return null;
+      fail(`only null ${value.type} values are supported`);
+    default:
+      fail(`unsupported value type: ${value.type}`);
+  }
+}
+
+function integerField(value, vars, fieldName) {
+  const resolved = value && typeof value.var === "string" ? resolveVariable(vars, value.var, fieldName) : value;
+  if (typeof resolved === "bigint") {
+    if (resolved < 0n || resolved > BigInt(Number.MAX_SAFE_INTEGER)) {
+      fail(`${fieldName} must resolve to a safe non-negative integer`);
+    }
+    return Number(resolved);
+  }
+  if (!Number.isInteger(resolved) || resolved < 0) {
+    fail(`${fieldName} must be a non-negative integer`);
+  }
+  return resolved;
+}
+
+function decodeBytes(bytes, context) {
+  if (!bytes || typeof bytes !== "object") {
+    fail(`${context}: bytes must be an object`);
+  }
+
+  const encoding = bytes.encoding || "hex";
+  const value = bytes.value;
+  if (typeof value !== "string") {
+    fail(`${context}: bytes.value must be a string`);
+  }
+
+  switch (encoding) {
+    case "hex": {
+      const normalized = value.replace(/\s+/g, "");
+      if (normalized.length % 2 !== 0 || /[^0-9a-f]/i.test(normalized)) {
+        fail(`${context}: bytes.value is not valid hex`);
+      }
+      return Buffer.from(normalized, "hex");
+    }
+    case "base64":
+      return Buffer.from(value, "base64");
+    case "utf8":
+      return Buffer.from(value, "utf8");
+    default:
+      fail(`${context}: unsupported byte encoding ${encoding}`);
+  }
+}
+
+function numericValueSize(type) {
+  switch (type) {
+    case "i32":
+    case "f32":
+      return 4;
+    case "i64":
+    case "f64":
+      return 8;
+    default:
+      fail(`unsupported numeric memory value type: ${type}`);
+  }
+}
+
+function writeNumericValue(view, offset, value, vars, context) {
+  switch (value.type) {
+    case "i32":
+      view.setInt32(offset, decodeValue(value, vars, context), true);
+      return;
+    case "i64":
+      view.setBigInt64(offset, decodeValue(value, vars, context), true);
+      return;
+    case "f32":
+      view.setFloat32(offset, decodeValue(value, vars, context), true);
+      return;
+    case "f64":
+      view.setFloat64(offset, decodeValue(value, vars, context), true);
+      return;
+    default:
+      fail(`${context}: unsupported numeric memory value type ${value.type}`);
+  }
+}
+
+function readNumericValue(view, offset, type, context) {
+  switch (type) {
+    case "i32":
+      return view.getInt32(offset, true);
+    case "i64":
+      return view.getBigInt64(offset, true);
+    case "f32":
+      return view.getFloat32(offset, true);
+    case "f64":
+      return view.getFloat64(offset, true);
+    default:
+      fail(`${context}: unsupported numeric memory value type ${type}`);
+  }
+}
+
+function expectedValueLabel(value) {
+  return `${value.type}:${value.value == null ? "null" : JSON.stringify(value.value)}`;
+}
+
+function assertActualMatchesValue(actual, expected, context) {
+  if (!Object.hasOwn(expected, "value")) {
+    switch (expected.type) {
+      case "i32":
+        if (Number.isInteger(Number(actual))) return;
+        break;
+      case "i64":
+        if (typeof actual === "bigint") return;
+        break;
+      case "f32":
+      case "f64":
+        if (typeof actual === "number") return;
+        break;
+      case "externref":
+      case "funcref":
+        return;
+      default:
+        break;
+    }
+    fail(`${context}: expected ${expected.type}, got ${actual}`);
+  }
+
+  switch (expected.type) {
+    case "i32": {
+      const actualInt = BigInt.asIntN(32, BigInt(Number(actual)));
+      const expectedInt = intFromString(expected.value, 32);
+      if (actualInt !== expectedInt) {
+        fail(`${context}: expected i32 ${expectedInt}, got ${actual}`);
+      }
+      return;
+    }
+    case "i64": {
+      if (typeof actual !== "bigint") {
+        fail(`${context}: expected i64 BigInt, got ${typeof actual}`);
+      }
+      const expectedInt = intFromString(expected.value, 64);
+      if (BigInt.asIntN(64, actual) !== expectedInt) {
+        fail(`${context}: expected i64 ${expectedInt}, got ${actual}`);
+      }
+      return;
+    }
+    case "f32": {
+      const expectedBits = uintFromString(expected.value, 32);
+      const actualBits = f32Bits(Number(actual));
+      if (actualBits !== expectedBits) {
+        fail(`${context}: expected f32 bits ${expectedBits}, got bits ${actualBits}`);
+      }
+      return;
+    }
+    case "f64": {
+      const expectedBits = uintFromString(expected.value, 64);
+      const actualBits = f64Bits(Number(actual));
+      if (actualBits !== expectedBits) {
+        fail(`${context}: expected f64 bits ${expectedBits}, got bits ${actualBits}`);
+      }
+      return;
+    }
+    case "externref":
+    case "funcref":
+      if (actual !== null) {
+        fail(`${context}: expected ${expectedValueLabel(expected)}, got ${actual}`);
+      }
+      return;
+    default:
+      fail(`${context}: unsupported expected value type ${expected.type}`);
+  }
+}
+
+function assertActualMatchesReference(actual, expected, context) {
+  switch (expected.type) {
+    case "externref":
+    case "funcref":
+      if (expected.value === null && actual === null) return;
+      fail(`${context}: only null ${expected.type} values are supported`);
+    default:
+      assertActualMatchesValue(actual, expected, context);
+  }
+}
+
+function normalizeResults(result, expectedCount) {
+  if (expectedCount === 0) {
+    if (result === undefined) return [];
+    if (Array.isArray(result)) return result;
+    return [result];
+  }
+  if (expectedCount === 1) return [result];
+  if (!Array.isArray(result)) {
+    fail(`expected ${expectedCount} result values, got a single value`);
+  }
+  return result;
+}
+
+function buildFunctionStub(importEntry, importCaptures) {
+  const stub = importEntry.stub || {};
+  const expectedArgs = stub.params || stub.args || [];
+  const returnValues = stub.returns || [];
+  const capture = stub.capture || null;
+
+  if (capture) {
+    const existing = importCaptures.get(capture.name);
+    if (existing) {
+      existing.maxCalls = Math.max(existing.maxCalls, capture.max_calls || Infinity);
+    } else {
+      importCaptures.set(capture.name, {
+        text: "",
+        calls: 0,
+        maxCalls: capture.max_calls || Infinity,
+      });
+    }
+  }
+
+  return (...actualArgs) => {
+    if (expectedArgs.length > 0) {
+      if (actualArgs.length !== expectedArgs.length) {
+        fail(
+          `import ${importEntry.module}.${importEntry.name}: expected ${expectedArgs.length} args, got ${actualArgs.length}`,
+        );
+      }
+
+      expectedArgs.forEach((expected, index) => {
+        assertActualMatchesValue(actualArgs[index], expected, `import ${importEntry.module}.${importEntry.name} arg ${index}`);
+      });
+    }
+
+    if (capture) {
+      const target = importCaptures.get(capture.name);
+      if (target.calls < target.maxCalls) {
+        const param = capture.param || 0;
+        const value = actualArgs[param];
+        if (value == null) {
+          fail(`import ${importEntry.module}.${importEntry.name}: capture param ${param} is missing`);
+        }
+        const format = capture.format || capture.encoding || "utf16_code_unit";
+        switch (format) {
+          case "utf16_code_unit":
+            target.text += String.fromCharCode(Number(value) & 0xffff);
+            break;
+          case "unicode_code_point":
+            target.text += String.fromCodePoint(Number(value));
+            break;
+          case "decimal_i32":
+            target.text += String(BigInt.asIntN(32, BigInt(Number(value))));
+            break;
+          default:
+            fail(`import ${importEntry.module}.${importEntry.name}: unsupported capture format ${format}`);
+        }
+      }
+      target.calls += 1;
+    }
+
+    if (stub.trap) {
+      throw new Error(stub.trap);
+    }
+
+    const decoded = returnValues.map(decodeValue);
+    if (decoded.length === 0) return undefined;
+    if (decoded.length === 1) return decoded[0];
+    return decoded;
+  };
+}
+
+function buildGlobalStub(importEntry) {
+  const stub = importEntry.stub;
+  if (!stub || !stub.value) {
+    fail(`global import ${importEntry.module}.${importEntry.name} requires stub.value`);
+  }
+
+  return new WebAssembly.Global(
+    {
+      value: stub.value.type === "funcref" ? "anyfunc" : stub.value.type,
+      mutable: Boolean(stub.mutable),
+    },
+    decodeValue(stub.value),
+  );
+}
+
+function parseMemoryType(type) {
+  const match = /^\(memory\s+(\d+)(?:\s+(\d+))?\)$/.exec(type || "");
+  if (!match) {
+    fail(`memory import requires a parseable type such as (memory 1) or (memory 1 2), got ${type || "unknown"}`);
+  }
+  const descriptor = { initial: Number(match[1]) };
+  if (match[2] != null) descriptor.maximum = Number(match[2]);
+  return descriptor;
+}
+
+function importKey(importEntry) {
+  return `${importEntry.module}.${importEntry.name}`;
+}
+
+function isWasiPreview1Import(importEntry) {
+  return importEntry.module === "wasi_snapshot_preview1";
+}
+
+function buildImports(entry, wasiImport = null) {
+  const imports = {};
+  const memories = new Map();
+  const importCaptures = new Map();
+
+  for (const importEntry of entry.imports || []) {
+    imports[importEntry.module] ||= {};
+
+    switch (importEntry.kind) {
+      case "function":
+        if (wasiImport && isWasiPreview1Import(importEntry)) {
+          const hostFunction = wasiImport[importEntry.name];
+          if (typeof hostFunction !== "function") {
+            fail(`WASI Preview 1 import ${importEntry.name} is not provided by the host`);
+          }
+          imports[importEntry.module][importEntry.name] = hostFunction;
+        } else {
+          imports[importEntry.module][importEntry.name] = buildFunctionStub(importEntry, importCaptures);
+        }
+        break;
+      case "global":
+        imports[importEntry.module][importEntry.name] = buildGlobalStub(importEntry);
+        break;
+      case "memory":
+        imports[importEntry.module][importEntry.name] = new WebAssembly.Memory(parseMemoryType(importEntry.type));
+        memories.set(importKey(importEntry), imports[importEntry.module][importEntry.name]);
+        break;
+      case "table":
+      case "tag":
+        fail(
+          `${importEntry.kind} import ${importEntry.module}.${importEntry.name} cannot be auto-stubbed by the Node runner`,
+        );
+        break;
+      default:
+        fail(`unsupported import kind: ${importEntry.kind}`);
+    }
+  }
+
+  return { imports, memories, importCaptures };
+}
+
+function usesWasiPreview1(module) {
+  return WebAssembly.Module.imports(module).some((importEntry) => isWasiPreview1Import(importEntry));
+}
+
+function usesWasiPreview1Host(test) {
+  return Boolean(test?.host?.wasi_preview_1);
+}
+
+function isWasiPreview1CommandTest(test) {
+  return usesWasiPreview1Host(test) && (test.steps || []).some((step) => step.type === "function.invoke" && step.function === "_start");
+}
+
+function wasiInitializationInstance(instance, memories) {
+  if (instance.exports.memory instanceof WebAssembly.Memory) {
+    return instance;
+  }
+
+  for (const memory of memories.values()) {
+    return {
+      exports: {
+        ...instance.exports,
+        memory,
+      },
+    };
+  }
+
+  return instance;
+}
+
+async function instantiate(wasmPath, entry, test, timings = null) {
+  // Node/V8 does not expose validation as a separate paid-for phase here:
+  // constructing a Module decodes, validates, and compiles or throws.
+  const compileStart = performance.now();
+  let module;
+  try {
+    const bytes = fs.readFileSync(wasmPath);
+    module = new WebAssembly.Module(bytes);
+  } finally {
+    if (timings) timings.compile += performance.now() - compileStart;
+  }
+
+  const instantiateStart = performance.now();
+  try {
+    const host = test?.host || {};
+
+    if (usesWasiPreview1(module) && isWasiPreview1CommandTest(test)) {
+      return {
+        instance: null,
+        host,
+        wasmPath,
+        memories: new Map(),
+      };
+    }
+
+    let wasi = null;
+    if (usesWasiPreview1(module) && usesWasiPreview1Host(test)) {
+      const wasiInput = host.wasi_preview_1 || {};
+      wasi = new (require("node:wasi").WASI)({
+        version: "preview1",
+        args: wasiInput.command_args || [],
+        env: wasiInput.system_env || {},
+        preopens: wasiInput.preopened_directories || {},
+        returnOnExit: true,
+      });
+    }
+
+    const { imports, memories, importCaptures } = buildImports(entry, wasi?.wasiImport);
+    const instance = await WebAssembly.instantiate(module, imports);
+    if (wasi) {
+      wasi.initialize(wasiInitializationInstance(instance, memories));
+    }
+    return {
+      instance,
+      host,
+      wasmPath,
+      memories,
+      importCaptures,
+      wasi,
+    };
+  } finally {
+    if (timings) timings.instantiate += performance.now() - instantiateStart;
+  }
+}
+
+function testList(entry) {
+  return entry.tests || [];
+}
+
+function assertResultValues(actualResults, expectedValues, context) {
+  if (actualResults.length !== expectedValues.length) {
+    fail(`${context}: expected ${expectedValues.length} result values, got ${actualResults.length}`);
+  }
+
+  expectedValues.forEach((expectedValue, index) => {
+    assertActualMatchesValue(actualResults[index], expectedValue, `${context} result ${index}`);
+  });
+}
+
+function assertCapturedBytes(actual, assertion, context) {
+  if (!assertion) return;
+  if (assertion.type !== "bytes") {
+    fail(`${context}: expected bytes assertion`);
+  }
+
+  const expected = decodeBytes(assertion.bytes, context);
+  if (actual.length !== expected.length || !actual.equals(expected)) {
+    fail(`${context}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+  }
+}
+
+function decodeImportCaptureAssertion(assertion, context) {
+  if (typeof assertion.text === "string") {
+    return Buffer.from(assertion.text, "utf8");
+  }
+  if (assertion.bytes) {
+    return decodeBytes(assertion.bytes.bytes, context);
+  }
+  fail(`${context}: expected text or bytes assertion`);
+}
+
+function assertImportCaptures(importCaptures, assertions, context) {
+  if (!assertions) return;
+  if (!importCaptures) {
+    fail(`${context}: import captures are only available for direct host import stubs`);
+  }
+
+  for (const assertion of assertions) {
+    const capture = importCaptures.get(assertion.name);
+    if (!capture) {
+      fail(`${context}: missing import capture ${assertion.name}`);
+    }
+    const actual = Buffer.from(capture.text, "utf8");
+    const expected = decodeImportCaptureAssertion(assertion, `${context}:import capture ${assertion.name}`);
+    if (actual.length !== expected.length || !actual.equals(expected)) {
+      fail(`${context}:import capture ${assertion.name}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+    }
+  }
+}
+
+function assertHostEffects(result, assertion, context, runtime = null) {
+  if (!assertion) return;
+  if (Object.hasOwn(assertion, "exit_code") && result.exitCode !== assertion.exit_code) {
+    fail(`${context}: expected host exit code ${assertion.exit_code}, got ${result.exitCode}`);
+  }
+  assertCapturedBytes(result.stdout, assertion.stdout, `${context}:stdout`);
+  assertCapturedBytes(result.stderr, assertion.stderr, `${context}:stderr`);
+  assertImportCaptures(runtime?.importCaptures, assertion.import_captures, context);
+}
+
+function hostForChild(host) {
+  const wasi = host.wasi_preview_1 || {};
+  return {
+    wasi_preview_1: {
+      command_args: wasi.command_args || [],
+      system_env: wasi.system_env || {},
+      preopened_directories: wasi.preopened_directories || {},
+      stdin: wasi.stdin ? decodeBytes(wasi.stdin, "host.wasi_preview_1.stdin").toString("base64") : "",
+    },
+  };
+}
+
+function runtimeCacheKey(test) {
+  if (usesWasiPreview1Host(test)) {
+    return `wasi_preview_1:${JSON.stringify(hostForChild(test.host || {}))}`;
+  }
+  return "direct";
+}
+
+function runWasiPreview1InChild(runtime) {
+  const childScript = `
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const { WASI } = require("node:wasi");
+require("node:v8").setFlagsFromString("--experimental-wasm-exnref");
+
+const input = JSON.parse(fs.readFileSync(0, "utf8"));
+const wasiInput = input.host.wasi_preview_1 || {};
+const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-wasi-"));
+const stdinPath = path.join(tempDir, "stdin");
+const stdoutPath = path.join(tempDir, "stdout");
+const stderrPath = path.join(tempDir, "stderr");
+fs.writeFileSync(stdinPath, Buffer.from(wasiInput.stdin || "", "base64"));
+const stdin = fs.openSync(stdinPath, "r");
+const stdout = fs.openSync(stdoutPath, "w+");
+const stderr = fs.openSync(stderrPath, "w+");
+
+(async () => {
+  let exitCode = null;
+  let trap = null;
+  try {
+    const wasi = new WASI({
+      version: "preview1",
+      args: wasiInput.command_args || [],
+      env: wasiInput.system_env || {},
+      preopens: wasiInput.preopened_directories || {},
+      stdin,
+      stdout,
+      stderr,
+      returnOnExit: true,
+    });
+    const bytes = fs.readFileSync(input.wasmPath);
+    const { instance } = await WebAssembly.instantiate(bytes, {
+      wasi_snapshot_preview1: wasi.wasiImport,
+    });
+    exitCode = wasi.start(instance);
+  } catch (error) {
+    trap = error && error.message ? error.message : String(error);
+  } finally {
+    fs.closeSync(stdin);
+    fs.closeSync(stdout);
+    fs.closeSync(stderr);
+  }
+
+  const result = {
+    exitCode,
+    trap,
+    stdout: fs.readFileSync(stdoutPath).toString("base64"),
+    stderr: fs.readFileSync(stderrPath).toString("base64"),
+  };
+  fs.rmSync(tempDir, { recursive: true, force: true });
+  process.stdout.write(JSON.stringify(result));
+})().catch((error) => {
+  fs.closeSync(stdin);
+  fs.closeSync(stdout);
+  fs.closeSync(stderr);
+  fs.rmSync(tempDir, { recursive: true, force: true });
+  console.error(error && error.stack ? error.stack : String(error));
+  process.exit(1);
+});
+`;
+
+  const result = spawnSync(process.execPath, ["-e", childScript], {
+    encoding: "utf8",
+    input: JSON.stringify({
+      wasmPath: runtime.wasmPath,
+      host: hostForChild(runtime.host),
+    }),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+
+  try {
+    const parsed = JSON.parse(result.stdout);
+    return {
+      exitCode: parsed.exitCode,
+      trap: parsed.trap,
+      stdout: Buffer.from(parsed.stdout || "", "base64"),
+      stderr: Buffer.from(parsed.stderr || "", "base64"),
+    };
+  } catch (error) {
+    if (result.status !== 0) {
+      const output = `${result.stderr || ""}${result.stdout || ""}`.trim();
+      fail(`WASI Preview 1 child execution failed${output ? `\n${output}` : ""}`);
+    }
+    fail(`WASI Preview 1 child execution returned invalid JSON: ${error.message}`);
+  }
+}
+
+function executeWasiPreview1Start(runtime, step, context) {
+  const label = `${context}:invoke ${step.function}`;
+  if (!runtime.host.wasi_preview_1) {
+    fail(`${label}: test does not declare host.wasi_preview_1`);
+  }
+  if (step.function !== "_start") {
+    fail(`${label}: WASI Preview 1 command entrypoint must be _start`);
+  }
+  if ((step.params || []).length > 0) {
+    fail(`${label}: _start does not take arguments; use test.host.wasi_preview_1.command_args for command-line arguments`);
+  }
+  if ((step.results || []).length > 0) {
+    fail(`${label}: _start does not produce result values`);
+  }
+
+  const result = runWasiPreview1InChild(runtime);
+  if (result.trap) {
+    if (step.trap) {
+      if (!result.trap.includes(step.trap)) {
+        fail(`${label}: expected trap '${step.trap}', got '${result.trap}'`);
+      }
+      return;
+    }
+    fail(`${label}: unexpected trap '${result.trap}'`);
+  }
+
+  if (step.trap) {
+    fail(`${label}: expected trap '${step.trap}', but call returned`);
+  }
+  assertHostEffects(result, step.host_effects, label);
+}
+
+function executeInvoke(runtime, step, vars, context) {
+  if (runtime.host.wasi_preview_1 && step.function === "_start") {
+    executeWasiPreview1Start(runtime, step, context);
+    return;
+  }
+
+  const { instance } = runtime;
+  const fn = instance.exports[step.function];
+  const label = `${context}:invoke ${step.function}`;
+  if (typeof fn !== "function") {
+    fail(`${label}: export is not a function`);
+  }
+
+  const args = (step.params || []).map((value, index) => decodeValue(value, vars, `${label} param ${index}`));
+  const expectedResults = step.results || [];
+  const captures = expectedResults.map((expected) => expected && expected.capture).filter(Boolean);
+
+  try {
+    const result = fn(...args);
+    if (step.trap) {
+      fail(`${label}: expected trap '${step.trap}', but call returned`);
+    }
+
+    const expectedCount = expectedResults.length;
+    const actualResults = normalizeResults(result, expectedCount);
+    assertResultValues(actualResults, expectedResults, label);
+    assertHostEffects({ exitCode: null, stdout: Buffer.alloc(0), stderr: Buffer.alloc(0) }, step.host_effects, label, runtime);
+
+    if (captures.length > 0) {
+      expectedResults.forEach((expected, index) => {
+        if (expected.capture) vars.set(expected.capture, actualResults[index]);
+      });
+    }
+  } catch (error) {
+    if (step.trap) {
+      const message = error && error.message ? error.message : String(error);
+      if (!message.includes(step.trap)) {
+        fail(`${label}: expected trap '${step.trap}', got '${message}'`);
+      }
+      return;
+    }
+    throw error;
+  }
+}
+
+function runtimeMemory(runtime, step, context) {
+  const memoryName = step.memory || "memory";
+  const memory = runtime.instance.exports[memoryName] || runtime.memories.get(memoryName);
+  if (!(memory instanceof WebAssembly.Memory)) {
+    fail(`${context}:${step.type} ${memoryName}: export is not a memory`);
+  }
+  return { memory, memoryName };
+}
+
+function executeMemoryWrite(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
+  const offset = integerField(step.offset, vars, `${context}:memory.write offset`);
+  const view = new DataView(memory.buffer);
+  const length = step.bytes ? decodeBytes(step.bytes, `${context}:memory.write`).length : numericValueSize(step.value.type);
+
+  if (offset + length > view.byteLength) {
+    fail(`${context}:memory.write ${memoryName}: write exceeds memory bounds`);
+  }
+
+  if (step.bytes) {
+    new Uint8Array(memory.buffer).set(decodeBytes(step.bytes, `${context}:memory.write`), offset);
+  } else {
+    writeNumericValue(view, offset, step.value, vars, `${context}:memory.write value`);
+  }
+}
+
+function executeMemoryGrow(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
+  const pages = integerField(step.pages, vars, `${context}:memory.grow pages`);
+  let previousPages = 0;
+
+  try {
+    previousPages = memory.grow(pages);
+  } catch (error) {
+    fail(`${context}:memory.grow ${memoryName}: ${error.message}`);
+  }
+
+  if (step.assert) {
+    assertActualMatchesValue(previousPages, step.assert.value, `${context}:memory.grow ${memoryName}`);
+  }
+  if (step.capture) {
+    vars.set(step.capture, previousPages);
+  }
+}
+
+function executeMemoryRead(runtime, step, vars, context) {
+  const { memory, memoryName } = runtimeMemory(runtime, step, context);
+  const offset = integerField(step.offset, vars, `${context}:memory.read offset`);
+  const isBytesAssertion = step.assert && step.assert.type === "bytes";
+  const numericType = step.capture ? step.capture.type : step.assert?.value?.type;
+  const defaultLength = isBytesAssertion
+    ? decodeBytes(step.assert.bytes, `${context}:memory.read assert`).length
+    : numericValueSize(numericType);
+  const length = step.length == null ? defaultLength : integerField(step.length, vars, `${context}:memory.read length`);
+  const byteView = new Uint8Array(memory.buffer);
+  if (offset + length > byteView.length) {
+    fail(`${context}:memory.read ${memoryName}: read exceeds memory bounds`);
+  }
+
+  if (isBytesAssertion) {
+    const expected = decodeBytes(step.assert.bytes, `${context}:memory.read assert`);
+    const actual = Buffer.from(byteView.slice(offset, offset + length));
+    if (actual.length !== expected.length || !actual.equals(expected)) {
+      fail(`${context}:memory.read ${memoryName}: expected ${expected.toString("hex")}, got ${actual.toString("hex")}`);
+    }
+    return;
+  }
+
+  const dataView = new DataView(memory.buffer);
+  const actual = readNumericValue(dataView, offset, numericType, `${context}:memory.read`);
+  if (step.assert) {
+    assertActualMatchesValue(actual, step.assert.value, `${context}:memory.read ${memoryName}`);
+  }
+  if (step.capture) {
+    vars.set(step.capture.capture, actual);
+  }
+}
+
+function exportedGlobal(instance, step, context) {
+  const globalName = step.global;
+  const global = instance.exports[globalName];
+  if (!(global instanceof WebAssembly.Global)) {
+    fail(`${context}:${step.type} ${globalName}: export is not a global`);
+  }
+  return { global, globalName };
+}
+
+function executeGlobalRead(instance, step, context) {
+  const { global, globalName } = exportedGlobal(instance, step, context);
+  assertActualMatchesValue(global.value, step.assert.value, `${context}:global.read ${globalName}`);
+}
+
+function executeGlobalWrite(instance, step, vars, context) {
+  const { global, globalName } = exportedGlobal(instance, step, context);
+  try {
+    global.value = decodeValue(step.value, vars, `${context}:global.write ${globalName}`);
+  } catch (error) {
+    fail(`${context}:global.write ${globalName}: ${error.message}`);
+  }
+}
+
+function exportedTable(instance, step, context) {
+  const tableName = step.table || "table";
+  const table = instance.exports[tableName];
+  if (!(table instanceof WebAssembly.Table)) {
+    fail(`${context}:${step.type} ${tableName}: export is not a table`);
+  }
+  return { table, tableName };
+}
+
+function decodeTableValue(value, instance, context) {
+  if (!value || typeof value !== "object") {
+    fail(`${context}: table value must be an object`);
+  }
+  if ((value.type === "funcref" || value.type === "externref") && value.value === null) {
+    return null;
+  }
+  if (value.type === "funcref" && typeof value.export === "string") {
+    const fn = instance.exports[value.export];
+    if (typeof fn !== "function") {
+      fail(`${context}: ${value.export} is not an exported function`);
+    }
+    return fn;
+  }
+  fail(`${context}: only null references and exported function references are supported for table writes`);
+}
+
+function executeTableWrite(instance, step, vars, context) {
+  const { table, tableName } = exportedTable(instance, step, context);
+  const index = integerField(step.index, vars, `${context}:table.write index`);
+  if (index >= table.length) {
+    fail(`${context}:table.write ${tableName}: index ${index} is out of bounds`);
+  }
+  table.set(index, decodeTableValue(step.value, instance, `${context}:table.write`));
+}
+
+function executeTableRead(instance, step, vars, context) {
+  const { table, tableName } = exportedTable(instance, step, context);
+  const index = integerField(step.index, vars, `${context}:table.read index`);
+  if (index >= table.length) {
+    fail(`${context}:table.read ${tableName}: index ${index} is out of bounds`);
+  }
+  const actual = table.get(index);
+  assertActualMatchesReference(actual, step.assert.value, `${context}:table.read ${tableName}[${index}]`);
+}
+
+async function executeStep(runtime, step, vars, context) {
+  const { instance } = runtime;
+
+  switch (step.type) {
+    case "function.invoke":
+      executeInvoke(runtime, step, vars, context);
+      return;
+    case "command.run":
+      executeInvoke(runtime, {
+        ...step,
+        type: "function.invoke",
+        function: "_start",
+        params: [],
+        results: [],
+      }, vars, context);
+      return;
+    case "memory.write":
+      executeMemoryWrite(runtime, step, vars, context);
+      return;
+    case "memory.grow":
+      executeMemoryGrow(runtime, step, vars, context);
+      return;
+    case "memory.read":
+      executeMemoryRead(runtime, step, vars, context);
+      return;
+    case "global.read":
+      executeGlobalRead(instance, step, context);
+      return;
+    case "global.write":
+      executeGlobalWrite(instance, step, vars, context);
+      return;
+    case "table.write":
+      executeTableWrite(instance, step, vars, context);
+      return;
+    case "table.read":
+      executeTableRead(instance, step, vars, context);
+      return;
+    default:
+      fail(`${context}: unsupported step type ${step.type}`);
+  }
+}
+
+async function runFixture(request) {
+  const fixtureStart = performance.now();
+  const inputPath = request.artifact_path;
+  const options = request.options || {};
+  const wasmPath = path.resolve(inputPath);
+  const timings = options.timings ? createTimings() : null;
+  if (!inputPath.endsWith(".wasm")) {
+    fail(`expected a .wasm file, got: ${inputPath}`);
+  }
+  if (!fs.existsSync(wasmPath)) {
+    fail(`file does not exist: ${inputPath}`);
+  }
+
+  const { fixturePath, fixtureDir, entry } = findFixtureEntry(wasmPath);
+  if (path.resolve(request.fixture_path) !== path.resolve(fixturePath)) {
+    fail(`fixture request path mismatch for ${inputPath}`);
+  }
+  if (JSON.stringify(request.fixture) !== JSON.stringify(entry)) {
+    fail(`fixture request metadata does not match ${fixturePath}`);
+  }
+  const expectedWasmPath = path.resolve(fixtureDir, entry.path);
+  if (expectedWasmPath !== wasmPath) {
+    fail(`fixture metadata path mismatch for ${inputPath}`);
+  }
+
+  const tests = testList(entry);
+  if (tests.length === 0) {
+    fail(`${inputPath}: fixture metadata must declare at least one test`);
+  }
+
+  let stepCount = 0;
+  const sharedRuntimes = new Map();
+  for (const [testIndex, test] of tests.entries()) {
+    const steps = test.steps || [];
+    const testDescription = test.description || `test ${testIndex + 1}`;
+    if (steps.length === 0) {
+      fail(`${inputPath}:${testDescription}: test must declare at least one step`);
+    }
+
+    let runtime;
+    if (test.shared_instance === true) {
+      const cacheKey = runtimeCacheKey(test);
+      if (!sharedRuntimes.has(cacheKey)) {
+        sharedRuntimes.set(cacheKey, await instantiate(wasmPath, entry, test, timings));
+      }
+      runtime = sharedRuntimes.get(cacheKey);
+    } else {
+      runtime = await instantiate(wasmPath, entry, test, timings);
+    }
+    const context = `${inputPath}:${testDescription}`;
+    const vars = new Map();
+    const executeStart = performance.now();
+    try {
+      for (const step of steps) {
+        const stepContext = step.description ? `${context}:${step.description}` : context;
+        await executeStep(runtime, step, vars, stepContext);
+        stepCount += 1;
+      }
+    } finally {
+      if (timings) timings.execute += performance.now() - executeStart;
+    }
+  }
+
+  const name = fixtureName(entry, wasmPath);
+  const elapsedMs = performance.now() - fixtureStart;
+  return {
+    name,
+    testCount: tests.length,
+    stepCount,
+    elapsedMs,
+    timings,
+    tests: tests.map((test, testIndex) => ({
+      index: testIndex,
+      description: test.description || `test ${testIndex + 1}`,
+      status: "passed",
+      steps: (test.steps || []).map((step, stepIndex) => ({
+        index: stepIndex,
+        type: step.type,
+        status: "passed",
+      })),
+    })),
+  };
+}
+
+async function execute(request) {
+  if (request.protocol_version !== 1) {
+    return {
+      protocol_version: 1,
+      request_id: request.request_id || "unknown",
+      runner: { name: "node", runtime_version: process.version },
+      status: "failed",
+      tests: [],
+      error: {
+        code: "unsupported_protocol_version",
+        message: `node runner supports protocol version 1, got ${request.protocol_version}`,
+      },
+      timings_ms: null,
+    };
+  }
+
+  try {
+    const result = await runFixture(request);
+    return {
+      protocol_version: 1,
+      request_id: request.request_id,
+      runner: { name: "node", runtime_version: process.version },
+      status: "passed",
+      tests: result.tests,
+      summary: {
+        name: result.name,
+        test_count: result.testCount,
+        step_count: result.stepCount,
+      },
+      timings_ms: request.options?.timings
+        ? {
+            total: result.elapsedMs,
+            compile: result.timings.compile,
+            instantiate: result.timings.instantiate,
+            execute: result.timings.execute,
+          }
+        : null,
+    };
+  } catch (error) {
+    return {
+      protocol_version: 1,
+      request_id: request.request_id,
+      runner: { name: "node", runtime_version: process.version },
+      status: "failed",
+      tests: [],
+      error: {
+        code: "execution_failed",
+        message: error && error.message ? error.message : String(error),
+      },
+      timings_ms: null,
+    };
+  }
+}
+
+module.exports = {
+  execute,
+};

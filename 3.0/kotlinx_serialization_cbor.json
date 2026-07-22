@@ -10,7 +10,6 @@
     "bulk-memory",
     "exception-handling",
     "gc",
-    "mutable-globals",
     "reference-types",
     "sign-extensions",
     "typed-function-references"
@@ -18,13 +17,6 @@
   "tags": [
     "domain-serialization",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
-    "feature-typed-function-references",
     "host-wasi-preview1",
     "size-medium"
   ],

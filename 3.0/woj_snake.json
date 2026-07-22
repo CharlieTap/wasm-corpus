@@ -7,9 +7,8 @@
     "path": "woj_snake.wat"
   },
   "features": [
-    "exception-handling",
+    "bulk-memory",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -2137,11 +2136,6 @@
   "tags": [
     "domain-game",
     "duration-short",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-medium"
   ],
   "notes": "Tests drive the actual Snake game state: deterministic food placement, movement, turning, food consumption, growth, scoring, wall collision, game-over persistence, and the upstream embedded self-test."

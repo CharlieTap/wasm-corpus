@@ -8,8 +8,6 @@
   },
   "features": [
     "bulk-memory",
-    "mutable-globals",
-    "reference-types",
     "sign-extensions",
     "tail-call"
   ],
@@ -638,11 +636,6 @@
   "tags": [
     "domain-audio",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-sign-extensions",
-    "feature-tail-call",
     "size-medium"
   ],
   "notes": "Upstream source is licensed under UPL-1.0. The binary preserves the upstream parameter editor and tone-packing behavior and was built from the pinned source after generating the platform host with Zig ReleaseSmall."

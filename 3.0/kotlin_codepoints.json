@@ -10,7 +10,6 @@
     "bulk-memory",
     "exception-handling",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -143,12 +142,6 @@
   "tags": [
     "domain-string-processing",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-small"
   ],
   "notes": "Built as an optimized Kotlin/Wasm WASI library fixture. The exported score functions intentionally fold richer library results into i32 values so the corpus runner can assert behavior without requiring string return support."

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wasm-corpus.dev/schema/runner.schema.json",
+  "title": "WebAssembly Corpus Runner Protocol",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "artifact_path",
+        "fixture_path",
+        "fixture",
+        "options"
+      ],
+      "properties": {
+        "protocol_version": { "const": 1 },
+        "request_id": { "type": "string", "minLength": 1 },
+        "artifact_path": { "type": "string", "minLength": 1 },
+        "fixture_path": { "type": "string", "minLength": 1 },
+        "fixture": { "type": "object" },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["timings"],
+          "properties": {
+            "timings": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "request_id",
+        "runner",
+        "status",
+        "tests",
+        "timings_ms"
+      ],
+      "properties": {
+        "protocol_version": { "const": 1 },
+        "request_id": { "type": "string", "minLength": 1 },
+        "runner": { "$ref": "#/$defs/runner" },
+        "status": { "enum": ["passed", "failed"] },
+        "tests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/testResult" }
+        },
+        "summary": { "$ref": "#/$defs/summary" },
+        "timings_ms": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timings" }
+          ]
+        },
+        "error": { "$ref": "#/$defs/error" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "passed" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["summary"] },
+          "else": { "required": ["error"] }
+        }
+      ]
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "runtime_version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "runtime_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "test_count", "step_count"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "test_count": { "type": "integer", "minimum": 1 },
+        "step_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "testResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "description", "status", "steps"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "description": { "type": "string" },
+        "status": { "enum": ["passed", "failed"] },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stepResult" }
+        },
+        "error": { "$ref": "#/$defs/error" }
+      }
+    },
+    "stepResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "type", "status"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "type": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["passed", "failed"] },
+        "error": { "$ref": "#/$defs/error" }
+      }
+    },
+    "timings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "compile", "instantiate", "execute"],
+      "properties": {
+        "total": { "$ref": "#/$defs/timing" },
+        "compile": { "$ref": "#/$defs/timing" },
+        "instantiate": { "$ref": "#/$defs/timing" },
+        "execute": { "$ref": "#/$defs/timing" }
+      }
+    },
+    "timing": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "message": { "type": "string" },
+        "expected": true,
+        "actual": true
+      }
+    }
+  }
+}

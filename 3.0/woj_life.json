@@ -7,9 +7,8 @@
     "path": "woj_life.wat"
   },
   "features": [
-    "exception-handling",
+    "bulk-memory",
     "gc",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -2220,11 +2219,6 @@
   "tags": [
     "domain-game",
     "duration-short",
-    "feature-exception-handling",
-    "feature-gc",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-medium"
   ],
   "notes": "Tests now initialize the game state and exercise the public Life API: pause handling, cell mutation, Conway blinker rotation, demo pattern placement, pixel color calculation, generation counters, and population counts."

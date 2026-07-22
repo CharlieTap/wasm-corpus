@@ -7,7 +7,6 @@
     "path": "trie_lookup.wat"
   },
   "features": [
-    "mutable-globals",
     "sign-extensions"
   ],
   "exports": [
@@ -102,8 +101,6 @@
   "tags": [
     "domain-string-processing",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-sign-extensions",
     "size-small"
   ],
   "notes": "Fixed-dataset fixture: Trie construction and lookup over a fixed dictionary with exact and prefix-negative queries. Tests cover exact, missing-edge, prefix-only, giving reviewers multiple branches and edge conditions rather than a single happy path."

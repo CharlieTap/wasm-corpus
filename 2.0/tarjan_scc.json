@@ -8,14 +8,11 @@
     "path": "tarjan_scc.wat"
   },
   "features": [
-    "bulk-memory",
-    "mutable-globals"
+    "bulk-memory"
   ],
   "tags": [
     "domain-graph",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
     "size-small"
   ],
   "exports": [

@@ -11,7 +11,6 @@
     "bulk-memory",
     "gc",
     "multi-value",
-    "mutable-globals",
     "reference-types",
     "typed-function-references"
   ],
@@ -108,12 +107,6 @@
   "tags": [
     "domain-parsing",
     "duration-short",
-    "feature-bulk-memory",
-    "feature-gc",
-    "feature-multi-value",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-typed-function-references",
     "size-medium"
   ],
   "notes": "The exported harness functions parse fixed command-line scenarios so the corpus can assert primitive i32 results while exercising the upstream parser internals."

@@ -1,0 +1,87 @@
+(component
+  (core module (;0;)
+    (type (;0;) (func (result i32)))
+    (type (;1;) (func (param i32) (result i32)))
+    (memory (;0;) 1)
+    (export "memory" (memory 0))
+    (export "list8" (func 0))
+    (export "list16" (func 1))
+    (export "list32" (func 2))
+    (export "list64" (func 3))
+    (func (;0;) (type 0) (result i32)
+      i32.const 16
+      call 4
+    )
+    (func (;1;) (type 0) (result i32)
+      i32.const 8
+      call 4
+    )
+    (func (;2;) (type 0) (result i32)
+      i32.const 4
+      call 4
+    )
+    (func (;3;) (type 0) (result i32)
+      i32.const 2
+      call 4
+    )
+    (func (;4;) (type 1) (param i32) (result i32)
+      i32.const 100
+      i32.const 8
+      i32.store
+      i32.const 100
+      local.get 0
+      i32.store offset=4
+      i32.const 100
+    )
+    (data (;0;) (i32.const 8) "\00\01\02\03\04\05\06\07\08\09\0a\0b\0c\0d\0e\0f")
+  )
+  (core instance (;0;) (instantiate 0))
+  (type (;0;) (list u8))
+  (type (;1;) (func (result 0)))
+  (alias core export 0 "list8" (core func (;0;)))
+  (alias core export 0 "memory" (core memory (;0;)))
+  (func (;0;) (type 1) (canon lift (core func 0) (memory 0)))
+  (type (;2;) (list s8))
+  (type (;3;) (func (result 2)))
+  (alias core export 0 "list8" (core func (;1;)))
+  (alias core export 0 "memory" (core memory (;1;)))
+  (func (;1;) (type 3) (canon lift (core func 1) (memory 1)))
+  (type (;4;) (list u16))
+  (type (;5;) (func (result 4)))
+  (alias core export 0 "list16" (core func (;2;)))
+  (alias core export 0 "memory" (core memory (;2;)))
+  (func (;2;) (type 5) (canon lift (core func 2) (memory 2)))
+  (type (;6;) (list s16))
+  (type (;7;) (func (result 6)))
+  (alias core export 0 "list16" (core func (;3;)))
+  (alias core export 0 "memory" (core memory (;3;)))
+  (func (;3;) (type 7) (canon lift (core func 3) (memory 3)))
+  (type (;8;) (list u32))
+  (type (;9;) (func (result 8)))
+  (alias core export 0 "list32" (core func (;4;)))
+  (alias core export 0 "memory" (core memory (;4;)))
+  (func (;4;) (type 9) (canon lift (core func 4) (memory 4)))
+  (type (;10;) (list s32))
+  (type (;11;) (func (result 10)))
+  (alias core export 0 "list32" (core func (;5;)))
+  (alias core export 0 "memory" (core memory (;5;)))
+  (func (;5;) (type 11) (canon lift (core func 5) (memory 5)))
+  (type (;12;) (list u64))
+  (type (;13;) (func (result 12)))
+  (alias core export 0 "list64" (core func (;6;)))
+  (alias core export 0 "memory" (core memory (;6;)))
+  (func (;6;) (type 13) (canon lift (core func 6) (memory 6)))
+  (type (;14;) (list s64))
+  (type (;15;) (func (result 14)))
+  (alias core export 0 "list64" (core func (;7;)))
+  (alias core export 0 "memory" (core memory (;7;)))
+  (func (;7;) (type 15) (canon lift (core func 7) (memory 7)))
+  (export (;8;) "list-u8" (func 0))
+  (export (;9;) "list-i8" (func 1))
+  (export (;10;) "list-u16" (func 2))
+  (export (;11;) "list-i16" (func 3))
+  (export (;12;) "list-u32" (func 4))
+  (export (;13;) "list-i32" (func 5))
+  (export (;14;) "list-u64" (func 6))
+  (export (;15;) "list-i64" (func 7))
+)

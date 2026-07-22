@@ -8,8 +8,6 @@
   },
   "features": [
     "bulk-memory",
-    "mutable-globals",
-    "reference-types",
     "saturated-float-to-int",
     "sign-extensions",
     "simd"
@@ -17,12 +15,6 @@
   "tags": [
     "benchmark",
     "duration-medium",
-    "feature-bulk-memory",
-    "feature-mutable-globals",
-    "feature-reference-types",
-    "feature-saturated-float-to-int",
-    "feature-sign-extensions",
-    "feature-simd",
     "host-wasi-preview1",
     "size-extra-large"
   ],

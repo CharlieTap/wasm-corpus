@@ -7,7 +7,6 @@
     "path": "aho_corasick_count.wat"
   },
   "features": [
-    "mutable-globals",
     "sign-extensions"
   ],
   "exports": [
@@ -102,8 +101,6 @@
   "tags": [
     "domain-string-processing",
     "duration-short",
-    "feature-mutable-globals",
-    "feature-sign-extensions",
     "size-small"
   ],
   "notes": "Fixed-dataset fixture: Aho-Corasick automaton for multiple pattern matching over selected texts. Tests cover overlapping, two-regions, none, giving reviewers multiple branches and edge conditions rather than a single happy path."
