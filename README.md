@@ -18,13 +18,7 @@ The repository organises fixtures by WebAssembly core version:
 │   └── ...
 ├── experimental/
 │   └── ...
-└── runners/
-    ├── node/
-    └── wasmtime/
 ```
-
-`experimental/` contains proposal-stage component fixtures. Their feature and
-host requirements are recorded in metadata rather than additional folders.
 
 Each fixture consists of 3 files:
 
