@@ -1,0 +1,146 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "brush-shell-p2",
+  "path": "brush-shell-p2.wasm",
+  "wat": {
+    "status": "too_large_for_corpus",
+    "generated_size": 94439076,
+    "limit": 67108864,
+    "tool": "wasm-tools print"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "reference-types",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-string-processing",
+    "duration-long",
+    "host-wasi-preview2",
+    "size-extra-large"
+  ],
+  "tests": [
+    {
+      "description": "defines and runs a shell function with a loop, variables, and arithmetic expansion",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "brush",
+            "-c",
+            "fib() { a=0; b=1; i=0; out=\"\"; while [ \"$i\" -lt 12 ]; do out=\"$out $a\"; next=$((a+b)); a=$b; b=$next; i=$((i+1)); done; echo \"fib:$out\"; }; fib"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "fib: 0 1 1 2 3 5 8 13 21 34 55 89\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "handles positional parameters, quoting, case matching, and parameter expansion",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "brush",
+            "-c",
+            "set -- \"alpha beta\" gamma delta; echo \"argc=$# first=<$1>\"; for word in \"$@\"; do case \"$word\" in *a*) echo \"match:$word:${#word}\" ;; *) echo \"other:$word\" ;; esac; done; value=\"prefix-middle-suffix\"; echo \"${value#prefix-}|${value%-suffix}\""
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "argc=3 first=<alpha beta>\nmatch:alpha beta:10\nmatch:gamma:5\nmatch:delta:5\nmiddle-suffix|prefix-middle\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reads structured input and branches over numeric comparisons and arithmetic",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "brush",
+            "-c",
+            "while IFS=, read name score; do if [ \"$score\" -ge 10 ]; then echo \"$name:pass:$((score*2))\"; else echo \"$name:retry:$((10-score))\"; fi; done"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "Ada,12\nGrace,27\nLinus,8\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "Ada:pass:24\nGrace:pass:54\nLinus:retry:2\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "5d244758f8cbf423931c340984139e6d78a884465a949ddad55c12597ba18844",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "brush-shell/src/main.rs",
+    "url": "https://github.com/reubeno/brush/blob/8143c299e31176a8071b2b8e97731cf4e87bff83/brush-shell/src/main.rs",
+    "description": "Brush's MIT-licensed POSIX and Bash-compatible shell command at commit 8143c299e31176a8071b2b8e97731cf4e87bff83."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.94.0; wasm-tools 1.254.0",
+    "command": "cargo +1.94.0 build --release --target wasm32-wasip2 -p brush-shell --bin brush --no-default-features --features minimal; ./scripts/prepare"
+  },
+  "description": "Brush's real shell command compiled directly for WASI Preview 2."
+}

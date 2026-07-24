@@ -1,0 +1,150 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "pulldown-cmark-p2",
+  "path": "pulldown-cmark-p2.wasm",
+  "wat": {
+    "status": "present",
+    "path": "pulldown-cmark-p2.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-string-processing",
+    "duration-medium",
+    "host-wasi-preview2",
+    "size-large"
+  ],
+  "tests": [
+    {
+      "description": "renders tables, task lists, strikethrough, and emphasis as HTML",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "pulldown-cmark",
+            "-T",
+            "-L",
+            "-S"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "# Preview 2\n\n- [x] parsed\n\n| fixture | host |\n|:--|--:|\n| pulldown | P2 |\n\n~~old~~ **new**\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "<h1>Preview 2</h1>\n<ul>\n<li><input disabled=\"\" type=\"checkbox\" checked=\"\"/>\nparsed</li>\n</ul>\n<table><thead><tr><th style=\"text-align: left\">fixture</th><th style=\"text-align: right\">host</th></tr></thead><tbody>\n<tr><td style=\"text-align: left\">pulldown</td><td style=\"text-align: right\">P2</td></tr>\n</tbody></table>\n<p><del>old</del> <strong>new</strong></p>\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "exposes parser source ranges and event structure",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "pulldown-cmark",
+            "--events"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "Hello *component* [link](https://example.test).\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "0..48: Start(Paragraph)\n0..6: Text(Borrowed(\"Hello \"))\n6..17: Start(Emphasis)\n7..16: Text(Borrowed(\"component\"))\n6..17: End(Emphasis)\n17..18: Text(Borrowed(\" \"))\n18..46: Start(Link { link_type: Inline, dest_url: Borrowed(\"https://example.test\"), title: Borrowed(\"\"), id: Borrowed(\"\") })\n19..23: Text(Borrowed(\"link\"))\n18..46: End(Link)\n46..47: Text(Borrowed(\".\"))\n0..48: End(Paragraph)\nEOF\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reports a broken reference and returns a failing exit status",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "pulldown-cmark",
+            "--reject-broken-links"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "A [missing][reference].\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 1,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "<p>A [missing][reference].</p>\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "Error: 1 broken links:\n[2-22]: reference\n"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "b96bd155e4f866e09eb1139edd2c8cb67ec2507a5b18d3e695d5260d1966a14f",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "pulldown-cmark/src/main.rs",
+    "url": "https://github.com/pulldown-cmark/pulldown-cmark/blob/68afb08c9014619750afd12d403a78b7a72331a7/pulldown-cmark/src/main.rs",
+    "description": "Pulldown-Cmark's MIT-licensed Markdown command at commit 68afb08c9014619750afd12d403a78b7a72331a7."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.94.0; wasm-tools 1.254.0",
+    "command": "cargo +1.94.0 build --release --target wasm32-wasip2 -p pulldown-cmark --bin pulldown-cmark; ./scripts/prepare"
+  },
+  "description": "Pulldown-Cmark's real Markdown parser and renderer compiled directly for WASI Preview 2."
+}

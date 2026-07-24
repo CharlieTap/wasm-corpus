@@ -1,0 +1,63 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "diff-match-patch-p2",
+  "path": "diff-match-patch-p2.wasm",
+  "wat": {
+    "status": "present",
+    "path": "diff-match-patch-p2.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-dynamic-programming",
+    "domain-string-processing",
+    "duration-medium",
+    "host-wasi-preview2",
+    "size-large"
+  ],
+  "tests": [
+    {
+      "description": "diffs two substantial Unicode texts, serializes and reparses the patches, applies every operation, and verifies the reconstructed text",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "efficiency"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          },
+          "notes": "The upstream example returns an error unless its parsed patch reconstructs the complete expected Unicode text."
+        }
+      ]
+    }
+  ],
+  "sha256": "89d8ed470761e7e0c9d51b6d7c22ba1ec2dab5012d3ef901108d161099f4ddcf",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "examples/efficiency.rs",
+    "url": "https://github.com/AnubhabB/diff-match-patch-rs/blob/0b5931ce7c4cee3dad07e2fbfa9ff9f948702b9b/examples/efficiency.rs",
+    "description": "diff-match-patch-rs's MIT OR Apache-2.0 licensed efficient byte-mode example at commit 0b5931ce7c4cee3dad07e2fbfa9ff9f948702b9b."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.94.0; wasm-tools 1.254.0",
+    "command": "cargo +1.94.0 build --release --target wasm32-wasip2 --example efficiency; ./scripts/prepare"
+  },
+  "description": "diff-match-patch-rs's real Unicode diff, patch serialization, and patch application example compiled directly for WASI Preview 2."
+}

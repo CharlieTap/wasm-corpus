@@ -1,0 +1,149 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jaq-p2",
+  "path": "jaq-p2.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jaq-p2.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "component-model",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-long",
+    "host-wasi-preview2",
+    "size-extra-large"
+  ],
+  "tests": [
+    {
+      "description": "maps, aggregates, sorts, and filters nested JSON records",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "jaq",
+            "[.[] | {name: .name, total: (.scores | add), peak: (.scores | max)}] | sort_by(.total) | reverse | .[] | select(.total > 20)"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "[{\"name\":\"Ada\",\"scores\":[8,13,21]},{\"name\":\"Grace\",\"scores\":[3,5,8]},{\"name\":\"Linus\",\"scores\":[13,21,34]}]\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "{\"name\":\"Linus\",\"total\":68,\"peak\":34}\n{\"name\":\"Ada\",\"total\":42,\"peak\":21}\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "groups JSON objects and builds a deterministic aggregate document",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "jaq",
+            "group_by(.team) | map({team: .[0].team, names: (map(.name) | sort), total: (map(.score) | add)})"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "[{\"team\":\"compiler\",\"name\":\"Ada\",\"score\":7},{\"team\":\"runtime\",\"name\":\"Linus\",\"score\":11},{\"team\":\"compiler\",\"name\":\"Grace\",\"score\":13}]\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "[{\"team\":\"compiler\",\"names\":[\"Ada\",\"Grace\"],\"total\":20},{\"team\":\"runtime\",\"names\":[\"Linus\"],\"total\":11}]\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "reduces a generated numeric range through conditionals and array updates",
+      "host": {
+        "wasi_preview_2": {
+          "command_args": [
+            "jaq",
+            "reduce range(1; 8) as $n ({sum: 0, even: []}; .sum += $n | if $n % 2 == 0 then .even += [$n] else . end)"
+          ],
+          "stdin": {
+            "encoding": "utf8",
+            "value": "null\n"
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "command.run",
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "{\"sum\":28,\"even\":[2,4,6]}\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "cbdb004599bc2604a241f68c72bf8adcafc91c041dadf9a3d33c74193503abec",
+  "source": {
+    "contributor": "human",
+    "language": "rust",
+    "path": "jaq-all/examples/main.rs",
+    "url": "https://github.com/01mf02/jaq/blob/78ea2d3d1074617a6081e91959f2063918e92c90/jaq-all/examples/main.rs",
+    "description": "jaq's MIT-licensed human-authored streaming JSON filter example at commit 78ea2d3d1074617a6081e91959f2063918e92c90."
+  },
+  "toolchain": {
+    "name": "rustc and wasm-tools",
+    "version": "rustc 1.94.0; wasm-tools 1.254.0",
+    "command": "cargo +1.94.0 build --release --target wasm32-wasip2 -p jaq-all --example main; ./scripts/prepare"
+  },
+  "description": "jaq's real streaming JSON filter example compiled directly for WASI Preview 2."
+}
