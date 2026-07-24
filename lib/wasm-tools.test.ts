@@ -34,7 +34,12 @@ case "$1" in
     cp "$2" "$4"
     ;;
   print)
-    if [ "$2" = --skeleton ]; then printf '(module)\\n'; else printf '(module)\\n' > "$4"; fi
+    if [ "$2" = --skeleton ]; then
+      [ "$3" = --name-unnamed ] && [ "$4" = --indent ] && [ "$5" = 0 ] || exit 9
+      printf '(module)\\n'
+    else
+      printf '(module)\\n' > "$4"
+    fi
     ;;
   strip)
     cp "$3" "$5"

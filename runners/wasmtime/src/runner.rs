@@ -491,10 +491,17 @@ impl WasmtimeRunner {
                     } else {
                         invocation.await
                     };
-                    let result = wt(call).context("Preview 3 command trapped")?;
-                    let result = wt(result).context("Preview 3 command call failed")?;
-                    let result =
-                        result.map_err(|()| anyhow::anyhow!("Preview 3 command returned failure"));
+                    let call = match call {
+                        Ok(result) => result,
+                        Err(error) => Err(error),
+                    };
+                    let result = match call {
+                        Ok(Ok(())) => Ok(0),
+                        Ok(Err(())) => Ok(1),
+                        Err(error) => command_exit_code(&error)
+                            .ok_or_else(|| anyhow::anyhow!("{error:#}"))
+                            .context("Preview 3 command trapped"),
+                    };
                     finish_command(result, &runtime.store, step)
                 }
                 "http.request" => {
@@ -586,9 +593,13 @@ fn run_p2_command(
     step: &Value,
 ) -> Result<()> {
     let call = with_epoch_timeout(store, timeout(step), |store| {
-        wt(command.wasi_cli_run().call_run(store))
-            .context("Preview 2 command trapped")?
-            .map_err(|()| anyhow::anyhow!("Preview 2 command returned failure"))
+        match command.wasi_cli_run().call_run(store) {
+            Ok(Ok(())) => Ok(0),
+            Ok(Err(())) => Ok(1),
+            Err(error) => command_exit_code(&error)
+                .ok_or_else(|| anyhow::anyhow!("{error:#}"))
+                .context("Preview 2 command trapped"),
+        }
     });
     finish_command(call, store, step)
 }
@@ -657,7 +668,7 @@ fn invoke_component(
             Value::Array(results.iter().map(to_json).collect())
         )
     })?;
-    assert_host_effects(store.data(), step)
+    assert_host_effects(store.data(), step, None)
 }
 
 fn with_epoch_timeout<T>(
@@ -682,26 +693,33 @@ fn with_epoch_timeout<T>(
     result
 }
 
-fn finish_command(call: Result<()>, state: &Store<State>, step: &Value) -> Result<()> {
+fn command_exit_code(error: &wasmtime::Error) -> Option<u64> {
+    error
+        .downcast_ref::<wasmtime_wasi::I32Exit>()
+        .and_then(|exit| u64::try_from(exit.0).ok())
+}
+
+fn finish_command(call: Result<u64>, state: &Store<State>, step: &Value) -> Result<()> {
     match (call, step.get("trap").and_then(Value::as_str)) {
         (Err(error), Some(message)) if format!("{error:#}").contains(message) => Ok(()),
         (Err(error), Some(message)) => bail!("expected trap containing {message:?}, got {error:#}"),
         (Err(error), None) => Err(error),
-        (Ok(()), Some(message)) => {
+        (Ok(_), Some(message)) => {
             bail!("expected trap containing {message:?}, but command returned")
         }
-        (Ok(()), None) => assert_host_effects(state.data(), step),
+        (Ok(exit_code), None) => assert_host_effects(state.data(), step, Some(exit_code)),
     }
 }
 
-fn assert_host_effects(state: &State, step: &Value) -> Result<()> {
+fn assert_host_effects(state: &State, step: &Value, exit_code: Option<u64>) -> Result<()> {
     let Some(effects) = step.get("host_effects") else {
         return Ok(());
     };
     let (stdout, stderr) = output(state);
     if let Some(code) = effects.get("exit_code").and_then(Value::as_u64) {
-        if code != 0 {
-            bail!("non-zero exit-code assertions are not yet supported; got {code}");
+        let actual = exit_code.unwrap_or(0);
+        if code != actual {
+            bail!("exit code mismatch: expected {code}, got {actual}");
         }
     }
     assert_output("stdout", &stdout, effects.get("stdout"))?;
@@ -752,6 +770,17 @@ mod tests {
     use super::*;
     use crate::protocol::{RunnerOptions, RunnerRequest};
     use serde_json::json;
+
+    #[test]
+    fn extracts_non_negative_wasi_exit_codes() {
+        let success = wasmtime::Error::new(wasmtime_wasi::I32Exit(0));
+        let failure = wasmtime::Error::new(wasmtime_wasi::I32Exit(17));
+        let invalid = wasmtime::Error::new(wasmtime_wasi::I32Exit(-1));
+
+        assert_eq!(command_exit_code(&success), Some(0));
+        assert_eq!(command_exit_code(&failure), Some(17));
+        assert_eq!(command_exit_code(&invalid), None);
+    }
 
     #[tokio::test]
     async fn rejects_unsupported_protocol_versions_before_execution() {

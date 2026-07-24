@@ -17,26 +17,7 @@
   "tags": [
     "domain-parsing",
     "duration-short",
-    "host-wasi-preview1",
     "size-small"
-  ],
-  "imports": [
-    {
-      "module": "wasi_snapshot_preview1",
-      "name": "random_get",
-      "kind": "function",
-      "type": "(func (param i32 i32) (result i32))",
-      "stub": {
-        "returns": [
-          {
-            "type": "i32",
-            "value": "0"
-          }
-        ],
-        "notes": "Deterministic stub for Kotlin runtime hash seed initialization; returning errno 0 with unchanged zeroed memory is sufficient for these fixed tests."
-      },
-      "description": "Kotlin/WASI runtime entropy hook used while initializing hash-related runtime state."
-    }
   ],
   "exports": [
     {

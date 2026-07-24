@@ -233,7 +233,14 @@ export class WasmTools {
   }
 
   printSkeleton(wasmPath: string): string {
-    return this.#required("print skeleton", ["print", "--skeleton", wasmPath]).stdout;
+    return this.#required("print skeleton", [
+      "print",
+      "--skeleton",
+      "--name-unnamed",
+      "--indent",
+      "0",
+      wasmPath,
+    ]).stdout;
   }
 
   stripCustomSections(inputPath: string, outputPath: string): void {

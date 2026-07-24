@@ -8,7 +8,6 @@ const path = require("path");
 const { spawnSync } = require("child_process");
 const { Binaryen, binaryenArgsForFeatures } = require("../lib/binaryen.ts");
 const { classifyWasm } = require("../lib/classifier.ts");
-const { detectWasiPreview } = require("../lib/wasi-host-detector.ts");
 const { WasmTools } = require("../lib/wasm-tools.ts");
 
 const repoRoot = path.resolve(__dirname, "..");
@@ -153,18 +152,10 @@ function sameStrings(left, right) {
   return JSON.stringify([...left].sort()) === JSON.stringify([...right].sort());
 }
 
-function detectedHostTags(wasmPath, imports, classification) {
-  const input = classification.kind === "component"
-    ? {
-        kind: "component",
-        world: wasmTools.componentWorld(wasmPath),
-      }
-    : {
-        kind: "module",
-        imports: imports || [],
-      };
-  const preview = detectWasiPreview(input);
-  return preview === null ? [] : [`host-wasi-${preview}`];
+function detectedHostTags(classification) {
+  return classification.host === null
+    ? []
+    : [`host-wasi-${classification.host}`];
 }
 
 function sizeTag(bytes) {
@@ -239,8 +230,10 @@ function classify(wasmPath) {
 
 function classifierOutput(classification) {
   return {
+    kind: classification.kind,
     version: classification.version,
     features: [...classification.features].sort(),
+    host: classification.host,
     binaryen_args: binaryenArgsForFeatures(classification.features),
     evidence: Object.fromEntries(
       [...classification.evidence.entries()]
@@ -313,7 +306,7 @@ function validateFixtureTags(wasmPath, fixturePath, fixture, classification, all
     throw new Error(`${relativeFixture} may declare at most three domain tags`);
   }
 
-  const detectedHosts = detectedHostTags(wasmPath, fixture.imports, classification);
+  const detectedHosts = detectedHostTags(classification);
   const actualHosts = exactFamily(tags, "host-");
   for (const host of detectedHosts) {
     if (!actualHosts.includes(host)) {

@@ -7,7 +7,6 @@ const os = require("os");
 const path = require("path");
 const { Binaryen } = require("../lib/binaryen.ts");
 const { classifyWasm } = require("../lib/classifier.ts");
-const { detectWasiPreview } = require("../lib/wasi-host-detector.ts");
 const { WasmTools } = require("../lib/wasm-tools.ts");
 
 const repoRoot = path.resolve(__dirname, "..");
@@ -26,10 +25,6 @@ uses the classified features to prepare it, then writes the
 optimized .wasm, matching .wat, and fixture JSON into the correct 1.0/, 2.0/,
 3.0/, or experimental/ corpus directory.
 `);
-}
-
-function warn(message) {
-  process.stderr.write(`warning: ${message}\n`);
 }
 
 function fail(message) {
@@ -143,346 +138,6 @@ function filesEqual(left, right) {
   return offset === leftBuffer.length;
 }
 
-function stripWatComments(wat) {
-  let output = "";
-  let inString = false;
-
-  for (let index = 0; index < wat.length; index += 1) {
-    const char = wat[index];
-    const next = wat[index + 1];
-
-    if (inString) {
-      output += char;
-      if (char === "\\") {
-        index += 1;
-        output += wat[index] || "";
-      } else if (char === '"') {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (char === '"') {
-      inString = true;
-      output += char;
-      continue;
-    }
-
-    if (char === "(" && next === ";") {
-      index += 2;
-      let depth = 1;
-      while (index < wat.length && depth > 0) {
-        if (wat[index] === "(" && wat[index + 1] === ";") {
-          depth += 1;
-          index += 2;
-        } else if (wat[index] === ";" && wat[index + 1] === ")") {
-          depth -= 1;
-          index += 2;
-        } else {
-          index += 1;
-        }
-      }
-      index -= 1;
-      continue;
-    }
-
-    if (char === ";" && next === ";") {
-      while (index < wat.length && wat[index] !== "\n") index += 1;
-      output += "\n";
-      continue;
-    }
-
-    output += char;
-  }
-
-  return output;
-}
-
-function tokenizeWat(wat) {
-  const tokens = [];
-  const source = stripWatComments(wat);
-
-  for (let index = 0; index < source.length;) {
-    const char = source[index];
-
-    if (/\s/.test(char)) {
-      index += 1;
-      continue;
-    }
-
-    if (char === "(" || char === ")") {
-      tokens.push(char);
-      index += 1;
-      continue;
-    }
-
-    if (char === '"') {
-      let token = char;
-      index += 1;
-      while (index < source.length) {
-        token += source[index];
-        if (source[index] === "\\") {
-          index += 1;
-          token += source[index] || "";
-        } else if (source[index] === '"') {
-          index += 1;
-          break;
-        }
-        index += 1;
-      }
-      tokens.push(token);
-      continue;
-    }
-
-    let token = "";
-    while (index < source.length && !/\s|\(|\)/.test(source[index])) {
-      token += source[index];
-      index += 1;
-    }
-    if (token) tokens.push(token);
-  }
-
-  return tokens;
-}
-
-function parseWat(wat) {
-  const tokens = tokenizeWat(wat);
-  let index = 0;
-
-  function parseNode() {
-    const token = tokens[index];
-    if (token !== "(") {
-      index += 1;
-      return token;
-    }
-
-    index += 1;
-    const node = [];
-    while (index < tokens.length && tokens[index] !== ")") {
-      node.push(parseNode());
-    }
-    index += 1;
-    return node;
-  }
-
-  const nodes = [];
-  while (index < tokens.length) {
-    nodes.push(parseNode());
-  }
-
-  return nodes;
-}
-
-function atomText(value) {
-  if (Array.isArray(value)) return sexprText(value);
-  return value;
-}
-
-function sexprText(node) {
-  return `(${node.map(atomText).join(" ")})`;
-}
-
-function unquoteWatString(value) {
-  if (!value || value[0] !== '"') return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value.slice(1, -1);
-  }
-}
-
-function childNodes(node, head) {
-  return node.filter((item) => Array.isArray(item) && item[0] === head);
-}
-
-function firstChild(node, head) {
-  return childNodes(node, head)[0];
-}
-
-function typeRefIndex(node) {
-  const typeNode = firstChild(node, "type");
-  if (!typeNode) return null;
-  const value = typeNode.find((item) => typeof item === "string" && /^\d+$/.test(item));
-  return value == null ? null : Number(value);
-}
-
-function paramsAndResultsFromFuncNode(funcNode) {
-  const pieces = [];
-  for (const param of childNodes(funcNode, "param")) {
-    const types = param
-      .slice(1)
-      .filter((item) => !(typeof item === "string" && item.startsWith("$")))
-      .map(atomText);
-    if (types.length > 0) pieces.push(`(param ${types.join(" ")})`);
-  }
-  for (const result of childNodes(funcNode, "result")) {
-    const types = result
-      .slice(1)
-      .filter((item) => !(typeof item === "string" && item.startsWith("$")))
-      .map(atomText);
-    if (types.length > 0) pieces.push(`(result ${types.join(" ")})`);
-  }
-  return pieces;
-}
-
-function funcTypeFromNode(funcNode, types) {
-  const index = typeRefIndex(funcNode);
-  if (index != null && types[index]) return types[index];
-
-  const pieces = paramsAndResultsFromFuncNode(funcNode);
-  return pieces.length > 0 ? `(func ${pieces.join(" ")})` : "(func)";
-}
-
-function globalTypeInfo(globalNode) {
-  const typeNode = globalNode.find((item, index) => {
-    if (index === 0) return false;
-    if (Array.isArray(item)) return item[0] === "mut";
-    return typeof item === "string" && !item.startsWith("$");
-  });
-  if (Array.isArray(typeNode) && typeNode[0] === "mut") {
-    return {
-      valueType: typeNode[1],
-      mutable: true,
-      type: `(global ${sexprText(typeNode)})`,
-    };
-  }
-
-  return {
-    valueType: typeNode,
-    mutable: false,
-    type: `(global ${typeNode})`,
-  };
-}
-
-function defaultValueForType(type) {
-  switch (type) {
-    case "i32":
-    case "i64":
-    case "f32":
-    case "f64":
-      return { type, value: "0" };
-    case "externref":
-    case "funcref":
-      return { type, value: null };
-    default:
-      return null;
-  }
-}
-
-function maybeGlobalStub(globalInfo) {
-  const value = defaultValueForType(globalInfo.valueType);
-  if (!value) return undefined;
-  return {
-    value,
-    mutable: globalInfo.mutable,
-    notes: "Generated placeholder stub; replace if the fixture needs a specific host global value.",
-  };
-}
-
-function limitsType(kind, node) {
-  const parts = node
-    .slice(1)
-    .filter((item) => !(typeof item === "string" && item.startsWith("$")))
-    .filter((item) => !(Array.isArray(item) && ["export", "import"].includes(item[0])))
-    .map(atomText);
-  return `(${kind} ${parts.join(" ")})`;
-}
-
-function tagTypeFromNode(tagNode, types) {
-  const index = typeRefIndex(tagNode);
-  if (index != null && types[index]) {
-    return `(tag ${types[index].replace(/^\(func\s*|\)$/g, "")})`;
-  }
-  return sexprText(tagNode);
-}
-
-function inferWasmAbi(wasmPath) {
-  const printed = useTool(() => wasmTools.printSkeleton(wasmPath));
-  const root = parseWat(printed).find((node) => Array.isArray(node) && node[0] === "module");
-  if (!root) return { imports: [], exports: [] };
-
-  const types = [];
-  const imports = [];
-  const exports = [];
-  const indexMaps = {
-    function: [],
-    global: [],
-    memory: [],
-    table: [],
-    tag: [],
-  };
-
-  for (const node of root.slice(1)) {
-    if (!Array.isArray(node)) continue;
-
-    if (node[0] === "type") {
-      const funcNode = firstChild(node, "func");
-      types.push(funcNode ? funcTypeFromNode(funcNode, types) : null);
-      continue;
-    }
-
-    if (node[0] !== "import") continue;
-
-    const module = unquoteWatString(node[1]);
-    const name = unquoteWatString(node[2]);
-    const descriptor = node.find((item) => Array.isArray(item) && ["func", "global", "memory", "table", "tag"].includes(item[0]));
-    if (!descriptor) continue;
-
-    const kind = descriptor[0] === "func" ? "function" : descriptor[0];
-    const entry = { module, name, kind };
-
-    if (kind === "function") {
-      entry.type = funcTypeFromNode(descriptor, types);
-    } else if (kind === "global") {
-      const info = globalTypeInfo(descriptor);
-      entry.type = info.type;
-      const stub = maybeGlobalStub(info);
-      if (stub) entry.stub = stub;
-    } else if (kind === "memory") {
-      entry.type = limitsType("memory", descriptor);
-    } else if (kind === "table") {
-      entry.type = limitsType("table", descriptor);
-    } else if (kind === "tag") {
-      entry.type = tagTypeFromNode(descriptor, types);
-    }
-
-    imports.push(entry);
-    indexMaps[kind].push(entry);
-  }
-
-  for (const node of root.slice(1)) {
-    if (!Array.isArray(node)) continue;
-
-    if (node[0] === "func") {
-      indexMaps.function.push({ kind: "function", type: funcTypeFromNode(node, types) });
-    } else if (node[0] === "global") {
-      indexMaps.global.push({ kind: "global", type: globalTypeInfo(node).type });
-    } else if (node[0] === "memory") {
-      indexMaps.memory.push({ kind: "memory", type: limitsType("memory", node) });
-    } else if (node[0] === "table") {
-      indexMaps.table.push({ kind: "table", type: limitsType("table", node) });
-    } else if (node[0] === "tag") {
-      indexMaps.tag.push({ kind: "tag", type: tagTypeFromNode(node, types) });
-    }
-  }
-
-  for (const node of childNodes(root, "export")) {
-    const descriptor = node.find((item) => Array.isArray(item) && ["func", "global", "memory", "table", "tag"].includes(item[0]));
-    if (!descriptor) continue;
-
-    const kind = descriptor[0] === "func" ? "function" : descriptor[0];
-    const index = Number(descriptor.find((item) => typeof item === "string" && /^\d+$/.test(item)));
-    const indexed = indexMaps[kind][index] || {};
-    exports.push({
-      name: unquoteWatString(node[1]),
-      kind,
-      ...(indexed.type ? { type: indexed.type } : {}),
-    });
-  }
-
-  return { imports, exports };
-}
-
 function prepareBinary(input, output, outputWat, features, tmpdir) {
   const strippedInput = path.join(tmpdir, "stripped-input.wasm");
   stripWasmCustomSections(input, strippedInput);
@@ -588,66 +243,12 @@ function stripWasmCustomSections(input, output) {
   useTool(() => wasmTools.stripCustomSections(input, output));
 }
 
-function classify(wasmPath) {
-  return useTool(() => classifyWasm(wasmPath, { wasmTools }));
+function classify(wasmPath, options = {}) {
+  return useTool(() => classifyWasm(wasmPath, { wasmTools, ...options }));
 }
 
 function compileWat(stagedWat, outputWasm) {
   useTool(() => wasmTools.parse(stagedWat, outputWasm));
-}
-
-function inspectModule(wasmPath) {
-  const bytes = fs.readFileSync(wasmPath);
-  const inferred = inferWasmAbi(wasmPath);
-
-  try {
-    const module = new WebAssembly.Module(bytes);
-    const imports = WebAssembly.Module.imports(module).map(({ module, name, kind }) => {
-      const normalizedKind = kind === "func" ? "function" : kind;
-      const inferredImport = inferred.imports.find(
-        (item) => item.module === module && item.name === name && item.kind === normalizedKind,
-      );
-      return {
-        module,
-        name,
-        kind: normalizedKind,
-        ...(inferredImport || {}),
-      };
-    });
-    const exports = WebAssembly.Module.exports(module).map(({ name, kind }) => {
-      const normalizedKind = kind === "func" ? "function" : kind;
-      const inferredExport = inferred.exports.find(
-        (item) => item.name === name && item.kind === normalizedKind,
-      );
-      return {
-        name,
-        kind: normalizedKind,
-        ...(inferredExport || {}),
-      };
-    });
-
-    return {
-      imports,
-      exports,
-    };
-  } catch (error) {
-    warn(`Node could not inspect imports/exports for ${relativeFromRepo(wasmPath)}: ${error.message}`);
-    return inferred;
-  }
-}
-
-function detectedHostTags(wasmPath, imports, classification) {
-  const input = classification.kind === "component"
-    ? {
-        kind: "component",
-        world: useTool(() => wasmTools.componentWorld(wasmPath)),
-      }
-    : {
-        kind: "module",
-        imports,
-      };
-  const preview = detectWasiPreview(input);
-  return preview === null ? [] : [`host-wasi-${preview}`];
 }
 
 function readExistingJson(jsonPath) {
@@ -689,11 +290,13 @@ function mergeExports(inferred, existing) {
   });
 }
 
-function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath }) {
+function scaffoldMetadata({ wasmPath, wat, jsonPath, classification }) {
   const parsed = path.parse(wasmPath);
   const existing = readExistingJson(jsonPath);
   const previous = existing || {};
-  const moduleShape = inspectModule(wasmPath);
+  const moduleShape = classification.kind === "module"
+    ? classification
+    : { imports: [], exports: [] };
   const schemaPath = toPosix(path.relative(parsed.dir, path.join(repoRoot, "schema", "fixture.schema.json")));
   const command = "./scripts/prepare";
   const imports = mergeImports(moduleShape.imports, previous.imports);
@@ -704,7 +307,9 @@ function scaffoldMetadata({ wasmPath, wat, jsonPath, classification, stagedPath 
   };
   const digest = sha256(wasmPath);
   const tags = inferredTags({
-    hostTags: detectedHostTags(wasmPath, imports, classification),
+    hostTags: classification.host === null
+      ? []
+      : [`host-wasi-${classification.host}`],
     wasmBytes: fs.statSync(wasmPath).size,
     existingTags: previous.tags,
   });
@@ -831,7 +436,7 @@ try {
       compileWat(staged, sourceWasm);
     }
 
-    const initialClassification = classify(sourceWasm);
+    const initialClassification = classify(sourceWasm, { partial: true });
     const isComponent = initialClassification.kind === "component";
     if (!initialClassification.version && !isComponent) {
       fail(`${stagedRelative} uses features newer than the supported 1.0/2.0/3.0 corpus directories`);
@@ -872,7 +477,6 @@ try {
       wat: watMetadata,
       jsonPath: json,
       classification: finalClassification,
-      stagedPath: staged,
     });
     fs.rmSync(staged, { force: true });
 

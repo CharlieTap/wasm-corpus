@@ -9,10 +9,14 @@ const {
 const { binaryenArgsForFeatures } = require("../lib/binaryen.ts");
 const { WasmToolsError } = require("../lib/wasm-tools.ts");
 
-const wasmPath = process.argv[2];
+const args = process.argv.slice(2);
+const partial = args.includes("--partial");
+const unknownOptions = args.filter((arg) => arg.startsWith("--") && arg !== "--partial");
+const positional = args.filter((arg) => !arg.startsWith("--"));
+const wasmPath = positional[0];
 
-if (!wasmPath) {
-  console.error("Usage: ./scripts/classify <path/to/module.wasm>");
+if (unknownOptions.length > 0 || positional.length !== 1) {
+  console.error("Usage: ./scripts/classify [--partial] <path/to/module.wasm>");
   process.exit(1);
 }
 
@@ -23,7 +27,7 @@ if (!fs.existsSync(wasmPath)) {
 
 let classification;
 try {
-  classification = classifyWasm(wasmPath);
+  classification = classifyWasm(wasmPath, { partial });
 } catch (error) {
   if (error instanceof ClassificationError || error instanceof WasmToolsError) {
     console.error(`error: ${error.message}`);
@@ -33,23 +37,35 @@ try {
 }
 
 const features = [...classification.features].sort();
-const evidence = Object.fromEntries(
-  [...classification.evidence.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([feature, item]) => [
-      feature,
-      [`${item.validatorFeature}: ${item.reason}`],
-    ]),
-);
-
 process.stdout.write(
   `${JSON.stringify(
-    {
-      version: classification.version,
-      features,
-      binaryen_args: binaryenArgsForFeatures(features),
-      evidence,
-    },
+    partial
+      ? {
+          kind: classification.kind,
+          version: classification.version,
+          features,
+        }
+      : {
+          kind: classification.kind,
+          version: classification.version,
+          features,
+          host: classification.host,
+          ...(classification.kind === "module"
+            ? {
+                imports: classification.imports,
+                exports: classification.exports,
+              }
+            : { world: classification.world }),
+          binaryen_args: binaryenArgsForFeatures(features),
+          evidence: Object.fromEntries(
+            [...classification.evidence.entries()]
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([feature, item]) => [
+                feature,
+                [`${item.validatorFeature}: ${item.reason}`],
+              ]),
+          ),
+        },
     null,
     2,
   )}\n`,

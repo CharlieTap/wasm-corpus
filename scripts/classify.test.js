@@ -28,14 +28,26 @@ test("classify preserves its sorted JSON boundary", (t) => {
   ));
 
   assert.deepEqual(Object.keys(output), [
+    "kind",
     "version",
     "features",
+    "host",
+    "imports",
+    "exports",
     "binaryen_args",
     "evidence",
   ]);
   assert.deepEqual(output.features, [...output.features].sort());
   assert.deepEqual(Object.keys(output.evidence), Object.keys(output.evidence).sort());
   assert.equal(output.version, "2.0");
+  assert.equal(output.kind, "module");
+  assert.equal(output.host, null);
+  assert.deepEqual(output.imports, []);
+  assert.deepEqual(output.exports, [{
+    name: "fill",
+    kind: "function",
+    type: "(func)",
+  }]);
   assert.deepEqual(output.features, ["bulk-memory"]);
   assert.deepEqual(output.binaryen_args, ["--enable-bulk-memory"]);
 });
@@ -47,4 +59,26 @@ test("repository workflows import classification instead of spawning the CLI", (
     assert.doesNotMatch(source, /path\.join\([^\n]+"classify"/);
     assert.doesNotMatch(source, /process\.execPath, \[classifier/);
   }
+});
+
+test("classify partial returns only preparation fields", (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "wasm-corpus-classify-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const watPath = path.join(directory, "module.wat");
+  const wasmPath = path.join(directory, "module.wasm");
+  fs.writeFileSync(watPath, "(module (func (export \"run\")))");
+  execFileSync("wasm-tools", ["parse", watPath, "-o", wasmPath]);
+
+  const output = JSON.parse(execFileSync(
+    path.resolve("scripts/classify"),
+    ["--partial", wasmPath],
+    { encoding: "utf8" },
+  ));
+
+  assert.deepEqual(Object.keys(output), ["kind", "version", "features"]);
+  assert.deepEqual(output, {
+    kind: "module",
+    version: "1.0",
+    features: [],
+  });
 });
