@@ -1,0 +1,356 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bzip2_codec",
+  "path": "bzip2_codec.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bzip2_codec.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-compression",
+    "duration-short",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "BZ2_bzBuffToBuffCompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "BZ2_bzBuffToBuffDecompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and restore repeated prose through libbz2's in-memory API",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "bzip2_codec"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate the 180-byte source buffer",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "180"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate compressed output capacity",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "512"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the compressed-length field",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_len_ptr"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the restoration buffer",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "180"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "restored"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the restored-length field",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "restored_len_ptr"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_len_ptr"
+          },
+          "value": {
+            "type": "i32",
+            "value": "512"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "restored_len_ptr"
+          },
+          "value": {
+            "type": "i32",
+            "value": "180"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "compress with a 900 KiB block size and the normal work factor",
+          "function": "BZ2_bzBuffToBuffCompress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len_ptr"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "180"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "30"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "capture the compressed size produced by libbz2",
+          "memory": "memory",
+          "offset": {
+            "var": "compressed_len_ptr"
+          },
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_len"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "decompress the generated bzip2 stream",
+          "function": "BZ2_bzBuffToBuffDecompress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "restored"
+            },
+            {
+              "type": "i32",
+              "var": "restored_len_ptr"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "restored_len_ptr"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "180"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the full round trip",
+          "memory": "memory",
+          "offset": {
+            "var": "restored"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "9ebb0b22f8624074739e4141227ab9d01ebc25347ff2e58de6fc60dd2a7ef737",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "bzlib.c",
+    "url": "https://gitlab.com/bzip2/bzip2/-/blob/66c46b8c9436613fd81bc5d03f63a61933a4dcc3/bzlib.c",
+    "description": "The bzip2/libbz2 in-memory compression API and block-sorting codec, compiled from the upstream project's human-authored source at commit 66c46b8c9436613fd81bc5d03f63a61933a4dcc3."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -mexec-model=reactor -O2 -g0 -mtail-call blocksort.c huffman.c crctable.c randtable.c compress.c decompress.c bzlib.c ...; ./scripts/prepare"
+  },
+  "description": "bzip2 block-sorting compression and decompression library.",
+  "notes": "The fixture is compiled directly from libbz2's upstream codec sources without a generated workload or wrapper program. The metadata test drives the public in-memory API through a complete compression and decompression round trip. The generated version header is build configuration only and does not replace project behavior."
+}

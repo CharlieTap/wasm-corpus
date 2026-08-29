@@ -1,0 +1,213 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "bearssl_sha256",
+  "path": "bearssl_sha256.wasm",
+  "wat": {
+    "status": "present",
+    "path": "bearssl_sha256.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "br_sha224_init",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "br_sha224_update",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "br_sha224_out",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "br_sha256_init",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "br_sha256_out",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "hash a message through BearSSL's streaming SHA-256 API",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "ctx"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 3 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "br_sha256_init",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ctx"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "br_sha224_update",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ctx"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "br_sha256_out",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ctx"
+            },
+            {
+              "type": "i32",
+              "var": "digest"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the standard SHA-256 abc vector",
+          "memory": "memory",
+          "offset": {
+            "var": "digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "3d1a978a6e95fad460fd62f1b588382df3bc3e561fa3e009cec279f760a26a78",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/hash/sha2small.c",
+    "url": "https://www.bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/sha2small.c;hb=7bea48e5e850ab4cafbe68d3765cdaba13a86d6f",
+    "description": "BearSSL streaming SHA-256 implementation. Compiled from the upstream project's human-authored source at commit 7bea48e5e850ab4cafbe68d3765cdaba13a86d6f."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 src/hash/sha2small.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "BearSSL streaming SHA-256 implementation.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

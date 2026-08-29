@@ -1,0 +1,558 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "monocypher_crypto",
+  "path": "monocypher_crypto.wasm",
+  "wat": {
+    "status": "present",
+    "path": "monocypher_crypto.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "crypto_poly1305",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "crypto_blake2b",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32))"
+    },
+    {
+      "name": "crypto_aead_lock",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32))"
+    },
+    {
+      "name": "crypto_aead_unlock",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "calculate BLAKE2b with Monocypher",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 3 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "crypto_blake2b",
+          "params": [
+            {
+              "type": "i32",
+              "var": "digest"
+            },
+            {
+              "type": "i32",
+              "value": "64"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "authenticate data and round-trip a multi-block message with Monocypher",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the message buffer",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "message"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a 256-bit key",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "key"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate an authentication tag",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "tag"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate an XChaCha20 nonce",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "24"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "nonce"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate associated data",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "associated_data"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate ciphertext",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "ciphertext"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate decrypted plaintext",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "restored"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "message"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Cryptographic Forum Research Group"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "key"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run the RFC 7539 Poly1305 test vector",
+          "function": "crypto_poly1305",
+          "params": [
+            {
+              "type": "i32",
+              "var": "tag"
+            },
+            {
+              "type": "i32",
+              "var": "message"
+            },
+            {
+              "type": "i32",
+              "value": "34"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "tag"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "a8061dc1305136c6c22b8baf0c0127a9"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "message"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "key"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "nonce"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "000102030405060708090a0b0c0d0e0f1011121314151617"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "associated_data"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fixture-metadata"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encrypt and authenticate two ChaCha20 blocks",
+          "function": "crypto_aead_lock",
+          "params": [
+            {
+              "type": "i32",
+              "var": "ciphertext"
+            },
+            {
+              "type": "i32",
+              "var": "tag"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            },
+            {
+              "type": "i32",
+              "var": "nonce"
+            },
+            {
+              "type": "i32",
+              "var": "associated_data"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "var": "message"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "authenticate and decrypt the ciphertext",
+          "function": "crypto_aead_unlock",
+          "params": [
+            {
+              "type": "i32",
+              "var": "restored"
+            },
+            {
+              "type": "i32",
+              "var": "tag"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            },
+            {
+              "type": "i32",
+              "var": "nonce"
+            },
+            {
+              "type": "i32",
+              "var": "associated_data"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "var": "ciphertext"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "restored"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "description": "corrupt the authentication tag",
+          "memory": "memory",
+          "offset": {
+            "var": "tag"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "00000000000000000000000000000000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "reject the ciphertext after tag corruption",
+          "function": "crypto_aead_unlock",
+          "params": [
+            {
+              "type": "i32",
+              "var": "restored"
+            },
+            {
+              "type": "i32",
+              "var": "tag"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            },
+            {
+              "type": "i32",
+              "var": "nonce"
+            },
+            {
+              "type": "i32",
+              "var": "associated_data"
+            },
+            {
+              "type": "i32",
+              "value": "16"
+            },
+            {
+              "type": "i32",
+              "var": "ciphertext"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sha256": "5ec82cce05027ebb9d3676501f7cb8b19777e345218f26de5aec73ebbd8cad0f",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/monocypher.c",
+    "url": "https://github.com/LoupVaillant/Monocypher/blob/1830c06d5910fba451cec329c8f30f348fc607db/src/monocypher.c",
+    "description": "Monocypher cryptographic library. Compiled from the upstream project's human-authored source at commit 1830c06d5910fba451cec329c8f30f348fc607db."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 src/monocypher.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "Monocypher cryptographic library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream library implementation itself. The metadata tests cover a BLAKE2b digest, the RFC 7539 Poly1305 vector, and multi-block XChaCha20-Poly1305 encryption with associated data, successful decryption, and authentication-failure rejection."
+}

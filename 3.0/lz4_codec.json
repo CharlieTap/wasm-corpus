@@ -1,0 +1,225 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "lz4_codec",
+  "path": "lz4_codec.wasm",
+  "wat": {
+    "status": "present",
+    "path": "lz4_codec.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-compression",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "LZ4_compressBound",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "LZ4_compress_default",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "LZ4_decompress_safe",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "LZ4_compress_HC",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "round-trip text with LZ4 high-compression mode",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 55 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "restored"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "WebAssembly corpus compression compression compression!"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "LZ4_compress_HC",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "value": "55"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_len"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "LZ4_decompress_safe",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "restored"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "restored"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "WebAssembly corpus compression compression compression!"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "2a834e7ac1c1ad2aa6c6d6cdef08a6f6445e7c294f7f86140c51c00625708cdd",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "lib/lz4.c",
+    "url": "https://github.com/lz4/lz4/blob/0774d05537f9762f838f7ab541b7765f1a729cb5/lib/lz4.c",
+    "description": "LZ4 lossless compression library. Compiled from the upstream project's human-authored source at commit 0774d05537f9762f838f7ab541b7765f1a729cb5."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call lib/lz4.c ...; ./scripts/prepare"
+  },
+  "description": "LZ4 lossless compression library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

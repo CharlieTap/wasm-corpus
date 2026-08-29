@@ -1,0 +1,291 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "stb_image_decoder",
+  "path": "stb_image_decoder.wasm",
+  "wat": {
+    "status": "present",
+    "path": "stb_image_decoder.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-image-processing",
+    "domain-parsing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "stbi_image_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "stbi_load_from_memory",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "stbi_info_from_memory",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "stbi_is_16_bit_from_memory",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "inspect and decode a real one-pixel PNG",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 128 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "png"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "width"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "height"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "channels"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "png"
+          },
+          "bytes": {
+            "encoding": "base64",
+            "value": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "stbi_info_from_memory",
+          "params": [
+            {
+              "type": "i32",
+              "var": "png"
+            },
+            {
+              "type": "i32",
+              "value": "68"
+            },
+            {
+              "type": "i32",
+              "var": "width"
+            },
+            {
+              "type": "i32",
+              "var": "height"
+            },
+            {
+              "type": "i32",
+              "var": "channels"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "width"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "height"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "stbi_load_from_memory",
+          "params": [
+            {
+              "type": "i32",
+              "var": "png"
+            },
+            {
+              "type": "i32",
+              "value": "68"
+            },
+            {
+              "type": "i32",
+              "var": "width"
+            },
+            {
+              "type": "i32",
+              "var": "height"
+            },
+            {
+              "type": "i32",
+              "var": "channels"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "pixels"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "pixels"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "000000ff"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "stbi_image_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "pixels"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "0d8371c473938c45d1e6d1b1a39c04e45f264a3a7d567935bba1bdc6142a4b80",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "stb_image.h",
+    "url": "https://github.com/nothings/stb/blob/2c980bb59875b0d32144a71867fbdebb2f77cd20/stb_image.h",
+    "description": "stb_image multi-format image decoder. Compiled from the upstream project's human-authored source at commit 2c980bb59875b0d32144a71867fbdebb2f77cd20."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call stb_image.h ...; ./scripts/prepare"
+  },
+  "description": "stb_image multi-format image decoder.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

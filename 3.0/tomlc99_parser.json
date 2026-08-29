@@ -1,0 +1,269 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "tomlc99_parser",
+  "path": "tomlc99_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "tomlc99_parser.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "toml_parse",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "toml_array_in",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "toml_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "toml_key_exists",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "toml_raw_in",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "toml_array_nelem",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "toml_rtoi",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse tables, arrays, integers, and strings from TOML",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 128 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "toml"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "errors"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 16 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "key"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "toml"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "title = \"Corpus\"\nports = [8000, 8001, 8002]\n[owner]\nname = \"Wasm\"\n\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "key"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "ports\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "toml_parse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "toml"
+            },
+            {
+              "type": "i32",
+              "var": "errors"
+            },
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "table"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "toml_key_exists",
+          "params": [
+            {
+              "type": "i32",
+              "var": "table"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "toml_array_in",
+          "params": [
+            {
+              "type": "i32",
+              "var": "table"
+            },
+            {
+              "type": "i32",
+              "var": "key"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "array"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "toml_array_nelem",
+          "params": [
+            {
+              "type": "i32",
+              "var": "array"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "toml_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "table"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "fed32c0be5701c218356878d947fc961565dc094bbb1045d02c6de0a85e75589",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "toml.c",
+    "url": "https://github.com/cktan/tomlc99/blob/29076dfd095bbbbd50a3c1b2760d29f4b83e74ac/toml.c",
+    "description": "tomlc99 TOML parser. Compiled from the upstream project's human-authored source at commit 29076dfd095bbbbd50a3c1b2760d29f4b83e74ac."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call toml.c ...; ./scripts/prepare"
+  },
+  "description": "tomlc99 TOML parser.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

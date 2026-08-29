@@ -1,0 +1,521 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "heatshrink_codec",
+  "path": "heatshrink_codec.wasm",
+  "wat": {
+    "status": "present",
+    "path": "heatshrink_codec.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-compression",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "heatshrink_encoder_alloc",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_encoder_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "heatshrink_encoder_sink",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_encoder_poll",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_encoder_finish",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_decoder_alloc",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_decoder_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "heatshrink_decoder_sink",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_decoder_poll",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "heatshrink_decoder_finish",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decode repeated text through heatshrink's streaming state machines",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 55 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "count"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "WebAssembly corpus compression compression compression!"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_encoder_alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "encoder"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_encoder_sink",
+          "params": [
+            {
+              "type": "i32",
+              "var": "encoder"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "55"
+            },
+            {
+              "type": "i32",
+              "var": "count"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "count"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "55"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_encoder_finish",
+          "params": [
+            {
+              "type": "i32",
+              "var": "encoder"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_encoder_poll",
+          "params": [
+            {
+              "type": "i32",
+              "var": "encoder"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "var": "count"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "count"
+          },
+          "capture": {
+            "type": "i32",
+            "capture": "compressed_len"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "count"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "36"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the encoder's compressed payload",
+          "memory": "memory",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "abd96c541b9dcecb6db15b2f320b1dbee570badcc0c56db85caca141b4dbedc0bf05bc84"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "confirm the encoder has reached its finished state",
+          "function": "heatshrink_encoder_finish",
+          "params": [
+            {
+              "type": "i32",
+              "var": "encoder"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a decoder with matching window parameters",
+          "function": "heatshrink_decoder_alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "value": "8"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decoder"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_decoder_sink",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            },
+            {
+              "type": "i32",
+              "var": "count"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "count"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "36"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_decoder_finish",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_decoder_poll",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            },
+            {
+              "type": "i32",
+              "var": "count"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "count"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "55"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "description": "assert the decoded round trip",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "WebAssembly corpus compression compression compression!"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "confirm the decoder has reached its finished state",
+          "function": "heatshrink_decoder_finish",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_decoder_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "heatshrink_encoder_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "encoder"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "b70ed9d9ba091019a5dbe06ea206a98a6e8791d91a940cca697a7514e0ab4d49",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "heatshrink_encoder.c",
+    "url": "https://github.com/atomicobject/heatshrink/blob/7d419e1fa4830d0b919b9b6a91fe2fb786cf3280/heatshrink_encoder.c",
+    "description": "heatshrink embedded compression library. Compiled from the upstream project's human-authored source at commit 7d419e1fa4830d0b919b9b6a91fe2fb786cf3280."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call heatshrink_encoder.c ...; ./scripts/prepare"
+  },
+  "description": "heatshrink embedded compression library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream encoder and decoder implementation. The metadata test drives both streaming state machines through sink, finish, and poll, asserts the compressed payload, and verifies a complete 55-byte round trip."
+}

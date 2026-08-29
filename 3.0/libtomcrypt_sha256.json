@@ -1,0 +1,236 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "libtomcrypt_sha256",
+  "path": "libtomcrypt_sha256.wasm",
+  "wat": {
+    "status": "present",
+    "path": "libtomcrypt_sha256.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sha256_init",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sha256_process",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sha256_done",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sha256_test",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run LibTomCrypt's built-in SHA-256 vectors and hash abc",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "sha256_test",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 512 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "512"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "state"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 3 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "sha256_init",
+          "params": [
+            {
+              "type": "i32",
+              "var": "state"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "sha256_process",
+          "params": [
+            {
+              "type": "i32",
+              "var": "state"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "sha256_done",
+          "params": [
+            {
+              "type": "i32",
+              "var": "state"
+            },
+            {
+              "type": "i32",
+              "var": "digest"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "4607c726ff889627af15e293b6bfcb58cda93d2945ea598c2868c2412ce40279",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/hashes/sha2/sha256.c",
+    "url": "https://github.com/libtom/libtomcrypt/blob/a10cad624d58b4112335f3dc82e42967afdbe143/src/hashes/sha2/sha256.c",
+    "description": "LibTomCrypt SHA-256 implementation. Compiled from the upstream project's human-authored source at commit a10cad624d58b4112335f3dc82e42967afdbe143."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call src/hashes/sha2/sha256.c ...; ./scripts/prepare"
+  },
+  "description": "LibTomCrypt SHA-256 implementation.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

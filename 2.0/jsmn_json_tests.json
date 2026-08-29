@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "jsmn_json_tests",
+  "path": "jsmn_json_tests.wasm",
+  "wat": {
+    "status": "present",
+    "path": "jsmn_json_tests.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream jsmn_json_tests workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "jsmn_json_tests"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "\nPASSED: 16\nFAILED: 0\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "213f32dde6e17f9be9fda14ef512e5472e78e9db6a4d40a07c4b769943129ce5",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "test/tests.c",
+    "url": "https://github.com/zserge/jsmn/blob/25647e692c7906b96ffd2b05ca54c097948e879c/test/tests.c",
+    "description": "jsmn JSON parser's complete upstream test suite. Compiled from the upstream project's human-authored source at commit 25647e692c7906b96ffd2b05ca54c097948e879c."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 test/tests.c ...; ./scripts/prepare"
+  },
+  "description": "jsmn JSON parser's complete upstream test suite.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

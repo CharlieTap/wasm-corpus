@@ -1,0 +1,372 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "quirc_decoder",
+  "path": "quirc_decoder.wasm",
+  "wat": {
+    "status": "present",
+    "path": "quirc_decoder.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-image-processing",
+    "domain-parsing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "quirc_new",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "quirc_destroy",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "quirc_resize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "quirc_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "quirc_begin",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "quirc_end",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "quirc_extract",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "quirc_decode",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "detect, extract, and decode a real QR bitmap with quirc",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the decoded image width",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "width"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the decoded image height",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "height"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a quirc_code structure",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4096"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "code"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a quirc_data structure",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "9000"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "data"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_new",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decoder"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_resize",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "value": "58"
+            },
+            {
+              "type": "i32",
+              "value": "58"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_begin",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "var": "width"
+            },
+            {
+              "type": "i32",
+              "var": "height"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "pixels"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "width"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "58"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "height"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "58"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "description": "supply a standards-compliant grayscale QR image containing WASM corpus QR",
+          "memory": "memory",
+          "offset": {
+            "var": "pixels"
+          },
+          "bytes": {
+            "encoding": "base64",
+            "value": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////wAAAAAAAAAAAAAAAAAA//8AAP//AAD///////8AAAAAAAAAAAAAAAAAAP////////////////////8AAAAAAAAAAAAAAAAAAP//AAD//wAA////////AAAAAAAAAAAAAAAAAAD/////////////////////AAD/////////////AAD/////AAAAAAAAAAD//wAA/////////////wAA/////////////////////wAA/////////////wAA/////wAAAAAAAAAA//8AAP////////////8AAP////////////////////8AAP//AAAAAAAA//8AAP///////wAA//8AAP//AAD//wAAAAAAAP//AAD/////////////////////AAD//wAAAAAAAP//AAD///////8AAP//AAD//wAA//8AAAAAAAD//wAA/////////////////////wAA//8AAAAAAAD//wAA//8AAP//AAD///////8AAP//AAAAAAAA//8AAP////////////////////8AAP//AAAAAAAA//8AAP//AAD//wAA////////AAD//wAAAAAAAP//AAD/////////////////////AAD//wAAAAAAAP//AAD//wAA////////AAD//wAA//8AAAAAAAD//wAA/////////////////////wAA//8AAAAAAAD//wAA//8AAP///////wAA//8AAP//AAAAAAAA//8AAP////////////////////8AAP////////////8AAP//AAD//wAA//8AAP//AAD/////////////AAD/////////////////////AAD/////////////AAD//wAA//8AAP//AAD//wAA/////////////wAA/////////////////////wAAAAAAAAAAAAAAAAAA//8AAP//AAD//wAA//8AAAAAAAAAAAAAAAAAAP////////////////////8AAAAAAAAAAAAAAAAAAP//AAD//wAA//8AAP//AAAAAAAAAAAAAAAAAAD//////////////////////////////////////////wAA/////wAAAAD///////////////////////////////////////////////////////////////8AAP////8AAAAA//////////////////////////////////////////8AAP///////wAA//8AAAAAAAD//wAA//8AAAAAAAAAAAAAAAD/////AAD/////////////////////AAD///////8AAP//AAAAAAAA//8AAP//AAAAAAAAAAAAAAAA/////wAA//////////////////////////8AAP//////////AAD//wAA//8AAAAAAAAAAAAAAAD//wAAAAAAAP//////////////////////////AAD//////////wAA//8AAP//AAAAAAAAAAAAAAAA//8AAAAAAAD/////////////////////AAD/////AAAAAP//AAAAAP//AAAAAP///////wAA//8AAP////8AAP///////////////////////wAA/////wAAAAD//wAAAAD//wAAAAD///////8AAP//AAD/////AAD/////////////////////////////AAAAAAAA/////wAAAAD//wAA/////wAA/////////////wAAAAD//////////////////////////wAAAAAAAP////8AAAAA//8AAP////8AAP////////////8AAAAA/////////////////////wAA/////////////wAAAAAAAAAA/////wAA/////wAAAAAAAAAA//8AAP////////////////////8AAP////////////8AAAAAAAAAAP////8AAP////8AAAAAAAAAAP//AAD//////////////////////////////////////////wAA/////wAAAAAAAAAA//8AAP//AAD//wAA//////////////////////////////////////////8AAP////8AAAAAAAAAAP//AAD//wAA//8AAP////////////////////8AAAAAAAAAAAAAAAAAAP//AAD//wAA/////////////wAA//8AAAAA////////////////////////AAAAAAAAAAAAAAAAAAD//wAA//8AAP////////////8AAP//AAAAAP///////////////////////wAA/////////////wAA/////wAA//8AAP//AAD///////////////8AAP////////////////////8AAP////////////8AAP////8AAP//AAD//wAA////////////////AAD/////////////////////AAD//wAAAAAAAP//AAD//wAA//8AAP//AAD/////////////AAD//////////////////////////wAA//8AAAAAAAD//wAA//8AAP//AAD//wAA/////////////wAA//////////////////////////8AAP//AAAAAAAA//8AAP///////wAA////////AAD//wAAAAD//wAAAAD/////////////////////AAD//wAAAAAAAP//AAD///////8AAP///////wAA//8AAAAA//8AAAAA/////////////////////wAA//8AAAAAAAD//wAA//////////8AAP//AAD/////AAD///////////////////////////////8AAP//AAAAAAAA//8AAP//////////AAD//wAA/////wAA////////////////////////////////AAD/////////////AAD/////////////AAAAAP//AAAAAAAA/////////////////////////////wAA/////////////wAA/////////////wAAAAD//wAAAAAAAP////////////////////////////8AAAAAAAAAAAAAAAAAAP//AAD//wAA//8AAP//////////////////AAD/////////////////////AAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD//////////////////wAA/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////w=="
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_end",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "assert one detected QR symbol",
+          "function": "quirc_count",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_extract",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "code"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode the extracted QR grid",
+          "function": "quirc_decode",
+          "params": [
+            {
+              "type": "i32",
+              "var": "code"
+            },
+            {
+              "type": "i32",
+              "var": "data"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert version, ECC level, mask, byte data type, and decoded payload",
+          "memory": "memory",
+          "offset": {
+            "var": "data"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "010000000000000004000000040000005741534d20636f72707573205152"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "quirc_destroy",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": []
+        }
+      ],
+      "notes": "The 58×58 grayscale image is a standards-compliant version-1 QR symbol generated by the upstream Nayuki QR Code Generator and contains the 14-byte payload WASM corpus QR. The test runs quirc's full detection, extraction, error-correction, and payload-decoding path."
+    }
+  ],
+  "sha256": "fa25cd0228c1349c18977a9e5f0cb863bb4d0bf94e343a03154bd6967b6bef08",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "lib/identify.c",
+    "url": "https://github.com/dlbeer/quirc/blob/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/identify.c",
+    "description": "quirc QR-code recognition library. Compiled from the upstream project's human-authored source at commit 927d680904dc95fdff4cd9d022eb374b438ff8f2."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call lib/identify.c ...; ./scripts/prepare"
+  },
+  "description": "quirc QR-code recognition library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream quirc implementation. The metadata supplies a real QR bitmap and asserts successful detection, extraction, decoding, and the exact decoded payload."
+}

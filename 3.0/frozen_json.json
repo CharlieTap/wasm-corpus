@@ -1,0 +1,299 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "frozen_json",
+  "path": "frozen_json.wasm",
+  "wat": {
+    "status": "present",
+    "path": "frozen_json.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "json_scanf_array_elem",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "json_unescape",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "decode JSON string escapes with Frozen",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "line\\nsmile: \\u0041"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "json_unescape",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "19"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "line\nsmile: A"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a nested JSON document",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "52"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "document"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the object path",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "7"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "path"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a Frozen json_token",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "12"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "token"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "document"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "{\"items\":[\"alpha\",\"beta\",{\"nested\":true}],\"other\":7}"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "path"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "2e6974656d7300"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "walk the object and select the second element of its items array",
+          "function": "json_scanf_array_elem",
+          "params": [
+            {
+              "type": "i32",
+              "var": "document"
+            },
+            {
+              "type": "i32",
+              "value": "52"
+            },
+            {
+              "type": "i32",
+              "var": "path"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            },
+            {
+              "type": "i32",
+              "var": "token"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "capture the token's pointer field",
+          "memory": "memory",
+          "offset": {
+            "var": "token"
+          },
+          "capture": {
+            "type": "i32",
+            "capture": "token_ptr"
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "token_ptr"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "beta"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "046846088d89159572b748d84604d3b6453e0942d75656aa4b773ce9d54a49ee",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "frozen.c",
+    "url": "https://github.com/cesanta/frozen/blob/a42fc3365d7d4e96a5be146b88870dabc794bbc8/frozen.c",
+    "description": "Frozen embedded JSON library. Compiled from the upstream project's human-authored source at commit a42fc3365d7d4e96a5be146b88870dabc794bbc8."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call frozen.c ...; ./scripts/prepare"
+  },
+  "description": "Frozen embedded JSON library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream library implementation itself. The metadata test exercises both JSON string unescaping and Frozen's parser walk through a nested object and array, asserting the selected token contents."
+}

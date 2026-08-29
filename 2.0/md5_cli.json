@@ -1,0 +1,136 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "md5_cli",
+  "path": "md5_cli.wasm",
+  "wat": {
+    "status": "present",
+    "path": "md5_cli.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream md5_cli workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "md5_cli",
+            "hello",
+            "WebAssembly"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "5d41402abc4b2a76b9719d911017c592\n8c7367acff313b8cc92167e9cf6377a4\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "9b73c16811d7a7519f9089c2e74d4fb6cc870d6942bad9929b87db1ad1d6f404",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "main.c",
+    "url": "https://github.com/Zunawe/md5-c/blob/f3529b666b7ae8b80b0a9fa88ac2a91b389909c7/main.c",
+    "description": "md5-c command-line digest program. Compiled from the upstream project's human-authored source at commit f3529b666b7ae8b80b0a9fa88ac2a91b389909c7."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 main.c ...; ./scripts/prepare"
+  },
+  "description": "md5-c command-line digest program.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

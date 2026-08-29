@@ -1,0 +1,182 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "cjson_parser",
+  "path": "cjson_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "cjson_parser.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "cJSON_Delete",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "cJSON_Parse",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "cJSON_PrintUnformatted",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse and re-serialize nested JSON with cJSON",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "json"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "json"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "{\"name\":\"cJSON\",\"values\":[1,2,3]}\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "cJSON_Parse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "json"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "root"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "cJSON_PrintUnformatted",
+          "params": [
+            {
+              "type": "i32",
+              "var": "root"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "{\"name\":\"cJSON\",\"values\":[1,2,3]}"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "output"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "cJSON_Delete",
+          "params": [
+            {
+              "type": "i32",
+              "var": "root"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "5039e4890aabcde0c7b7e685ad87a53032b47e0129c9d44027f0b1319cce7fe3",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "cJSON.c",
+    "url": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c",
+    "description": "cJSON parser and printer. Compiled from the upstream project's human-authored source at commit fb16e5cf358798aabb049655975cde8427101056."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call cJSON.c ...; ./scripts/prepare"
+  },
+  "description": "cJSON parser and printer.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

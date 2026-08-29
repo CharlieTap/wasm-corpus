@@ -1,0 +1,184 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "parson_json_parser",
+  "path": "parson_json_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "parson_json_parser.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "json_parse_string",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "json_value_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "json_serialize_to_string",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "json_free_serialized_string",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse and serialize a nested Parson JSON document",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "json"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "json"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "{\"project\":\"wasm-corpus\",\"values\":[1,2,3]}\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "json_parse_string",
+          "params": [
+            {
+              "type": "i32",
+              "var": "json"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "json_serialize_to_string",
+          "params": [
+            {
+              "type": "i32",
+              "var": "value"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "serialized"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "serialized"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "{\"project\":\"wasm-corpus\",\"values\":[1,2,3]}"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "json_free_serialized_string",
+          "params": [
+            {
+              "type": "i32",
+              "var": "serialized"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "json_value_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "value"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "cf530b7e949fdca4e54b902e467290fe8cba1fa47880b4ece0e00b7bcb6be9e3",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "parson.c",
+    "url": "https://github.com/kgabis/parson/blob/ba29f4eda9ea7703a9f6a9cf2b0532a2605723c3/parson.c",
+    "description": "Parson JSON parser and serializer. Compiled from the upstream project's human-authored source at commit ba29f4eda9ea7703a9f6a9cf2b0532a2605723c3."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 parson.c ...; ./scripts/prepare"
+  },
+  "description": "Parson JSON parser and serializer.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

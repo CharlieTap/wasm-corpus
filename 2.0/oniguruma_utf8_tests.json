@@ -1,0 +1,128 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "oniguruma_utf8_tests",
+  "path": "oniguruma_utf8_tests.wasm",
+  "wat": {
+    "status": "present",
+    "path": "oniguruma_utf8_tests.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-string-processing",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 262)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream oniguruma_utf8_tests workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "oniguruma_utf8_tests"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "400ea238dfbb88a97f954cacd5f29cba56afd5717c69552bb97bc3f5264dc551",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "test/test_utf8.c",
+    "url": "https://github.com/kkos/oniguruma/blob/f95747b462de672b6f8dbdeb478245ddf061ca53/test/test_utf8.c",
+    "description": "Oniguruma UTF-8 regular-expression test suite. Compiled from the upstream project's human-authored source at commit f95747b462de672b6f8dbdeb478245ddf061ca53."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 test/test_utf8.c ...; ./scripts/prepare"
+  },
+  "description": "Oniguruma UTF-8 regular-expression test suite.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

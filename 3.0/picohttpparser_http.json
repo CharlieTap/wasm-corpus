@@ -1,0 +1,354 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "picohttpparser_http",
+  "path": "picohttpparser_http.wasm",
+  "wat": {
+    "status": "present",
+    "path": "picohttpparser_http.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "phr_parse_request",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "phr_parse_response",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "phr_parse_headers",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "phr_decode_chunked",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse a complete HTTP/1.1 request with headers",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 128 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "request"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "method"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "method_len"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "request_path"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "path_len"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "minor"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 512 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "512"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "headers"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "header_count"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "request"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "GET /search?q=wasm HTTP/1.1\r\nHost: example.com\r\nAccept: application/json\r\nX-Trace: corpus\r\n\r\n"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "header_count"
+          },
+          "value": {
+            "type": "i32",
+            "value": "16"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "phr_parse_request",
+          "params": [
+            {
+              "type": "i32",
+              "var": "request"
+            },
+            {
+              "type": "i32",
+              "value": "93"
+            },
+            {
+              "type": "i32",
+              "var": "method"
+            },
+            {
+              "type": "i32",
+              "var": "method_len"
+            },
+            {
+              "type": "i32",
+              "var": "request_path"
+            },
+            {
+              "type": "i32",
+              "var": "path_len"
+            },
+            {
+              "type": "i32",
+              "var": "minor"
+            },
+            {
+              "type": "i32",
+              "var": "headers"
+            },
+            {
+              "type": "i32",
+              "var": "header_count"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "93"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "method_len"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "3"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "path_len"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "14"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "minor"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "1"
+            }
+          }
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "header_count"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "i32",
+              "value": "3"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "9d1f2e7962842b8ebb8198cb0a39ebd65995606cba52bbbb6f7c0de3778b8bb9",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "picohttpparser.c",
+    "url": "https://github.com/h2o/picohttpparser/blob/f4d94b48b31e0abae029ebeafcfd9ca0680ede58/picohttpparser.c",
+    "description": "picohttpparser HTTP/1 parser. Compiled from the upstream project's human-authored source at commit f4d94b48b31e0abae029ebeafcfd9ca0680ede58."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call picohttpparser.c ...; ./scripts/prepare"
+  },
+  "description": "picohttpparser HTTP/1 parser.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

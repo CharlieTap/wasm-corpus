@@ -1,0 +1,280 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "cwalk_paths",
+  "path": "cwalk_paths.wasm",
+  "wat": {
+    "status": "present",
+    "path": "cwalk_paths.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-string-processing",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "cwk_path_get_relative",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "cwk_path_join",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "cwk_path_get_basename",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "cwk_path_get_dirname",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "cwk_path_get_extension",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "cwk_path_normalize",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "normalize and join nontrivial filesystem paths",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "base"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "other"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 128 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "/srv/app/../assets/./images//logo.png\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "cwk_path_normalize",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "27"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "/srv/assets/images/logo.png\u0000"
+            }
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "base"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "/srv/assets\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "other"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "images/icon.svg\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "cwk_path_join",
+          "params": [
+            {
+              "type": "i32",
+              "var": "base"
+            },
+            {
+              "type": "i32",
+              "var": "other"
+            },
+            {
+              "type": "i32",
+              "var": "output"
+            },
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "27"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "/srv/assets/images/icon.svg\u0000"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "8cb217b80bae11aade0bad7ec4e89375b2fbfc51dc1a79d6672486fcc849f242",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/cwalk.c",
+    "url": "https://github.com/likle/cwalk/blob/e98d23f68807208952c179b49e4fd1813f31298d/src/cwalk.c",
+    "description": "cwalk cross-platform path manipulation library. Compiled from the upstream project's human-authored source at commit e98d23f68807208952c179b49e4fd1813f31298d."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call src/cwalk.c ...; ./scripts/prepare"
+  },
+  "description": "cwalk cross-platform path manipulation library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

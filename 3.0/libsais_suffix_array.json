@@ -1,0 +1,183 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "libsais_suffix_array",
+  "path": "libsais_suffix_array.wasm",
+  "wat": {
+    "status": "present",
+    "path": "libsais_suffix_array.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-string-processing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "libsais",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "construct and verify a suffix array for repeated natural-language text",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the 93-byte input",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "93"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 93 suffix-array entries",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "372"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "suffix_array"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the 256-entry symbol-frequency table",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "1024"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "frequencies"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "mississippi river suffix arrays efficiently index repeated substrings in real-world text data"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "run libsais induced sorting and collect symbol frequencies",
+          "function": "libsais",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "var": "suffix_array"
+            },
+            {
+              "type": "i32",
+              "value": "93"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "var": "frequencies"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert all 93 suffix positions in lexicographic order",
+          "memory": "memory",
+          "offset": {
+            "var": "suffix_array"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "18000000580000001f000000450000002b00000048000000310000000b0000003a00000011000000530000004d0000005c0000004b000000190000005a000000360000001c0000003d000000240000003900000052000000590000002e0000004a00000035000000380000002000000026000000330000000f0000002f0000005500000021000000140000002200000015000000430000000a0000002300000025000000460000002c000000410000000700000004000000010000000d000000160000004c000000510000002900000000000000470000002d00000042000000270000004f000000340000000900000008000000100000001b0000004900000032000000400000000c000000500000001a0000001e00000044000000060000000300000005000000020000003e0000003b00000012000000570000005b0000003700000054000000280000003f0000003c000000130000000e0000004e0000001700000030000000560000002a0000001d000000"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "dd4286359523460233e0076431376b4496ab6eee1c39bb0d5f25fda5e771d76f",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/libsais.c",
+    "url": "https://github.com/IlyaGrebnov/libsais/blob/b6e52ef33fe14f9d5c14c580d162b6fd2c27f2a8/src/libsais.c",
+    "description": "libsais linear-time suffix-array construction, compiled from the upstream project's human-authored source at commit b6e52ef33fe14f9d5c14c580d162b6fd2c27f2a8."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -mexec-model=reactor -O2 -g0 -mtail-call src/libsais.c ...; ./scripts/prepare"
+  },
+  "description": "libsais induced-sorting suffix-array construction library.",
+  "notes": "The fixture is compiled directly from libsais's upstream implementation without a generated workload or wrapper program. The metadata test invokes the public suffix-array API on repeated natural-language text, requests the full frequency-table path, and verifies every output suffix position."
+}

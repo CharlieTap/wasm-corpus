@@ -1,0 +1,107 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "shoco_compression_tests",
+  "path": "shoco_compression_tests.wasm",
+  "wat": {
+    "status": "present",
+    "path": "shoco_compression_tests.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-compression",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-small"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream shoco_compression_tests workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "shoco_compression_tests"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "All tests passed.\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "79ab81017d621a2e028e8c1312d802d6311dbdd5e7c3be3a76f4cd5dbcfc2092",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "tests.c",
+    "url": "https://github.com/Ed-von-Schleck/shoco/blob/7c92fa9c4161ea97da90cc78e38cfb18476ba882/tests.c",
+    "description": "shoco short-string compression test suite. Compiled from the upstream project's human-authored source at commit 7c92fa9c4161ea97da90cc78e38cfb18476ba882."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 tests.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "shoco short-string compression test suite.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

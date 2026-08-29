@@ -1,0 +1,128 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "miniz_compression",
+  "path": "miniz_compression.wasm",
+  "wat": {
+    "status": "present",
+    "path": "miniz_compression.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-compression",
+    "duration-medium",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "args_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream miniz_compression workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "miniz_compression"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stdout": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": "miniz.c version: 11.3.2\nCompressed from 490 to 81 bytes\nDecompressed from 81 to 490 bytes\nSuccess.\n"
+              }
+            },
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "f2cf5410f6814d9c6d31ac475e81dc2a5568362528132a6c3bff3d2a0fbd17ce",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "examples/example1.c",
+    "url": "https://github.com/richgel999/miniz/blob/77d0dce8627735138c51770d1799a1ef48f2117d/examples/example1.c",
+    "description": "miniz compression round-trip example. Compiled from the upstream project's human-authored source at commit 77d0dce8627735138c51770d1799a1ef48f2117d."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 examples/example1.c ...; ./scripts/prepare"
+  },
+  "description": "miniz compression round-trip example.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

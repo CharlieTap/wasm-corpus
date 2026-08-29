@@ -1,0 +1,181 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "blake2_hash",
+  "path": "blake2_hash.wasm",
+  "wat": {
+    "status": "present",
+    "path": "blake2_hash.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "blake2b_init",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "blake2b_update",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "blake2b_final",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "blake2b",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "calculate a 512-bit BLAKE2b digest",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 3 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "blake2b",
+          "params": [
+            {
+              "type": "i32",
+              "var": "digest"
+            },
+            {
+              "type": "i32",
+              "value": "64"
+            },
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "digest"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "14d31729e5c06336aa959219bd4a3c92b4ff50c4cc41b8a5bf0d42a0ab468340",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "ref/blake2b-ref.c",
+    "url": "https://github.com/BLAKE2/BLAKE2/blob/ed1974ea83433eba7b2d95c5dcd9ac33cb847913/ref/blake2b-ref.c",
+    "description": "BLAKE2 reference implementation. Compiled from the upstream project's human-authored source at commit ed1974ea83433eba7b2d95c5dcd9ac33cb847913."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 ref/blake2b-ref.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "BLAKE2 reference implementation.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

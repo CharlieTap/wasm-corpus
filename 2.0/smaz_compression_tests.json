@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "smaz_compression_tests",
+  "path": "smaz_compression_tests.wasm",
+  "wat": {
+    "status": "present",
+    "path": "smaz_compression_tests.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-compression",
+    "duration-extra-long",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream smaz_compression_tests workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "smaz_compression_tests"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "2f7b5026cde93af31ab500fcf791145a6539328083b5819142bf1878cec03696",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "smaz.c",
+    "url": "https://github.com/antirez/smaz/blob/2f625846a775501fb69456567409a8b12f10ea25/smaz.c",
+    "description": "smaz short-string compression self-tests. Compiled from the upstream project's human-authored source at commit 2f625846a775501fb69456567409a8b12f10ea25."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 smaz.c ...; ./scripts/prepare"
+  },
+  "description": "smaz short-string compression self-tests.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

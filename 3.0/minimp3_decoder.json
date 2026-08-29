@@ -1,0 +1,216 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "minimp3_decoder",
+  "path": "minimp3_decoder.wasm",
+  "wat": {
+    "status": "present",
+    "path": "minimp3_decoder.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-audio",
+    "domain-parsing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "mp3dec_init",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "mp3dec_decode_frame",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "decode a real MPEG Layer III conformance frame",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32768 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32768"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decoder"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 576 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "576"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "frame"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 4608 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4608"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "pcm"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "info"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "frame"
+          },
+          "bytes": {
+            "encoding": "base64",
+            "value": "//ykwCQLhDQyIRESSSSSAACqqiqqoiDDj0UUlFk2FFFVlVVllWVm13+/3+973d1sbb581rWta1rWta1/v9/Pe93dbG2+fNa1rWta1rWtfz5hT3wd3WxtvnzWta1rWta1raG6RDJBVjZnkLnflE5whZR82CRPf3Ab0JQlRxcOOSqIVZCLVKkYA6C/JOa5QCwiyCYlIQoSIKKXEr6BT+InJ5WQxG7AguMFRipYQkL2ZI36IkJuW7m0oYgmWcSVCtVoQUCgk4PZnWRNv3zUta1rWsa1zH8/3+973d1sbb581rWta1rWta1/v9/ve93dbG2+fNa1rWta1rWtf7/f73vd3WxtvnzWta1rWta1rYEwAHaQgiEQzRDMiIiIREREkkkkkkkkkAAAAAK6IK4CIqACCgCICgKIKIBC0CiT1DkS1UVVkVDEmEzl012FF0j01GFWEGVWVkVmVm00FmlmmVnFEVV2VnFUVmF1EWG2HGl3VUmmGl3U3GHG2HlklmGVk2HGHHGXU2HWXE3WXXmXFWX2XFHWnX2XH+/3+/3+/3+/3+973ve973ve7u7u7uti2Ntttt8+fPnz58+fPmta1rWta1rWta1rWta1rWta1rWta1r/f7/f7/f7/f7+e973ve973vd3d3d3WxbG2222+fPnz58+fPnzWta1rWta1rWta1rWta1rWta1rWta1+v98P9/PmAPeBPc973ugx73u7O8O7rYjbbbbbfPnz58+fPnz5rWta1rWta1rWta1rWtawAA"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "mp3dec_init",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "mp3dec_decode_frame",
+          "params": [
+            {
+              "type": "i32",
+              "var": "decoder"
+            },
+            {
+              "type": "i32",
+              "var": "frame"
+            },
+            {
+              "type": "i32",
+              "value": "576"
+            },
+            {
+              "type": "i32",
+              "var": "pcm"
+            },
+            {
+              "type": "i32",
+              "var": "info"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "assert that the complete 576-byte frame was consumed",
+          "memory": "memory",
+          "offset": {
+            "var": "info"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "40020000"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "e9da98b9eb0bee276de0d003061b23ad2674f35252a3f082ace8d7d21b0fa153",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "minimp3.h",
+    "url": "https://github.com/lieff/minimp3/blob/ea99364f61c14656440e8d77e9c233ccf3124633/minimp3.h",
+    "description": "minimp3 MPEG audio decoder. Compiled from the upstream project's human-authored source at commit ea99364f61c14656440e8d77e9c233ccf3124633."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call minimp3.h ...; ./scripts/prepare"
+  },
+  "description": "minimp3 MPEG audio decoder.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

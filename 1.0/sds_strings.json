@@ -1,0 +1,217 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "sds_strings",
+  "path": "sds_strings.wasm",
+  "wat": {
+    "status": "present",
+    "path": "sds_strings.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-string-processing",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sdsnewlen",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sdsnew",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "sdsfree",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "sdscatlen",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "sdscat",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "sdsrange",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    },
+    {
+      "name": "sdscmp",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "construct and concatenate an SDS dynamic string",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 13 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "13"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "first"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 8 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "second"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "first"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "WebAssembly\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "second"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": " corpus\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "sdsnew",
+          "params": [
+            {
+              "type": "i32",
+              "var": "first"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "sds"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "sdscat",
+          "params": [
+            {
+              "type": "i32",
+              "var": "sds"
+            },
+            {
+              "type": "i32",
+              "var": "second"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "joined"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "joined"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "WebAssembly corpus"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "sdsfree",
+          "params": [
+            {
+              "type": "i32",
+              "var": "joined"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "2db7e10720f0db6be0900115460821590c08e817f7c6be5fc2b1dcc2e6aa0431",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "sds.c",
+    "url": "https://github.com/antirez/sds/blob/5347739b1581fcba74fd5cab1fc21d2aef317d71/sds.c",
+    "description": "Simple Dynamic Strings library used by Redis and other projects. Compiled from the upstream project's human-authored source at commit 5347739b1581fcba74fd5cab1fc21d2aef317d71."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 sds.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "Simple Dynamic Strings library used by Redis and other projects.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

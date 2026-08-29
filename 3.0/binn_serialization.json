@@ -1,0 +1,380 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "binn_serialization",
+  "path": "binn_serialization.wasm",
+  "wat": {
+    "status": "present",
+    "path": "binn_serialization.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-serialization",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "binn_object",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "binn_free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "binn_size",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "binn_count",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "binn_object_set",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "binn_object_int32",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "name": "binn_object_str",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "serialize and retrieve typed fields in a binn object",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "create a mutable binn object",
+          "function": "binn_object",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "object"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the id key",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "id_key"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the name key",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "name_key"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate an integer value",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "id_value"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a string value",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "15"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "name_value"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "id_key"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "id\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "name_key"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "name\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "id_value"
+          },
+          "value": {
+            "type": "i32",
+            "value": "123456"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "name_value"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Samsung Galaxy\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode an INT32 field",
+          "function": "binn_object_set",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            },
+            {
+              "type": "i32",
+              "var": "id_key"
+            },
+            {
+              "type": "i32",
+              "value": "97"
+            },
+            {
+              "type": "i32",
+              "var": "id_value"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "encode a STRING field",
+          "function": "binn_object_set",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            },
+            {
+              "type": "i32",
+              "var": "name_key"
+            },
+            {
+              "type": "i32",
+              "value": "160"
+            },
+            {
+              "type": "i32",
+              "var": "name_value"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "verify the object contains both typed fields",
+          "function": "binn_count",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "decode the INT32 field by key",
+          "function": "binn_object_int32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            },
+            {
+              "type": "i32",
+              "var": "id_key"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "123456"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the decoded STRING payload",
+          "function": "binn_object_str",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            },
+            {
+              "type": "i32",
+              "var": "name_key"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "decoded_name"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "description": "verify the decoded string bytes",
+          "memory": "memory",
+          "offset": {
+            "var": "decoded_name"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "Samsung Galaxy"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "release the encoded object and its backing buffer",
+          "function": "binn_free",
+          "params": [
+            {
+              "type": "i32",
+              "var": "object"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "bca4a1c316580acd71f0d527d02b7090bf69a1318f2e3144941bf7e2260d1fa6",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/binn.c",
+    "url": "https://github.com/liteserver/binn/blob/301e7ad7670736f7f2623cc1b73adcbc91f7cc68/src/binn.c",
+    "description": "binn's compact binary object serialization implementation, compiled from the upstream project's human-authored source at commit 301e7ad7670736f7f2623cc1b73adcbc91f7cc68."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -mexec-model=reactor -O2 -g0 -mtail-call src/binn.c ...; ./scripts/prepare"
+  },
+  "description": "binn compact binary object serialization library.",
+  "notes": "The fixture is compiled directly from binn's upstream implementation without a generated workload or wrapper program. The metadata test builds a two-field typed object through the generic serializer, checks its count, decodes both integer and string fields by key, verifies the serialized data, and releases the object."
+}

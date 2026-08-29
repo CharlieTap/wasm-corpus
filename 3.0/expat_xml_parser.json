@@ -1,0 +1,322 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "expat_xml_parser",
+  "path": "expat_xml_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "expat_xml_parser.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "host-wasi-preview1",
+    "size-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "environ_sizes_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "XML_ParserCreate",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "XML_ParserFree",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "XML_Parse",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "XML_GetErrorCode",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "XML_ErrorString",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "validate well-formed and malformed XML documents",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "valid"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 64 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "64"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "invalid"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "valid"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<root><item id=\"7\">wasm</item></root>"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "invalid"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<root><item></root>"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_ParserCreate",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "parser1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_Parse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "parser1"
+            },
+            {
+              "type": "i32",
+              "var": "valid"
+            },
+            {
+              "type": "i32",
+              "value": "37"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_ParserFree",
+          "params": [
+            {
+              "type": "i32",
+              "var": "parser1"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_ParserCreate",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "parser2"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_Parse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "parser2"
+            },
+            {
+              "type": "i32",
+              "var": "invalid"
+            },
+            {
+              "type": "i32",
+              "value": "19"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_GetErrorCode",
+          "params": [
+            {
+              "type": "i32",
+              "var": "parser2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XML_ParserFree",
+          "params": [
+            {
+              "type": "i32",
+              "var": "parser2"
+            }
+          ],
+          "results": []
+        }
+      ],
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "expat_xml_parser"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      }
+    }
+  ],
+  "sha256": "a2cd55bae0a17e95f9394d6c1c22dd99090203b8507fca72a670ee1032985f65",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "expat/lib/xmlparse.c",
+    "url": "https://github.com/libexpat/libexpat/blob/6f55e4693138eba30a4e036119426ed9141ec50b/expat/lib/xmlparse.c",
+    "description": "Expat streaming XML parser. Compiled from the upstream project's human-authored source at commit 6f55e4693138eba30a4e036119426ed9141ec50b."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call expat/lib/xmlparse.c ...; ./scripts/prepare"
+  },
+  "description": "Expat streaming XML parser.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

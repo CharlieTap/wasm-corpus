@@ -1,0 +1,257 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "wren_vm",
+  "path": "wren_vm.wasm",
+  "wat": {
+    "status": "present",
+    "path": "wren_vm.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "duration-short",
+    "host-wasi-preview1",
+    "size-large"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "clock_time_get",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32) (result i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "wrenInterpret",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "wrenCollectGarbage",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "wrenInitConfiguration",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "wrenNewVM",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "wrenFreeVM",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compile and execute classes, ranges, loops, and arithmetic in the Wren VM",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate 512 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "512"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "config"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 16 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "module"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "source"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "module"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "fixture\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "source"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "class Accumulator {\n construct new() { _sum = 0 }\n add(n) { _sum = _sum + n }\n value { _sum }\n}\nvar a = Accumulator.new()\nfor (i in 1..100) { a.add(i) }\nif (a.value != 5050) { Fiber.abort(\"bad sum\") }\n\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "wrenInitConfiguration",
+          "params": [
+            {
+              "type": "i32",
+              "var": "config"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "wrenNewVM",
+          "params": [
+            {
+              "type": "i32",
+              "var": "config"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "vm"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "wrenInterpret",
+          "params": [
+            {
+              "type": "i32",
+              "var": "vm"
+            },
+            {
+              "type": "i32",
+              "var": "module"
+            },
+            {
+              "type": "i32",
+              "var": "source"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "wrenCollectGarbage",
+          "params": [
+            {
+              "type": "i32",
+              "var": "vm"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "function": "wrenFreeVM",
+          "params": [
+            {
+              "type": "i32",
+              "var": "vm"
+            }
+          ],
+          "results": []
+        }
+      ],
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "wren_vm"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      }
+    }
+  ],
+  "sha256": "da8f9d555e71a9d229b12ba44c94e73f798a5497aa6da1a4a076b65e5b5f5d49",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/vm/wren_vm.c",
+    "url": "https://github.com/wren-lang/wren/blob/99d2f0b8fc2686134b32b18166e037639f7e9f2c/src/vm/wren_vm.c",
+    "description": "Wren language bytecode virtual machine. Compiled from the upstream project's human-authored source at commit 99d2f0b8fc2686134b32b18166e037639f7e9f2c."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call src/vm/wren_vm.c ...; ./scripts/prepare"
+  },
+  "description": "Wren language bytecode virtual machine.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

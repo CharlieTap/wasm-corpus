@@ -1,0 +1,248 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "nanosvg_parser",
+  "path": "nanosvg_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "nanosvg_parser.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-geometry",
+    "domain-image-processing",
+    "domain-parsing",
+    "duration-short",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_close",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_set_flags",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_prestat_dir_name",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_read",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "path_open",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32 i64 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "nsvgParse",
+      "kind": "function",
+      "type": "(func (param i32 i32 f32) (result i32))"
+    },
+    {
+      "name": "nsvgDelete",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "nsvgParseFromFile",
+      "kind": "function",
+      "type": "(func (param i32 i32 f32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse paths, gradients, and transforms from an SVG document",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "svg"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 8 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "units"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "svg"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<svg width=\"120\" height=\"80\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"g\"><stop stop-color=\"#f00\"/><stop offset=\"1\" stop-color=\"#00f\"/></linearGradient></defs><path fill=\"url(#g)\" transform=\"translate(5 7)\" d=\"M0 0L100 0L50 60Z\"/></svg>\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "units"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "px\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "nsvgParse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "svg"
+            },
+            {
+              "type": "i32",
+              "var": "units"
+            },
+            {
+              "type": "f32",
+              "value": "96"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "image"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "nsvgDelete",
+          "params": [
+            {
+              "type": "i32",
+              "var": "image"
+            }
+          ],
+          "results": []
+        }
+      ],
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "nanosvg_parser"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      }
+    }
+  ],
+  "sha256": "7295d25c904007db94c0243d1ef59c770ec408169cfbad9572ca44751094ef1e",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/nanosvg.h",
+    "url": "https://github.com/memononen/nanosvg/blob/239e102ec2c691f2902e20ace2ed36ee4a35cfe6/src/nanosvg.h",
+    "description": "NanoSVG vector image parser. Compiled from the upstream project's human-authored source at commit 239e102ec2c691f2902e20ace2ed36ee4a35cfe6."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call src/nanosvg.h ...; ./scripts/prepare"
+  },
+  "description": "NanoSVG vector image parser.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

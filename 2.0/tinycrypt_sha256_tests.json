@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "tinycrypt_sha256_tests",
+  "path": "tinycrypt_sha256_tests.wasm",
+  "wat": {
+    "status": "present",
+    "path": "tinycrypt_sha256_tests.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-cryptography",
+    "domain-hashing",
+    "duration-extra-long",
+    "host-wasi-preview1",
+    "size-medium"
+  ],
+  "imports": [
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_fdstat_get",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_seek",
+      "kind": "function",
+      "type": "(func (param i32 i64 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "fd_write",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "module": "wasi_snapshot_preview1",
+      "name": "proc_exit",
+      "kind": "function",
+      "type": "(func (param i32))"
+    }
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_start",
+      "kind": "function",
+      "type": "(func)"
+    }
+  ],
+  "tests": [
+    {
+      "description": "run the upstream tinycrypt_sha256_tests workload",
+      "host": {
+        "wasi_preview_1": {
+          "command_args": [
+            "tinycrypt_sha256_tests"
+          ],
+          "system_env": {},
+          "preopened_directories": {},
+          "stdin": {
+            "encoding": "utf8",
+            "value": ""
+          }
+        }
+      },
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "execute the complete upstream command",
+          "function": "_start",
+          "params": [],
+          "results": [],
+          "host_effects": {
+            "exit_code": 0,
+            "stderr": {
+              "type": "bytes",
+              "bytes": {
+                "encoding": "utf8",
+                "value": ""
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "4117f5e1db573aa6f77b389dd626f4b51a0dacc1eff494bcd66d164fbd680706",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "tests/test_sha256.c",
+    "url": "https://github.com/intel/tinycrypt/blob/cf24c907a61c01bc2c4e1ee0ae24457c27a840a2/tests/test_sha256.c",
+    "description": "TinyCrypt NIST SHA-256 test suite. Compiled from the upstream project's human-authored source at commit cf24c907a61c01bc2c4e1ee0ae24457c27a840a2."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 tests/test_sha256.c ...; ./scripts/prepare"
+  },
+  "description": "TinyCrypt NIST SHA-256 test suite.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

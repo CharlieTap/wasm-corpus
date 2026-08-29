@@ -1,0 +1,294 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "mjson_parser",
+  "path": "mjson_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "mjson_parser.wat"
+  },
+  "features": [
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-parsing",
+    "domain-serialization",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "mjson_find",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "mjson_get_number",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "mjson_get_bool",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "mjson_get_string",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "extract a nested number and decoded string from JSON",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 48 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "48"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "json"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 16 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "path_num"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 16 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "path_str"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 8 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "8"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "number"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 32 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "text"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "json"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "{\"metrics\":{\"value\":1200},\"name\":\"wasm\"}\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "path_num"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "$.metrics.value\u0000"
+          }
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "path_str"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "$.name\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "mjson_get_number",
+          "params": [
+            {
+              "type": "i32",
+              "var": "json"
+            },
+            {
+              "type": "i32",
+              "value": "45"
+            },
+            {
+              "type": "i32",
+              "var": "path_num"
+            },
+            {
+              "type": "i32",
+              "var": "number"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "number"
+          },
+          "assert": {
+            "type": "value",
+            "value": {
+              "type": "f64",
+              "value": "4652992471259676672"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "mjson_get_string",
+          "params": [
+            {
+              "type": "i32",
+              "var": "json"
+            },
+            {
+              "type": "i32",
+              "value": "45"
+            },
+            {
+              "type": "i32",
+              "var": "path_str"
+            },
+            {
+              "type": "i32",
+              "var": "text"
+            },
+            {
+              "type": "i32",
+              "value": "32"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "text"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "wasm"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "68209f19e6e3da85678d64363d12af4b9d5f6f1de53084ed3c997b7b04c8500f",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/mjson.c",
+    "url": "https://github.com/cesanta/mjson/blob/696969cd0d35399cc66075f5ec7a96e23ba4a89b/src/mjson.c",
+    "description": "mjson embedded JSON and JSON-RPC library. Compiled from the upstream project's human-authored source at commit 696969cd0d35399cc66075f5ec7a96e23ba4a89b."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 src/mjson.c ...; ./scripts/prepare"
+  },
+  "description": "mjson embedded JSON and JSON-RPC library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

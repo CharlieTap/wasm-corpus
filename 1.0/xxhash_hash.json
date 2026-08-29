@@ -1,0 +1,307 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "xxhash_hash",
+  "path": "xxhash_hash.wasm",
+  "wat": {
+    "status": "present",
+    "path": "xxhash_hash.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-hashing",
+    "duration-short",
+    "size-medium"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "XXH32",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "XXH64",
+      "kind": "function",
+      "type": "(func (param i32 i32 i64) (result i64))"
+    },
+    {
+      "name": "XXH3_64bits",
+      "kind": "function",
+      "type": "(func (param i32 i32) (result i64))"
+    },
+    {
+      "name": "XXH3_128bits",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "calculate XXH32 and XXH64 digests for abc",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 3 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "abc"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "852579327"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH64",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "4952883123889572249"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate a 320-byte input that crosses the block-processing thresholds",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "320"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "long_input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate the 128-bit digest structure",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "16"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "digest128"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "long_input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH32",
+          "params": [
+            {
+              "type": "i32",
+              "var": "long_input"
+            },
+            {
+              "type": "i32",
+              "value": "320"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-745137671"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH64",
+          "params": [
+            {
+              "type": "i32",
+              "var": "long_input"
+            },
+            {
+              "type": "i32",
+              "value": "320"
+            },
+            {
+              "type": "i64",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "-7831397480404470290"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH3_64bits",
+          "params": [
+            {
+              "type": "i32",
+              "var": "long_input"
+            },
+            {
+              "type": "i32",
+              "value": "320"
+            }
+          ],
+          "results": [
+            {
+              "type": "i64",
+              "value": "-8901716471304722395"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "XXH3_128bits",
+          "params": [
+            {
+              "type": "i32",
+              "var": "digest128"
+            },
+            {
+              "type": "i32",
+              "var": "long_input"
+            },
+            {
+              "type": "i32",
+              "value": "320"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "digest128"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "hex",
+              "value": "2568a35c08c076849c3a5bf7205d8c1c"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "0856760d87e5fbe1616b4eec06df474516afb14db224a8666e2ec9ac58bbf096",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "xxhash.c",
+    "url": "https://github.com/Cyan4973/xxHash/blob/c0b5ea995d66691734b1a79ad89e73a0d2fd5a53/xxhash.c",
+    "description": "xxHash non-cryptographic hash library. Compiled from the upstream project's human-authored source at commit c0b5ea995d66691734b1a79ad89e73a0d2fd5a53."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 xxhash.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "xxHash non-cryptographic hash library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream library implementation itself. The metadata test checks the short-input paths and a 320-byte input that crosses the XXH32/XXH64 stripe loops and XXH3 long-input threshold, covering all four exported algorithms. The expected long-input digests were independently verified with the upstream xxhsum CLI."
+}

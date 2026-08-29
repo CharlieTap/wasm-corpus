@@ -1,0 +1,129 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "gumbo_html_parser",
+  "path": "gumbo_html_parser.wasm",
+  "wat": {
+    "status": "present",
+    "path": "gumbo_html_parser.wat"
+  },
+  "features": [
+    "bulk-memory",
+    "sign-extensions",
+    "tail-call"
+  ],
+  "tags": [
+    "domain-parsing",
+    "duration-short",
+    "size-large"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 260)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "gumbo_parse",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "gumbo_parse_with_options",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "gumbo_destroy_output",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "parse a malformed HTML fragment with Gumbo's HTML5 recovery algorithm",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 128 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "128"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "html"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "html"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "<!doctype html><title>Corpus</title><ul><li>one<li>two</ul><p><b>bold<i>nested</b> text</i>\u0000"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "gumbo_parse",
+          "params": [
+            {
+              "type": "i32",
+              "var": "html"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output"
+            }
+          ]
+        }
+      ],
+      "notes": "The returned GumboOutput pointer is consumed as proof that tokenization, tree construction, and HTML5 error recovery completed without failure."
+    }
+  ],
+  "sha256": "ad279cbd0ea44037d5407f9b765c9a1fc537fa049daa7b1b4c727e4053297ceb",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "src/parser.c",
+    "url": "https://github.com/google/gumbo-parser/blob/6fd66040a8eecdb1359a6de221f3f9325cf52ba6/src/parser.c",
+    "description": "Gumbo HTML5 parser. Compiled from the upstream project's human-authored source at commit 6fd66040a8eecdb1359a6de221f3f9325cf52ba6."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 -mtail-call src/parser.c ...; ./scripts/prepare"
+  },
+  "description": "Gumbo HTML5 parser.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}

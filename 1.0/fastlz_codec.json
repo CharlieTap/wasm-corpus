@@ -1,0 +1,208 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "fastlz_codec",
+  "path": "fastlz_codec.wasm",
+  "wat": {
+    "status": "present",
+    "path": "fastlz_codec.wat"
+  },
+  "features": [],
+  "tags": [
+    "domain-compression",
+    "duration-short",
+    "size-small"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 257)"
+    },
+    {
+      "name": "_initialize",
+      "kind": "function",
+      "type": "(func)"
+    },
+    {
+      "name": "malloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "free",
+      "kind": "function",
+      "type": "(func (param i32))"
+    },
+    {
+      "name": "fastlz_compress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "fastlz_decompress",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "fastlz_compress_level",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32 i32) (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "compress and decompress a repeated text buffer with FastLZ",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "function": "_initialize",
+          "params": [],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 55 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate 256 bytes",
+          "function": "malloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "restored"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "WebAssembly corpus compression compression compression!"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "function": "fastlz_compress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input"
+            },
+            {
+              "type": "i32",
+              "value": "55"
+            },
+            {
+              "type": "i32",
+              "var": "compressed"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "compressed_len"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "function": "fastlz_decompress",
+          "params": [
+            {
+              "type": "i32",
+              "var": "compressed"
+            },
+            {
+              "type": "i32",
+              "var": "compressed_len"
+            },
+            {
+              "type": "i32",
+              "var": "restored"
+            },
+            {
+              "type": "i32",
+              "value": "256"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "55"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "restored"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "WebAssembly corpus compression compression compression!"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "sha256": "18809d30a9d0c812fa84a6f2f93444fd853564e9b7ffb21aad4e48be1cd8bb3d",
+  "source": {
+    "contributor": "human",
+    "language": "c",
+    "path": "fastlz.c",
+    "url": "https://github.com/ariya/FastLZ/blob/b1342dabcf5257ab303743c9332fe75e9147a011/fastlz.c",
+    "description": "FastLZ lossless compression library. Compiled from the upstream project's human-authored source at commit b1342dabcf5257ab303743c9332fe75e9147a011."
+  },
+  "toolchain": {
+    "name": "Zig/LLVM + Binaryen",
+    "version": "zig 0.16.0; wasm-opt version 131",
+    "command": "zig cc -target wasm32-wasi -O2 -g0 fastlz.c ...; wasm-opt --llvm-memory-copy-fill-lowering --signext-lowering --llvm-nontrapping-fptoint-lowering -O2; ./scripts/prepare"
+  },
+  "description": "FastLZ lossless compression library.",
+  "notes": "The fixture contains no generated workload or wrapper program: it is the upstream command/test source or library implementation itself. The metadata test drives the project's public API with representative data. Build-only configuration selects WASI-compatible facilities and does not replace project behavior."
+}
