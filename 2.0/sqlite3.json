@@ -1,6 +1,7 @@
 {
   "$schema": "../schema/fixture.schema.json",
   "name": "sqlite3",
+  "description": "SQLite 3.53.0 WebAssembly build from @sqlite.org/sqlite-wasm, exposing the SQLite C API with Emscripten-imported memory re-exported as memory for WASI Preview 1.",
   "path": "sqlite3.wasm",
   "wat": {
     "status": "present",
@@ -253,10 +254,16 @@
       "name": "memory",
       "kind": "memory",
       "type": "(memory 128 32768)",
-      "description": "Emscripten linear memory imported by the SQLite module; tests address it as env.memory."
+      "description": "Emscripten linear memory imported by the SQLite module and re-exported as memory for WASI Preview 1."
     }
   ],
   "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 128 32768)",
+      "description": "WASI Preview 1-compatible export of the imported env.memory."
+    },
     {
       "name": "__wasm_call_ctors",
       "kind": "function",
@@ -1667,7 +1674,7 @@
         {
           "type": "memory.write",
           "description": "write complete SQL",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "complete_sql"
           },
@@ -1725,7 +1732,7 @@
         {
           "type": "memory.write",
           "description": "write incomplete SQL",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "incomplete_sql"
           },
@@ -1799,7 +1806,7 @@
         {
           "type": "memory.write",
           "description": "write SELECT keyword",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "select_word"
           },
@@ -1861,7 +1868,7 @@
         {
           "type": "memory.write",
           "description": "write non-keyword",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "ordinary_word"
           },
@@ -1939,7 +1946,7 @@
         {
           "type": "memory.write",
           "description": "write LIKE pattern",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "like_pattern"
           },
@@ -1968,7 +1975,7 @@
         {
           "type": "memory.write",
           "description": "write abc text",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "abc_text"
           },
@@ -2022,7 +2029,7 @@
         {
           "type": "memory.write",
           "description": "write ac text",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "ac_text"
           },
@@ -2076,7 +2083,7 @@
         {
           "type": "memory.write",
           "description": "write GLOB pattern",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "glob_pattern"
           },
@@ -2191,7 +2198,7 @@
         {
           "type": "memory.write",
           "description": "write in-memory database filename",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "filename"
           },
@@ -2220,7 +2227,7 @@
         {
           "type": "memory.write",
           "description": "clear sqlite3 pointer output slot",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "db_out"
           },
@@ -2253,7 +2260,7 @@
         {
           "type": "memory.read",
           "description": "capture sqlite3 pointer",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "db_out"
           },
@@ -2282,7 +2289,7 @@
         {
           "type": "memory.write",
           "description": "write SELECT SQL",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "sql"
           },
@@ -2311,7 +2318,7 @@
         {
           "type": "memory.write",
           "description": "clear statement pointer output slot",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "stmt_out"
           },
@@ -2356,7 +2363,7 @@
         {
           "type": "memory.read",
           "description": "capture statement pointer",
-          "memory": "env.memory",
+          "memory": "memory",
           "offset": {
             "var": "stmt_out"
           },
@@ -2505,7 +2512,7 @@
       ]
     }
   ],
-  "sha256": "803a6702e8af5a949b7abf24730ffaf3149d9d668a759b9e573a5eee70d1ecd3",
+  "sha256": "5f2e2e99a700f408fb3c0f8324a146cbe92a764803ab8f9aad28b0aeab6df986",
   "source": {
     "contributor": "human",
     "language": "c",
@@ -2514,9 +2521,8 @@
   },
   "toolchain": {
     "name": "Binaryen",
-    "version": "wasm-opt version 125",
+    "version": "wasm-opt version 131",
     "command": "./scripts/prepare"
   },
-  "description": "SQLite 3.53.0 WebAssembly build from @sqlite.org/sqlite-wasm, exposing the SQLite C API with imported Emscripten memory.",
-  "notes": "This fixture uses the official @sqlite.org/sqlite-wasm package binary rather than a synthetic SQLite-like wrapper. The tests exercise direct SQLite C API exports, imported env.memory writes, pointer-out reads, a real in-memory SELECT query, SQL statement completeness parsing, keyword lookup, and SQLite LIKE/GLOB helpers without relying on JavaScript glue. The Emscripten openat import is stubbed to report ENOENT for filesystem probes, which still allows SQLite :memory: databases to work."
+  "notes": "This fixture uses the official @sqlite.org/sqlite-wasm package binary rather than a synthetic SQLite-like wrapper. Its Emscripten-imported linear memory is also exported as memory for the WASI Preview 1 host contract. The tests exercise direct SQLite C API exports, exported-memory writes, pointer-out reads, a real in-memory SELECT query, SQL statement completeness parsing, keyword lookup, and SQLite LIKE/GLOB helpers without relying on JavaScript glue. The Emscripten openat import is stubbed to report ENOENT for filesystem probes, which still allows SQLite :memory: databases to work."
 }

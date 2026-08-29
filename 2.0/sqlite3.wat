@@ -130,6 +130,7 @@
   (import "env" "memory" (memory (;0;) 128 32768))
   (table (;0;) 634 funcref)
   (global (;0;) (mut i32) i32.const 787424)
+  (export "memory" (memory 0))
   (export "__wasm_call_ctors" (func 35))
   (export "sqlite3_status64" (func 37))
   (export "sqlite3_status" (func 40))
