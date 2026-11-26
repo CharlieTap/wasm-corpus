@@ -1,0 +1,1114 @@
+{
+  "$schema": "../schema/fixture.schema.json",
+  "name": "harper_grammar",
+  "description": "Harper English grammar checker (harper-core 3.0.0) behind a minimal pointer-and-length ABI with no imports.",
+  "path": "harper_grammar.wasm",
+  "wat": {
+    "status": "too_large_for_corpus",
+    "generated_size": 129711426,
+    "limit": 67108864,
+    "tool": "wasm-tools print"
+  },
+  "features": [
+    "bulk-memory",
+    "saturated-float-to-int",
+    "sign-extensions"
+  ],
+  "tags": [
+    "domain-string-processing",
+    "duration-extra-long",
+    "size-extra-large"
+  ],
+  "exports": [
+    {
+      "name": "memory",
+      "kind": "memory",
+      "type": "(memory 74)"
+    },
+    {
+      "name": "alloc",
+      "kind": "function",
+      "type": "(func (param i32) (result i32))"
+    },
+    {
+      "name": "dealloc",
+      "kind": "function",
+      "type": "(func (param i32 i32))"
+    },
+    {
+      "name": "lint",
+      "kind": "function",
+      "type": "(func (param i32 i32 i32) (result i32))"
+    },
+    {
+      "name": "output_len",
+      "kind": "function",
+      "type": "(func (result i32))"
+    },
+    {
+      "name": "output_ptr",
+      "kind": "function",
+      "type": "(func (result i32))"
+    }
+  ],
+  "tests": [
+    {
+      "description": "flag subject-verb agreement and the indefinite article in American English",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "I has a apple."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "154"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the report",
+          "function": "output_ptr",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output_0"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "2-5 Agreement: The form of the verb must agree in grammatical number with the pronoun. => \"have\"\n6-7 Miscellaneous: Incorrect indefinite article. => \"an\"\n"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "lint a paragraph with a homophone, a misspelling, and repeated words",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "89"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "Their going to the store tomorow. This is is a test of the the checker, and it work well."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "89"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "369"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the report",
+          "function": "output_ptr",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output_0"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "0-5 Grammar: Did you mean `they're`? => \"They're\" | \"They're \"\n25-32 Spelling: Did you mean to spell `tomorow` this way? => \"tomorrow\" | \"tomorrows\" | \"Comoros\"\n39-44 Repetition: Did you mean to repeat this word? => \"is\"\n41-44 Grammar: Drop the repeated verb form so only one instance of `be` remains. => \"\"\n55-62 Repetition: Did you mean to repeat this word? => \"the\"\n"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "89"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "count chars, not UTF-8 bytes, in spans after non-ASCII text",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "73"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The café’s new menu were great, and we was happy to try it’s dishes."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "73"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "65"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the report",
+          "function": "output_ptr",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output_0"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "39-42 Agreement: Make the verb agree with its subject. => \"were\"\n"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "73"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "flag a sentence over the length limit as a whole",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "310"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "In the end, after a great deal of thought and many long conversations with friends and family members who had all been through something similar at one point or another in their lives, she decided that she would take the job in the city even though it meant leaving behind almost everything she had ever known."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "310"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "51"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the report",
+          "function": "output_ptr",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output_0"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "0-310 Readability: This sentence is 56 words long.\n"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "310"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "switch dialects in one instance: British spellings pass under British English, then fail under American",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "33"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The colour of the centre is grey."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as British",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "33"
+            },
+            {
+              "type": "i32",
+              "value": "1"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "33"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "33"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_1"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_1"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The colour of the centre is grey."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American, rebuilding the linter",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "33"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "263"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "locate the report",
+          "function": "output_ptr",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "output_1"
+            }
+          ]
+        },
+        {
+          "type": "memory.read",
+          "memory": "memory",
+          "offset": {
+            "var": "output_1"
+          },
+          "assert": {
+            "type": "bytes",
+            "bytes": {
+              "encoding": "utf8",
+              "value": "4-10 Spelling: Did you mean to spell `colour` this way? => \"color\" | \"cloud\" | \"collar\"\n18-24 Spelling: Did you mean to spell `centre` this way? => \"center\" | \"cent's\" | \"censure\"\n28-32 Spelling: Did you mean to spell `grey` this way? => \"gray\" | \"grew\" | \"grep\"\n"
+            }
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "33"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "60"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_2"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_2"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "We realise the organisation’s programme starts on the 3rd."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as Australian",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_2"
+            },
+            {
+              "type": "i32",
+              "value": "60"
+            },
+            {
+              "type": "i32",
+              "value": "2"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_2"
+            },
+            {
+              "type": "i32",
+              "value": "60"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "report nothing for clean text and for empty input",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "44"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "The quick brown fox jumps over the lazy dog."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as Canadian",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "44"
+            },
+            {
+              "type": "i32",
+              "value": "3"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "44"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as Indian",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": []
+        }
+      ]
+    },
+    {
+      "description": "reject invalid UTF-8 and an unknown dialect without linting",
+      "steps": [
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_0"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_0"
+          },
+          "bytes": {
+            "encoding": "hex",
+            "value": "4920ff61"
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as American",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            },
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-1"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_0"
+            },
+            {
+              "type": "i32",
+              "value": "4"
+            }
+          ],
+          "results": []
+        },
+        {
+          "type": "function.invoke",
+          "description": "allocate input",
+          "function": "alloc",
+          "params": [
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "capture": "input_1"
+            }
+          ]
+        },
+        {
+          "type": "memory.write",
+          "memory": "memory",
+          "offset": {
+            "var": "input_1"
+          },
+          "bytes": {
+            "encoding": "utf8",
+            "value": "I has a apple."
+          }
+        },
+        {
+          "type": "function.invoke",
+          "description": "lint as an unknown dialect",
+          "function": "lint",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            },
+            {
+              "type": "i32",
+              "value": "9"
+            }
+          ],
+          "results": [
+            {
+              "type": "i32",
+              "value": "-2"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "report length",
+          "function": "output_len",
+          "params": [],
+          "results": [
+            {
+              "type": "i32",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "type": "function.invoke",
+          "description": "free input",
+          "function": "dealloc",
+          "params": [
+            {
+              "type": "i32",
+              "var": "input_1"
+            },
+            {
+              "type": "i32",
+              "value": "14"
+            }
+          ],
+          "results": []
+        }
+      ]
+    }
+  ],
+  "sha256": "092ff46f619ba9157ca8ff5345d8524f7fe8d26b2a9523b5ba2563bf4743bec5",
+  "source": {
+    "contributor": "ai",
+    "language": "rust",
+    "url": "https://crates.io/crates/harper-core/3.0.0",
+    "description": "harper-core 3.0.0 (Apache-2.0) compiled for wasm32-unknown-unknown with a small Rust wrapper exporting alloc, dealloc, lint, output_ptr, and output_len. The wrapper replaces getrandom with a fixed xorshift stream so output is deterministic; wasm-bindgen exports and imports pulled in by dependencies were removed with wasm-metadce."
+  },
+  "toolchain": {
+    "name": "Binaryen",
+    "version": "wasm-opt version 133 (version_133)",
+    "command": "./scripts/prepare"
+  },
+  "notes": "lint(ptr, len, dialect) checks UTF-8 text and returns the lint count, -1 for invalid UTF-8, or -2 for an unknown dialect (0 American, 1 British, 2 Australian, 3 Canadian, 4 Indian). The report of the last call sits at output_ptr()/output_len(): one line per lint, char-offset span, kind, message, and quoted suggestions. The first lint in an instance builds the curated dictionary and rule set, which dominates the run time; later calls take milliseconds. Disassembled WAT is about 130 MB, so none is committed."
+}
